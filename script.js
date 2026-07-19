@@ -1338,9 +1338,8 @@ document.addEventListener(
 // ==========================================================================
 
 
-
 // ==========================================
-// GENERATE RECEIPT
+// GENERATE RECEIPT BUTTON
 // ==========================================
 
 const generateReceiptBtn =
@@ -1361,163 +1360,148 @@ if (generateReceiptBtn) {
 
 function generateReceipt() {
 
-    /*
-    ==========================================
-        READ FORM VALUES
-    ==========================================
-    */
+    try {
 
-    const customerName =
-        document.getElementById(
-            "customerName"
-        ).value;
+        /*
+        ==========================================
+            GENERATE PAVTI NUMBER
+        ==========================================
+        */
 
-
-    const village =
-        document.getElementById(
-            "village"
-        ).value;
-
-
-    const taluka =
-        document.getElementById(
-            "taluka"
-        ).value;
+        const billNo =
+            document
+                .getElementById(
+                    "billNo"
+                )
+                .value
+                .trim();
 
 
-    const district =
-        document.getElementById(
-            "district"
-        ).value;
+        const billDate =
+            document
+                .getElementById(
+                    "billDate"
+                )
+                .value;
 
 
-    const mobileNumber =
-        document.getElementById(
-            "mobileNumber"
-        ).value;
+        const customerName =
+            document
+                .getElementById(
+                    "customerName"
+                )
+                .value
+                .trim();
 
 
-    const billNo =
-        document.getElementById(
-            "billNo"
-        ).value;
+        if (!billNo) {
+
+            alert(
+                "Please enter Bill Number first."
+            );
+
+            return;
+
+        }
 
 
-    const billDate =
-        document.getElementById(
-            "billDate"
-        ).value;
+        if (!customerName) {
+
+            alert(
+                "Please enter Customer Name first."
+            );
+
+            return;
+
+        }
 
 
-    const amountWords =
-        document.getElementById(
-            "numberToGujaratiWords"
-        ).value;
+        /*
+        ==========================================
+            CREATE RECEIPT NUMBER
+        ==========================================
+        */
+
+        const receiptNumber =
+            "P-" + billNo;
 
 
-    const grandTotal =
-        document.getElementById(
-            "grandTotal"
-        ).value;
+        /*
+        ==========================================
+            SET DUPLICATE RECEIPT DETAILS
+        ==========================================
+        */
+
+        document
+            .getElementById(
+                "dPavtiNo"
+            )
+            .value =
+            receiptNumber;
 
 
-    const paymentDetails =
-        document.getElementById(
-            "paymentDetails"
-        ).value;
+        document
+            .getElementById(
+                "dPavtiDate"
+            )
+            .value =
+            billDate;
 
 
-    /*
-    ==========================================
-        SEND DATA TO RECEIPT
-    ==========================================
-    */
+        /*
+        ==========================================
+            GENERATE MAIN + DUPLICATE BILL
+        ==========================================
+        */
 
-    document.getElementById(
-        "pCustomerName"
-    ).textContent =
-        customerName;
+        generatePrintableBills();
 
 
-    document.getElementById(
-        "pVillage"
-    ).textContent =
-        village;
+        /*
+        ==========================================
+            SHOW RECEIPT BELOW FORM
+        ==========================================
+        */
+
+        document.body.classList.add(
+            "receiptGeneratedMode"
+        );
 
 
-    document.getElementById(
-        "pTaluka"
-    ).textContent =
-        taluka;
+        const printableBills =
+            document.getElementById(
+                "printableBills"
+            );
 
 
-    document.getElementById(
-        "pDistrict"
-    ).textContent =
-        district;
+        printableBills.scrollIntoView({
+
+            behavior: "smooth",
+
+            block: "start"
+
+        });
 
 
-    document.getElementById(
-        "pMobileNumber"
-    ).textContent =
-        mobileNumber;
+        console.log(
+            "Receipt generated successfully."
+        );
 
 
-    document.getElementById(
-        "pBillNo"
-    ).textContent =
-        billNo;
+    } catch(error) {
+
+        console.error(
+            "Error generating receipt:",
+            error
+        );
 
 
-    document.getElementById(
-        "pBillDate"
-    ).textContent =
-        billDate;
+        alert(
+            "Error generating receipt: " +
+            error.message
+        );
 
-
-    document.getElementById(
-        "pAmountWords"
-    ).textContent =
-        amountWords;
-
-
-    document.getElementById(
-        "pGrandTotal"
-    ).textContent =
-        grandTotal;
-
-
-    document.getElementById(
-        "pPaymentDetails"
-    ).textContent =
-        paymentDetails;
-
-
-    /*
-    ==========================================
-        COPY ITEMS TO RECEIPT
-    ==========================================
-    */
-
-    generatePrintableItems();
-
-
-    /*
-    ==========================================
-        HIDE FORM
-        SHOW RECEIPT
-    ==========================================
-    */
-
-    document.body.classList.add(
-        "receiptGeneratedMode"
-    );
-
-
-    window.scrollTo(
-        0,
-        0
-    );
+    }
 
 }
 
@@ -1526,7 +1510,167 @@ function generateReceipt() {
 // GENERATE RECEIPT ITEMS
 // ==========================================
 
-function generatePrintableItems() {
+
+function generatePrintableBills() {
+
+
+    /*
+    ==========================================
+        MAIN BILL DETAILS
+    ==========================================
+    */
+
+    document
+        .getElementById("pCustomerName")
+        .textContent =
+        document
+            .getElementById("customerName")
+            .value;
+
+
+    document
+        .getElementById("pBillNo")
+        .textContent =
+        document
+            .getElementById("billNo")
+            .value;
+
+
+    document
+        .getElementById("pVillage")
+        .textContent =
+        document
+            .getElementById("village")
+            .value;
+
+
+    document
+        .getElementById("pTaluka")
+        .textContent =
+        document
+            .getElementById("taluka")
+            .value;
+
+
+    document
+        .getElementById("pDistrict")
+        .textContent =
+        document
+            .getElementById("district")
+            .value;
+
+
+    document
+        .getElementById("pBillDate")
+        .textContent =
+        document
+            .getElementById("billDate")
+            .value;
+
+
+    document
+        .getElementById("pMobileNumber")
+        .textContent =
+        document
+            .getElementById("mobileNumber")
+            .value;
+
+
+    document
+        .getElementById("pAmountWords")
+        .textContent =
+        document
+            .getElementById(
+                "numberToGujaratiWords"
+            )
+            .value;
+
+
+    document
+        .getElementById("pGrandTotal")
+        .textContent =
+        document
+            .getElementById("grandTotal")
+            .value;
+
+
+    document
+        .getElementById("pPaymentDetails")
+        .textContent =
+        document
+            .getElementById("paymentDetails")
+            .value;
+
+
+    /*
+    ==========================================
+        DUPLICATE BILL DETAILS
+    ==========================================
+    */
+
+    document
+        .getElementById("dCustomerName")
+        .textContent =
+        document
+            .getElementById("customerName")
+            .value;
+
+
+    document
+        .getElementById("dVillage")
+        .textContent =
+        document
+            .getElementById("village")
+            .value;
+
+
+    document
+        .getElementById("dTaluka")
+        .textContent =
+        document
+            .getElementById("taluka")
+            .value;
+
+
+    document
+        .getElementById("dDistrict")
+        .textContent =
+        document
+            .getElementById("district")
+            .value;
+
+
+    document
+        .getElementById("dGrandTotal")
+        .textContent =
+        document
+            .getElementById("grandTotal")
+            .value;
+
+
+    document
+        .getElementById("dAmountWords")
+        .textContent =
+        document
+            .getElementById(
+                "numberToGujaratiWords"
+            )
+            .value;
+
+
+    document
+        .getElementById("dPaymentDetails")
+        .textContent =
+        document
+            .getElementById("paymentDetails")
+            .value;
+
+
+    /*
+    ==========================================
+        MAIN BILL ITEMS
+    ==========================================
+    */
 
     const printItems =
         document.getElementById(
@@ -1534,94 +1678,263 @@ function generatePrintableItems() {
         );
 
 
-    if (!printItems) return;
-
-
-    printItems.innerHTML =
-        "";
+    printItems.innerHTML = "";
 
 
     document
         .querySelectorAll(
             "#itemBody tr"
         )
-        .forEach(
-            function(row) {
+        .forEach(function(row) {
 
 
-                const srno =
-                    row.querySelector(
-                        ".srno"
-                    ).value;
-
-
-                const description =
-                    row.querySelector(
-                        ".description"
-                    ).value;
-
-
-                const pages =
-                    row.querySelector(
-                        ".pages"
-                    ).value;
-
-
-                const price =
-                    row.querySelector(
-                        ".price"
-                    ).value;
-
-
-                const total =
-                    row.querySelector(
-                        ".total"
-                    ).value;
-
-
-                const printRow =
-                    document.createElement(
-                        "tr"
-                    );
-
-
-                printRow.innerHTML = `
-
-                    <td>
-                        ${srno}
-                    </td>
-
-
-                    <td
-                        class="printDescription">
-
-                        ${description}
-
-                    </td>
-
-
-                    <td>
-                        ${pages}
-                    </td>
-
-
-                    <td>
-                        ₹ ${price}
-                    </td>
-
-
-                    <td>
-                        ₹ ${total}
-                    </td>
-
-                `;
-
-
-                printItems.appendChild(
-                    printRow
+            const printRow =
+                document.createElement(
+                    "tr"
                 );
 
-            }
+
+            const srno =
+                row
+                    .querySelector(
+                        ".srno"
+                    )
+                    .value;
+
+
+            const description =
+                row
+                    .querySelector(
+                        ".description"
+                    )
+                    .value;
+
+
+            const pages =
+                row
+                    .querySelector(
+                        ".pages"
+                    )
+                    .value;
+
+
+            const price =
+                row
+                    .querySelector(
+                        ".price"
+                    )
+                    .value;
+
+
+            const total =
+                row
+                    .querySelector(
+                        ".total"
+                    )
+                    .value;
+
+
+            printRow.innerHTML = `
+
+                <td>
+                    ${srno}
+                </td>
+
+                <td class="printDescription">
+                    ${description}
+                </td>
+
+                <td>
+                    ${pages}
+                </td>
+
+                <td>
+                    ₹ ${price}
+                </td>
+
+                <td>
+                    ₹ ${total}
+                </td>
+
+            `;
+
+
+            printItems.appendChild(
+                printRow
+            );
+
+        });
+
+
+}
+
+
+
+
+// ==========================================================================
+
+// ==========================================
+// BACK TO EDIT
+// ==========================================
+
+const backToEditBtn =
+    document.getElementById(
+        "backToEditBtn"
+    );
+
+
+if (backToEditBtn) {
+
+    backToEditBtn.addEventListener(
+        "click",
+        function () {
+
+            document.body.classList.remove(
+                "receiptGeneratedMode"
+            );
+
+            window.scrollTo({
+
+                top: 0,
+
+                behavior: "smooth"
+
+            });
+
+        }
+    );
+
+}
+
+
+// ==========================================================================
+
+
+// ==========================================
+// PRINT BILL
+// ==========================================
+
+const printBillBtn =
+    document.getElementById(
+        "printBillBtn"
+    );
+
+
+printBillBtn.addEventListener(
+    "click",
+    function(){
+
+        /*
+        ==========================================
+            UPDATE PRINTABLE BILL
+        ==========================================
+        */
+
+        generatePrintableBills();
+
+
+        /*
+        ==========================================
+            SHOW CUT LINE FOR PRINTING
+        ==========================================
+        */
+
+        document.body.classList.add(
+            "showCutLine"
         );
 
+
+        /*
+        ==========================================
+            PRINT
+        ==========================================
+        */
+
+        window.print();
+
+    }
+);
+
+
+// ==========================================
+// AFTER PRINT
+// ==========================================
+
+window.addEventListener(
+    "afterprint",
+    async function(){
+
+        /*
+        ==========================================
+            SAVE ENTIRE FORM AFTER PRINT
+        ==========================================
+        */
+
+        try {
+
+            await saveCurrentBill();
+
+
+            console.log(
+                "Bill automatically saved after printing."
+            );
+
+
+        } catch(error) {
+
+            console.error(
+                "Error automatically saving bill:",
+                error
+            );
+
+        }
+
+
+        /*
+        ==========================================
+            REMOVE PRINT-ONLY STYLES
+        ==========================================
+        */
+
+        document.body.classList.remove(
+            "showCutLine"
+        );
+
+    }
+);
+
+
+
+
+// ==========================================================================
+
+function loginUser() {
+
+    const email =
+        document.getElementById("loginEmail").value;
+
+    const password =
+        document.getElementById("loginPassword").value;
+
+    const loginMessage =
+        document.getElementById("loginMessage");
+
+    firebase.auth()
+        .signInWithEmailAndPassword(email, password)
+
+        .then(() => {
+
+            document.getElementById("loginScreen")
+                .style.display = "none";
+
+        })
+
+        .catch((error) => {
+
+            loginMessage.textContent =
+                "Wrong email or password";
+
+            console.error(error);
+
+        });
 }
