@@ -182,6 +182,8 @@ auth.onAuthStateChanged((user) => {
 
         loadRecentBills();
 
+        loadRecentActivity();
+
     }
 
     else {
@@ -804,67 +806,7 @@ function updateMainBillCount(totalBills) {
     }
 
 }
-/* ============================================================
-        AUTHENTICATION STATE
-============================================================ */
 
-auth.onAuthStateChanged((user) => {
-
-    if (user) {
-
-        console.log(
-            "User is logged in:",
-            user.email
-        );
-
-
-        // Hide login screen
-
-        if (loginScreen) {
-
-            loginScreen.style.display =
-                "none";
-
-        }
-
-
-        // Show dashboard
-
-        showDashboard();
-
-
-        // Load Firebase data ONLY after login
-
-        loadDashboardStats();
-
-        loadRecentBills();
-
-    }
-
-    else {
-
-        console.log(
-            "No user logged in"
-        );
-
-
-        // Hide all application views
-
-        hideAllViews();
-
-
-        // Show login screen
-
-        if (loginScreen) {
-
-            loginScreen.style.display =
-                "flex";
-
-        }
-
-    }
-
-});
 
 async function loadRecentBills() {
 
@@ -3005,7 +2947,374 @@ function generatePrintableBills() {
 }
 
 
+// ==========================================
+// CREATE RECENT ACTIVITY
+// ==========================================
 
+async function createActivity(activityData) {
+
+    await db
+        .collection("activities")
+        .add({
+
+            ...activityData,
+
+            createdAt:
+                firebase.firestore.FieldValue
+                    .serverTimestamp()
+
+        });
+
+}
+// ==========================================
+// SAVE CURRENT BILL
+// ==========================================
+
+async function saveCurrentBill() {
+
+    const billNo =
+        document
+            .getElementById("billNo")
+            .value
+            .trim();
+
+
+    if (!billNo) {
+
+        throw new Error(
+            "Bill number is missing."
+        );
+
+    }
+
+
+    /*
+    ==========================================
+        COLLECT BILL ITEMS
+    ==========================================
+    */
+
+    const items = [];
+
+
+    document
+        .querySelectorAll(
+            "#itemBody tr"
+        )
+        .forEach(function(row) {
+
+            const description =
+                row
+                    .querySelector(
+                        ".description"
+                    )
+                    .value
+                    .trim();
+
+
+            const pages =
+                parseFloat(
+                    row
+                        .querySelector(
+                            ".pages"
+                        )
+                        .value
+                )
+                || 0;
+
+
+            const price =
+                parseFloat(
+                    row
+                        .querySelector(
+                            ".price"
+                        )
+                        .value
+                )
+                || 0;
+
+
+            const total =
+                parseFloat(
+                    row
+                        .querySelector(
+                            ".total"
+                        )
+                        .value
+                )
+                || 0;
+
+
+            items.push({
+
+                srno:
+                    row
+                        .querySelector(
+                            ".srno"
+                        )
+                        .value,
+
+                description,
+
+                pages,
+
+                price,
+
+                total
+
+            });
+
+        });
+
+
+    /*
+    ==========================================
+        BILL DATA
+    ==========================================
+    */
+
+    const billData = {
+
+        billNo:
+
+            billNo,
+
+
+        customerName:
+
+            document
+                .getElementById(
+                    "customerName"
+                )
+                .value
+                .trim(),
+
+
+        village:
+
+            document
+                .getElementById(
+                    "village"
+                )
+                .value
+                .trim(),
+
+
+        taluka:
+
+            document
+                .getElementById(
+                    "taluka"
+                )
+                .value
+                .trim(),
+
+
+        district:
+
+            document
+                .getElementById(
+                    "district"
+                )
+                .value
+                .trim(),
+
+
+        mobileNumber:
+
+            document
+                .getElementById(
+                    "mobileNumber"
+                )
+                .value
+                .trim(),
+
+
+        billDate:
+
+            document
+                .getElementById(
+                    "billDate"
+                )
+                .value,
+
+
+        paymentDetails:
+
+            document
+                .getElementById(
+                    "paymentDetails"
+                )
+                .value
+                .trim(),
+
+
+        numberToGujaratiWords:
+
+            document
+                .getElementById(
+                    "numberToGujaratiWords"
+                )
+                .value
+                .trim(),
+
+
+        grandTotal:
+
+            Number(
+                document
+                    .getElementById(
+                        "grandTotal"
+                    )
+                    .value
+            )
+            || 0,
+
+
+        items:
+
+            items,
+
+
+        updatedAt:
+
+            firebase.firestore.FieldValue
+                .serverTimestamp()
+
+    };
+
+
+    /*
+    ==========================================
+        CHECK IF BILL ALREADY EXISTS
+    ==========================================
+    */
+
+    const billReference =
+        db
+            .collection("bills")
+            .doc(billNo);
+
+
+    const existingBill =
+        await billReference.get();
+
+
+    /*
+    ==========================================
+        UPDATE EXISTING BILL
+    ==========================================
+    */
+
+    if (existingBill.exists) {
+
+    await billReference.update(
+
+        billData
+
+    );
+
+
+    await createActivity({
+
+        type:
+            "updated",
+
+        title:
+            "Bill updated",
+
+        message:
+            "Bill " + billNo,
+
+        billNo:
+            billNo,
+
+        amount:
+            billData.grandTotal,
+
+        customerName:
+            billData.customerName
+
+    });
+
+
+    console.log(
+        "Bill updated successfully:",
+        billNo
+    );
+
+}
+
+
+    /*
+    ==========================================
+        CREATE NEW BILL
+    ==========================================
+    */
+
+    else {
+
+    await billReference.set({
+
+        ...billData,
+
+
+        createdAt:
+
+            firebase.firestore.FieldValue
+                .serverTimestamp()
+
+    });
+
+
+    await createActivity({
+
+        type:
+            "created",
+
+        title:
+            "New bill created",
+
+        message:
+            `Main Bill • ₹${Number(
+                billData.grandTotal
+            ).toLocaleString(
+                "en-IN"
+            )}`,
+
+        billNo:
+            billNo,
+
+        amount:
+            billData.grandTotal,
+
+        customerName:
+            billData.customerName
+
+    });
+
+
+    console.log(
+        "New bill saved successfully:",
+        billNo
+    );
+
+}
+
+
+    /*
+    ==========================================
+        REFRESH DASHBOARD DATA
+    ==========================================
+    */
+
+    await loadDashboardStats();
+    
+    await loadRecentBills();
+    
+    await loadRecentActivity();
+
+}
 
 // ==========================================================================
 
@@ -3050,46 +3359,37 @@ if (backToEditBtn) {
 // PRINT BILL
 // ==========================================
 
+// ==========================================
+// PRINT BILL
+// ==========================================
+
 const printBillBtn =
     document.getElementById(
         "printBillBtn"
     );
 
 
-printBillBtn.addEventListener(
-    "click",
-    function(){
+if (printBillBtn) {
 
-        /*
-        ==========================================
-            UPDATE PRINTABLE BILL
-        ==========================================
-        */
+    printBillBtn.addEventListener(
+        "click",
+        function() {
 
-        generatePrintableBills();
+            generatePrintableBills();
 
 
-        /*
-        ==========================================
-            SHOW CUT LINE FOR PRINTING
-        ==========================================
-        */
-
-        document.body.classList.add(
-            "showCutLine"
-        );
+            document.body.classList.add(
+                "showCutLine"
+            );
 
 
-        /*
-        ==========================================
-            PRINT
-        ==========================================
-        */
+            window.print();
 
-        window.print();
+        }
 
-    }
-);
+    );
+
+}
 
 
 // ==========================================
@@ -3098,13 +3398,7 @@ printBillBtn.addEventListener(
 
 window.addEventListener(
     "afterprint",
-    async function(){
-
-        /*
-        ==========================================
-            SAVE ENTIRE FORM AFTER PRINT
-        ==========================================
-        */
+    async function() {
 
         try {
 
@@ -3116,29 +3410,30 @@ window.addEventListener(
             );
 
 
-        } catch(error) {
+        }
+
+        catch(error) {
 
             console.error(
                 "Error automatically saving bill:",
                 error
             );
 
+            alert(
+                "Bill could not be saved: " +
+                error.message
+            );
+
         }
 
-
-        /*
-        ==========================================
-            REMOVE PRINT-ONLY STYLES
-        ==========================================
-        */
 
         document.body.classList.remove(
             "showCutLine"
         );
 
     }
-);
 
+);
 
 /* ============================================================
         LOGOUT SYSTEM
@@ -3200,5 +3495,465 @@ if (logoutButton) {
         }
 
     );
+
+}
+
+
+/* ===========================================================================
+
+/* ============================================================
+        RECENT ACTIVITY SYSTEM
+============================================================ */
+
+const activityList =
+    document.getElementById(
+        "activityList"
+    );
+
+
+const activityMoreButton =
+    document.getElementById(
+        "activityMoreButton"
+    );
+
+
+/* ============================================================
+        ACTIVITY ICONS
+============================================================ */
+
+function getActivityIcon(type) {
+
+    if (type === "created") {
+
+        return `
+            <div class="activityIcon orangeActivity">
+
+                <i class="fa-solid fa-plus"></i>
+
+            </div>
+        `;
+
+    }
+
+
+    if (type === "updated") {
+
+        return `
+            <div class="activityIcon blueActivity">
+
+                <i class="fa-solid fa-pen"></i>
+
+            </div>
+        `;
+
+    }
+
+
+    if (type === "saved") {
+
+        return `
+            <div class="activityIcon greenActivity">
+
+                <i class="fa-solid fa-check"></i>
+
+            </div>
+        `;
+
+    }
+
+}
+
+
+/* ============================================================
+        ACTIVITY MESSAGE
+============================================================ */
+
+function getActivityTitle(type) {
+
+    if (type === "created") {
+
+        return "New bill created";
+
+    }
+
+
+    if (type === "updated") {
+
+        return "Bill updated";
+
+    }
+
+
+    if (type === "saved") {
+
+        return "Bill saved";
+
+    }
+
+}
+
+
+/* ============================================================
+        ACTIVITY TIME
+============================================================ */
+
+function getRelativeTime(timestamp) {
+
+    if (!timestamp) {
+
+        return "";
+
+    }
+
+
+    const activityDate =
+        timestamp.toDate
+            ? timestamp.toDate()
+            : new Date(timestamp);
+
+
+    const now =
+        new Date();
+
+
+    const difference =
+        now - activityDate;
+
+
+    const seconds =
+        Math.floor(
+            difference / 1000
+        );
+
+
+    const minutes =
+        Math.floor(
+            seconds / 60
+        );
+
+
+    const hours =
+        Math.floor(
+            minutes / 60
+        );
+
+
+    const days =
+        Math.floor(
+            hours / 24
+        );
+
+
+    if (seconds < 60) {
+
+        return "Just now";
+
+    }
+
+
+    if (minutes < 60) {
+
+        return `${minutes} min`;
+
+    }
+
+
+    if (hours < 24) {
+
+        return `${hours} hr`;
+
+    }
+
+
+    if (days === 1) {
+
+        return "Yesterday";
+
+    }
+
+
+    return `${days} days`;
+
+}
+
+
+/* ============================================================
+        LOAD RECENT ACTIVITY
+============================================================ */
+
+
+// ==========================================
+// LOAD RECENT ACTIVITY
+// ==========================================
+
+async function loadRecentActivity() {
+
+    const activityList =
+        document.getElementById(
+            "recentActivityList"
+        );
+
+
+    if (!activityList) return;
+
+
+    try {
+
+        const snapshot =
+            await db
+                .collection("activities")
+                .orderBy(
+                    "createdAt",
+                    "desc"
+                )
+                .limit(3)
+                .get();
+
+
+        activityList.innerHTML = "";
+
+
+        if (snapshot.empty) {
+
+            activityList.innerHTML = `
+
+                <div class="activityEmpty">
+
+                    No recent activity yet.
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        snapshot.forEach(function(doc) {
+
+            const activity =
+                doc.data();
+
+
+            const activityTime =
+                activity.createdAt
+                    ? formatActivityTime(
+                        activity.createdAt
+                    )
+                    : "Just now";
+
+
+            let icon =
+                "fa-plus";
+
+
+            let iconClass =
+                "orangeActivity";
+
+
+            if (
+                activity.type ===
+                "updated"
+            ) {
+
+                icon =
+                    "fa-pen";
+
+                iconClass =
+                    "blueActivity";
+
+            }
+
+
+            if (
+                activity.type ===
+                "saved"
+            ) {
+
+                icon =
+                    "fa-check";
+
+                iconClass =
+                    "greenActivity";
+
+            }
+
+
+            const activityItem = `
+
+                <div
+                    class="activityItem"
+                    data-id="${doc.id}"
+                >
+
+                    <div
+                        class="activityIcon ${iconClass}"
+                    >
+
+                        <i
+                            class="fa-solid ${icon}"
+                        ></i>
+
+                    </div>
+
+
+                    <div
+                        class="activityText"
+                    >
+
+                        <strong>
+
+                            ${activity.title}
+
+                        </strong>
+
+
+                        <span>
+
+                            ${activity.message}
+
+                        </span>
+
+                    </div>
+
+
+                    <time>
+
+                        ${activityTime}
+
+                    </time>
+
+                </div>
+
+            `;
+
+
+            activityList
+                .insertAdjacentHTML(
+                    "beforeend",
+                    activityItem
+                );
+
+        });
+
+
+    }
+
+    catch(error) {
+
+        console.error(
+            "Error loading recent activity:",
+            error
+        );
+
+
+        activityList.innerHTML = `
+
+            <div class="activityEmpty">
+
+                Unable to load recent activity.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+// ==========================================
+// FORMAT ACTIVITY TIME
+// ==========================================
+
+function formatActivityTime(timestamp) {
+
+    const activityDate =
+        timestamp.toDate();
+
+
+    const now =
+        new Date();
+
+
+    const difference =
+        now - activityDate;
+
+
+    const seconds =
+        Math.floor(
+            difference / 1000
+        );
+
+
+    const minutes =
+        Math.floor(
+            seconds / 60
+        );
+
+
+    const hours =
+        Math.floor(
+            minutes / 60
+        );
+
+
+    const days =
+        Math.floor(
+            hours / 24
+        );
+
+
+    if (seconds < 60) {
+
+        return "Just now";
+
+    }
+
+
+    if (minutes < 60) {
+
+        return minutes +
+            (
+                minutes === 1
+                    ? " min"
+                    : " mins"
+            );
+
+    }
+
+
+    if (hours < 24) {
+
+        return hours +
+            (
+                hours === 1
+                    ? " hr"
+                    : " hrs"
+            );
+
+    }
+
+
+    if (days < 7) {
+
+        return days +
+            (
+                days === 1
+                    ? " day"
+                    : " days"
+            );
+
+    }
+
+
+    return activityDate
+        .toLocaleDateString(
+            "en-IN",
+            {
+                day: "2-digit",
+                month: "short"
+            }
+        );
 
 }
