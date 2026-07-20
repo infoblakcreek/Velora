@@ -45,7 +45,7 @@
                   </div>
       
                   <h1>
-                      Velora
+                      GramSetu
                   </h1>
       
                   <p>
@@ -136,7 +136,7 @@
                 <div class="brandText">
 
                     <strong>
-                        Velora
+                        GramSetu
                     </strong>
 
                     <span>
@@ -223,21 +223,22 @@
 
                 <!-- MAIN BILL -->
 
-                <a
-                    href="#"
-                    class="navItem billNavItem">
-
-                    <span class="navIcon orange">
-                        <i class="fa-solid fa-receipt"></i>
-                    </span>
-
-                    <span>
-                        Main Bill
-                    </span>
-
-                    <i class="fa-solid fa-chevron-right navArrow"></i>
-
-                </a>
+                  <a
+                      href="#"
+                      id="mainBillNav"
+                      class="navItem billNavItem">
+                  
+                      <span class="navIcon orange">
+                          <i class="fa-solid fa-receipt"></i>
+                      </span>
+                  
+                      <span>
+                          Main Bill
+                      </span>
+                  
+                      <i class="fa-solid fa-chevron-right navArrow"></i>
+                  
+                  </a>
 
 
                 <!-- INVOICE -->
@@ -713,7 +714,9 @@
 
                             <!-- MAIN BILL -->
 
-                            <div class="systemCard orangeSystem">
+                            <div
+                                class="systemCard orangeSystem"
+                                id="mainBillSystemCard">
 
                                 <div class="systemIcon">
                                     <i class="fa-solid fa-receipt"></i>
@@ -730,8 +733,8 @@
                                         Panchayat receipt management
                                     </p>
 
-                                    <span>
-                                        86 bills
+                                    <span id="mainBillCount">
+                                        0 bills
                                     </span>
 
                                 </div>
@@ -1060,6 +1063,141 @@
 
             </section>
 
+
+
+              <!-- ==================================================
+                        MAIN BILLS DATABASE VIEW
+                ================================================== -->
+                
+                <section
+                    id="mainBillsView"
+                    class="mainBillsView"
+                    style="display: none;">
+                
+                    <div class="pageHeader">
+                
+                        <div>
+                
+                            <span class="pageEyebrow">
+                                BILLING SYSTEM
+                            </span>
+                
+                            <h1>
+                                Main Bills
+                            </h1>
+                
+                            <p>
+                                View, edit and manage all saved bills
+                            </p>
+                
+                        </div>
+                
+                
+                        <button
+                            id="newMainBillButton"
+                            class="createButton"
+                            type="button">
+                
+                            <i class="fa-solid fa-plus"></i>
+                
+                            Create New Bill
+                
+                        </button>
+                
+                    </div>
+                
+                
+                    <section class="dashboardCard allBillsCard">
+                
+                        <div class="cardHeader">
+                
+                            <div>
+                
+                                <h2>
+                                    All Main Bills
+                                </h2>
+                
+                                <p>
+                                    Complete database of saved bills
+                                </p>
+                
+                            </div>
+                
+                
+                            <div class="billSearchBox">
+                
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                
+                                <input
+                                    type="text"
+                                    id="mainBillSearch"
+                                    placeholder="Search bill number or customer...">
+                
+                            </div>
+                
+                        </div>
+                
+                
+                        <div class="recentBillsTableWrapper">
+                
+                            <table class="recentBillsTable mainBillsTable">
+                
+                                <thead>
+                
+                                    <tr>
+                
+                                        <th>
+                                            Bill Number
+                                        </th>
+                
+                                        <th>
+                                            Customer
+                                        </th>
+                
+                                        <th>
+                                            Village
+                                        </th>
+                
+                                        <th>
+                                            Date
+                                        </th>
+                
+                                        <th>
+                                            Amount
+                                        </th>
+                
+                                        <th>
+                                            Actions
+                                        </th>
+                
+                                    </tr>
+                
+                                </thead>
+                
+                
+                                <tbody id="mainBillsBody">
+                
+                                    <tr>
+                
+                                        <td
+                                            colspan="6"
+                                            class="loadingBills">
+                
+                                            Loading bills...
+                
+                                        </td>
+                
+                                    </tr>
+                
+                                </tbody>
+                
+                            </table>
+                
+                        </div>
+                
+                    </section>
+                
+                </section>
 
               <!-- ==================================================
                               INVOICE / BILL VIEW
@@ -1921,6 +2059,7 @@
         </div>
                                     
               </section>
+
 
         </main>
 
