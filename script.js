@@ -11,14 +11,217 @@ const firebaseConfig = {
   appId: "1:9498305655:web:9f86a8eff58ef5bb8e5272"
 };
 
-// Initialize Firebase
+/* ============================================================
+FIREBASE INITIALIZATION
+============================================================ */
+
 firebase.initializeApp(firebaseConfig);
 
-
-// Initialize Firestore
 const db = firebase.firestore();
 
+const auth = firebase.auth();
+
 console.log("Firebase connected successfully!");
+
+/* ============================================================
+        LOGIN SYSTEM
+============================================================ */
+
+const loginScreen =
+    document.getElementById("loginScreen");
+
+const loginButton =
+    document.getElementById("loginButton");
+
+const loginEmail =
+    document.getElementById("loginEmail");
+
+const loginPassword =
+    document.getElementById("loginPassword");
+
+const loginMessage =
+    document.getElementById("loginMessage");
+
+
+if (loginButton) {
+
+    loginButton.addEventListener(
+        "click",
+        async function () {
+
+            const email =
+                loginEmail.value.trim();
+
+            const password =
+                loginPassword.value;
+
+
+            if (!email || !password) {
+
+                loginMessage.textContent =
+                    "Please enter email and password.";
+
+                loginMessage.style.color =
+                    "red";
+
+                return;
+
+            }
+
+
+            loginButton.disabled =
+                true;
+
+
+            loginButton.textContent =
+                "Logging in...";
+
+
+            try {
+
+                await auth
+                    .signInWithEmailAndPassword(
+                        email,
+                        password
+                    );
+
+
+                console.log(
+                    "Login successful"
+                );
+
+
+                loginMessage.textContent =
+                    "Login successful!";
+
+                loginMessage.style.color =
+                    "green";
+
+
+                // Hide login screen
+                loginScreen.style.display =
+                    "none";
+
+
+                // Show dashboard
+                dashboardView.style.display =
+                    "block";
+
+
+                // Load dashboard data
+                loadDashboardStats();
+
+                loadRecentBills();
+
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Login error:",
+                    error
+                );
+
+
+                loginMessage.textContent =
+                    error.message;
+
+                loginMessage.style.color =
+                    "red";
+
+
+                loginButton.disabled =
+                    false;
+
+
+                loginButton.textContent =
+                    "Login to Dashboard";
+
+            }
+
+        }
+
+    );
+
+}
+
+
+/* ============================================================
+        AUTHENTICATION STATE
+============================================================ */
+
+auth.onAuthStateChanged(
+    function (user) {
+
+        if (user) {
+
+            console.log(
+                "User is logged in:",
+                user.email
+            );
+
+
+            loginScreen.style.display =
+                "none";
+
+
+            dashboardView.style.display =
+                "block";
+
+
+            loadDashboardStats();
+
+            loadRecentBills();
+
+        }
+
+        else {
+
+            console.log(
+                "No user logged in"
+            );
+
+
+            loginScreen.style.display =
+                "flex";
+
+
+            dashboardView.style.display =
+                "none";
+
+        }
+
+    }
+);
+
+/* ==================================================
+        PAGE ELEMENTS
+================================================== */
+
+const dashboardView =
+    document.getElementById("dashboardView");
+
+const invoiceView =
+    document.getElementById("invoiceView");
+
+const mainBillsView =
+    document.getElementById("mainBillsView");
+
+const mainBillSystemCard =
+    document.getElementById("mainBillSystemCard");
+
+const dashboardNav =
+    document.getElementById("dashboardNav");
+
+const mainBillNav =
+    document.getElementById("mainBillNav");
+
+const newMainBillButton =
+    document.getElementById("newMainBillButton");
+
+const createBillButton =
+    document.getElementById("createBillButton");
 
 
 /* ==================================================
@@ -225,6 +428,10 @@ async function loadDashboardStats() {
 
         let totalBills =
             snapshot.size;
+            
+        updateMainBillCount(
+                totalBills
+            );
 
 
         let monthlyBills =
@@ -447,6 +654,27 @@ function updateDashboardStats(
 
 }
 
+/* ==================================================
+        UPDATE MAIN BILL COUNT
+================================================== */
+
+function updateMainBillCount(totalBills) {
+
+    const mainBillCount =
+        document.querySelector(
+            ".orangeSystem .systemContent span"
+        );
+
+
+    if (mainBillCount) {
+
+        mainBillCount.textContent =
+            `${totalBills} bills`;
+
+    }
+
+}
+
 loadDashboardStats();
 
 async function loadRecentBills() {
@@ -644,6 +872,754 @@ async function loadRecentBills() {
 
 loadRecentBills();
 
+/* ==========================================
+        OPEN MAIN BILL DATABASE
+========================================== */
+
+if (mainBillNav) {
+
+    mainBillNav.addEventListener(
+        "click",
+        function(event) {
+
+            event.preventDefault();
+
+
+            dashboardView.style.display =
+                "none";
+
+
+            invoiceView.style.display =
+                "none";
+
+
+            mainBillsView.style.display =
+                "block";
+
+
+            dashboardNav.classList.remove(
+                "active"
+            );
+
+
+            mainBillNav.classList.add(
+                "active"
+            );
+
+
+            loadAllMainBills();
+
+
+            window.scrollTo(
+                0,
+                0
+            );
+
+        }
+    );
+
+}
+
+
+/* ==========================================
+        LOAD ALL MAIN BILLS
+========================================== */
+
+async function loadAllMainBills() {
+
+    const mainBillsBody =
+        document.getElementById(
+            "mainBillsBody"
+        );
+
+
+    if (!mainBillsBody) return;
+
+
+    mainBillsBody.innerHTML = `
+
+        <tr>
+
+            <td
+                colspan="6"
+                class="loadingBills">
+
+                Loading bills...
+
+            </td>
+
+        </tr>
+
+    `;
+
+
+    try {
+
+        const snapshot =
+            await db
+                .collection("bills")
+                .orderBy(
+                    "createdAt",
+                    "desc"
+                )
+                .get();
+
+
+        mainBillsBody.innerHTML = "";
+
+
+        if (snapshot.empty) {
+
+            mainBillsBody.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="6"
+                        class="loadingBills">
+
+                        No bills saved yet.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+            return;
+
+        }
+
+
+        snapshot.forEach(
+            function(doc) {
+
+                const bill =
+                    doc.data();
+
+
+                const billDate =
+                    bill.billDate
+                        ? formatIndianDate(
+                            bill.billDate
+                        )
+                        : "N/A";
+
+
+                const amount =
+                    Number(
+                        bill.grandTotal || 0
+                    ).toLocaleString(
+                        "en-IN"
+                    );
+
+
+                const row =
+                    document.createElement(
+                        "tr"
+                    );
+
+
+                row.dataset.billId =
+                    doc.id;
+
+
+                row.innerHTML = `
+
+                    <td>
+
+                        <strong
+                            class="billNumber">
+
+                            ${bill.billNo || doc.id}
+
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+
+                        ${bill.customerName || "N/A"}
+
+                    </td>
+
+
+                    <td>
+
+                        ${bill.village || "N/A"}
+
+                    </td>
+
+
+                    <td>
+
+                        ${billDate}
+
+                    </td>
+
+
+                    <td>
+
+                        <strong>
+
+                            ₹ ${amount}
+
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+
+                        <div
+                            class="billActionButtons">
+
+                            <button
+                                class="editBillButton"
+                                type="button"
+                                data-id="${doc.id}">
+
+                                <i
+                                    class="fa-solid fa-pen">
+
+                                </i>
+
+                                Edit
+
+                            </button>
+
+
+                            <button
+                                class="deleteBillButton"
+                                type="button"
+                                data-id="${doc.id}">
+
+                                <i
+                                    class="fa-solid fa-trash">
+
+                                </i>
+
+                                Delete
+
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                `;
+
+
+                mainBillsBody.appendChild(
+                    row
+                );
+
+            }
+        );
+
+
+        attachBillActionListeners();
+
+
+    }
+
+    catch(error) {
+
+        console.error(
+            "Error loading all bills:",
+            error
+        );
+
+
+        mainBillsBody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="6"
+                    class="loadingBills">
+
+                    Unable to load bills.
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }
+
+}
+
+/* ==================================================
+        BILL ACTION BUTTONS
+================================================== */
+
+function attachBillActionListeners() {
+
+
+    document
+        .querySelectorAll(
+            ".editBillButton"
+        )
+        .forEach(
+            function(button) {
+
+                button.addEventListener(
+                    "click",
+                    function() {
+
+                        const billId =
+                            this.dataset.id;
+
+
+                        editBill(
+                            billId
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+    document
+        .querySelectorAll(
+            ".deleteBillButton"
+        )
+        .forEach(
+            function(button) {
+
+                button.addEventListener(
+                    "click",
+                    function() {
+
+                        const billId =
+                            this.dataset.id;
+
+
+                        deleteBill(
+                            billId
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+}
+
+
+/* ==================================================
+        EDIT BILL
+================================================== */
+
+async function editBill(billId) {
+
+    try {
+
+        const billDocument =
+            await db
+                .collection("bills")
+                .doc(billId)
+                .get();
+
+
+        if (!billDocument.exists) {
+
+            alert(
+                "Bill not found."
+            );
+
+            return;
+
+        }
+
+
+        const bill =
+            billDocument.data();
+
+
+        /* ==============================
+                OPEN BILL FORM
+        ============================== */
+
+        mainBillsView.style.display =
+            "none";
+
+
+        invoiceView.style.display =
+            "block";
+
+
+        mainBillNav.classList.remove(
+            "active"
+        );
+
+
+        /* ==============================
+                LOAD BILL DETAILS
+        ============================== */
+
+        document
+            .getElementById(
+                "customerName"
+            )
+            .value =
+            bill.customerName || "";
+
+
+        document
+            .getElementById(
+                "village"
+            )
+            .value =
+            bill.village || "";
+
+
+        document
+            .getElementById(
+                "taluka"
+            )
+            .value =
+            bill.taluka || "";
+
+
+        document
+            .getElementById(
+                "district"
+            )
+            .value =
+            bill.district || "";
+
+
+        document
+            .getElementById(
+                "mobileNumber"
+            )
+            .value =
+            bill.mobileNumber || "";
+
+
+        document
+            .getElementById(
+                "billNo"
+            )
+            .value =
+            bill.billNo || billId;
+
+
+        document
+            .getElementById(
+                "billDate"
+            )
+            .value =
+            bill.billDate || "";
+
+
+        document
+            .getElementById(
+                "paymentDetails"
+            )
+            .value =
+            bill.paymentDetails || "";
+
+
+        document
+            .getElementById(
+                "numberToGujaratiWords"
+            )
+            .value =
+            bill.numberToGujaratiWords || "";
+
+
+        /* ==============================
+                LOAD GRAND TOTAL
+        ============================== */
+
+        document
+            .getElementById(
+                "grandTotal"
+            )
+            .value =
+            bill.grandTotal || 0;
+
+
+        /* ==============================
+                LOAD ITEMS
+        ============================== */
+
+        loadBillItems(
+            bill.items || []
+        );
+
+
+        calculateGrandTotal();
+
+
+        window.scrollTo(
+            0,
+            0
+        );
+
+
+    }
+
+    catch(error) {
+
+        console.error(
+            "Error loading bill:",
+            error
+        );
+
+
+        alert(
+            "Unable to load bill."
+        );
+
+    }
+
+}
+
+/* ==================================================
+        LOAD BILL ITEMS
+================================================== */
+
+function loadBillItems(items) {
+
+    const tbody =
+        document.getElementById(
+            "itemBody"
+        );
+
+
+    if (!tbody) return;
+
+
+    tbody.innerHTML = "";
+
+
+    if (
+        !items
+        ||
+        items.length === 0
+    ) {
+
+        addItemRow();
+
+        return;
+
+    }
+
+
+    items.forEach(
+        function(item) {
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            row.className =
+                "data-row";
+
+
+            row.innerHTML = `
+
+                <td>
+
+                    <input
+                        class="table-input srno"
+                        type="number"
+                        readonly
+                        value="${item.srno || ""}">
+
+                </td>
+
+
+                <td>
+
+                    <textarea
+                        class="description"
+                        rows="1">${item.description || ""}</textarea>
+
+                </td>
+
+
+                <td>
+
+                    <input
+                        class="table-input pages"
+                        type="number"
+                        value="${item.pages || ""}"
+                        oninput="calculateRow(this)">
+
+                </td>
+
+
+                <td>
+
+                    <input
+                        class="table-input price"
+                        type="number"
+                        step="0.01"
+                        value="${item.price || ""}"
+                        oninput="calculateRow(this)">
+
+                </td>
+
+
+                <td>
+
+                    <input
+                        class="table-input total"
+                        type="number"
+                        readonly
+                        value="${item.total || ""}">
+
+                </td>
+
+
+                <td>
+
+                    <button
+                        class="delete-btn"
+                        type="button"
+                        onclick="deleteCurrentRow(this)">
+
+                        🗑
+
+                    </button>
+
+                </td>
+
+            `;
+
+
+            tbody.appendChild(
+                row
+            );
+
+        }
+    );
+
+
+    updateSerialNumbers();
+
+
+    tbody
+        .querySelectorAll(
+            ".description"
+        )
+        .forEach(
+            autoResizeDescription
+        );
+
+}
+
+/* ==================================================
+        DELETE BILL
+================================================== */
+
+async function deleteBill(billId) {
+
+
+    const confirmed =
+        confirm(
+            "Are you sure you want to permanently delete this bill?"
+        );
+
+
+    if (!confirmed) return;
+
+
+    try {
+
+        await db
+            .collection("bills")
+            .doc(billId)
+            .delete();
+
+
+        alert(
+            "Bill deleted successfully."
+        );
+
+
+        await loadAllMainBills();
+
+
+        await loadDashboardStats();
+
+
+        await loadRecentBills();
+
+
+    }
+
+    catch(error) {
+
+        console.error(
+            "Error deleting bill:",
+            error
+        );
+
+
+        alert(
+            "Unable to delete bill."
+        );
+
+    }
+
+}
+
+/* ==================================================
+        CREATE NEW BILL
+================================================== */
+
+if (newMainBillButton) {
+
+    newMainBillButton.addEventListener(
+        "click",
+        function() {
+
+
+            mainBillsView.style.display =
+                "none";
+
+
+            invoiceView.style.display =
+                "block";
+
+
+            mainBillNav.classList.remove(
+                "active"
+            );
+
+
+            dashboardNav.classList.remove(
+                "active"
+            );
+
+
+            setInitialBillNumber();
+
+
+            window.scrollTo(
+                0,
+                0
+            );
+
+        }
+    );
+
+}
+
+
 /* ==================================================
         THEME SWITCHER
 ================================================== */
@@ -722,23 +1698,6 @@ applyTheme(
         PAGE NAVIGATION
 ================================================== */
 
-const dashboardView =
-    document.getElementById(
-        "dashboardView"
-    );
-
-
-const invoiceView =
-    document.getElementById(
-        "invoiceView"
-    );
-
-
-const dashboardNav =
-    document.getElementById(
-        "dashboardNav"
-    );
-
 
 dashboardNav.addEventListener(
     "click",
@@ -768,36 +1727,32 @@ dashboardNav.addEventListener(
     }
 );
 
-const createBillButton =
-    document.getElementById(
-        "createBillButton"
+
+if (createBillButton) {
+
+    createBillButton.addEventListener(
+        "click",
+        function() {
+
+            dashboardView.style.display =
+                "none";
+
+            invoiceView.style.display =
+                "block";
+
+            dashboardNav.classList.remove(
+                "active"
+            );
+
+            window.scrollTo(
+                0,
+                0
+            );
+
+        }
     );
 
-
-createBillButton.addEventListener(
-    "click",
-    function() {
-
-        dashboardView.style.display =
-            "none";
-
-
-        invoiceView.style.display =
-            "block";
-
-
-        dashboardNav.classList.remove(
-            "active"
-        );
-
-
-        window.scrollTo(
-            0,
-            0
-        );
-
-    }
-);
+}
 
 function autoGrow(textarea) {
 
@@ -1953,349 +2908,3 @@ window.addEventListener(
 
     }
 );
-
-
-
-
-// ==========================================================================
-
-/* ============================================================
-        LOGIN
-============================================================ */
-
-function loginUser() {
-
-    const email =
-        document
-            .getElementById(
-                "loginEmail"
-            )
-            .value
-            .trim();
-
-
-    const password =
-        document
-            .getElementById(
-                "loginPassword"
-            )
-            .value;
-
-
-    const loginMessage =
-        document.getElementById(
-            "loginMessage"
-        );
-
-
-    loginMessage.textContent =
-        "";
-
-
-    firebase
-        .auth()
-        .signInWithEmailAndPassword(
-            email,
-            password
-        )
-
-        .then(function(result) {
-
-            const user =
-                result.user;
-
-
-            return user.updateProfile({
-
-                displayName:
-                    "Bipin Patel"
-
-            });
-
-        })
-
-        .then(function() {
-
-            console.log(
-                "Bipin Patel saved successfully."
-            );
-
-        })
-
-        .catch(function(error) {
-
-            console.error(
-                "Login error:",
-                error
-            );
-
-
-            loginMessage.textContent =
-                "Wrong email or password.";
-
-        });
-
-}
-
-
-/* ============================================================
-        LOGIN BUTTON
-============================================================ */
-
-const loginButton =
-    document.getElementById(
-        "loginButton"
-    );
-
-
-if (loginButton) {
-
-    loginButton.addEventListener(
-        "click",
-        loginUser
-    );
-
-}
-
-
-
-
-/* ============================================================
-        AUTHENTICATION STATE
-============================================================ */
-
-document.body.classList.add(
-    "authChecking"
-);
-
-
-const loginScreen =
-    document.getElementById(
-        "loginScreen"
-    );
-
-
-const appLayout =
-    document.getElementById(
-        "appLayout"
-    );
-
-
-firebase
-    .auth()
-    .onAuthStateChanged(
-
-        function(user) {
-
-
-            if (user) {
-
-                console.log(
-                    "User logged in:",
-                    user.email
-                );
-
-                 updateUserProfile(
-                      user
-                  );
-
-                /*
-                ============================================
-                        HIDE LOGIN
-                ============================================
-                */
-
-                if (loginScreen) {
-
-                    loginScreen.style.display =
-                        "none";
-
-                }
-
-
-                /*
-                ============================================
-                        SHOW APP
-                ============================================
-                */
-
-                if (appLayout) {
-
-                    appLayout.style.display =
-                        "flex";
-
-                }
-
-
-                document.body.classList.remove(
-                    "authChecking"
-                );
-
-
-                document.body.classList.add(
-                    "userLoggedIn"
-                );
-
-
-                loadDashboardStats();
-
-                loadRecentBills();
-
-            }
-
-
-            else {
-
-                console.log(
-                    "No user logged in."
-                );
-
-
-                /*
-                ============================================
-                        HIDE APP
-                ============================================
-                */
-
-                if (appLayout) {
-
-                    appLayout.style.display =
-                        "none";
-
-                }
-
-
-                /*
-                ============================================
-                        SHOW LOGIN
-                ============================================
-                */
-
-                if (loginScreen) {
-
-                    loginScreen.style.display =
-                        "flex";
-
-                }
-
-
-                document.body.classList.remove(
-                    "authChecking"
-                );
-
-
-                document.body.classList.remove(
-                    "userLoggedIn"
-                );
-
-            }
-
-        }
-
-    );
-
-
-/* ============================================================
-        LOGOUT
-============================================================ */
-
-async function logoutUser() {
-
-    try {
-
-        await firebase
-            .auth()
-            .signOut();
-
-
-        console.log(
-            "User logged out."
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Logout error:",
-            error
-        );
-
-    }
-
-}
-
-
-const logoutButton =
-    document.getElementById(
-        "logoutButton"
-    );
-
-
-if (logoutButton) {
-
-    logoutButton.addEventListener(
-        "click",
-        logoutUser
-    );
-
-}
-
-
-
-/* ============================================================
-        UPDATE USER PROFILE
-============================================================ */
-
-function updateUserProfile(user) {
-
-    if (!user) return;
-
-
-    const profileName =
-        document.getElementById(
-            "profileName"
-        );
-
-
-    const profileAvatar =
-        document.getElementById(
-            "profileAvatar"
-        );
-
-
-    const userName =
-        user.displayName
-        || "User";
-
-
-    const initials =
-        userName
-            .split(" ")
-            .map(function(name) {
-
-                return name
-                    .charAt(0)
-                    .toUpperCase();
-
-            })
-            .slice(0, 2)
-            .join("");
-
-
-    if (profileName) {
-
-        profileName.textContent =
-            userName;
-
-    }
-
-
-    if (profileAvatar) {
-
-        profileAvatar.textContent =
-            initials;
-
-    }
-
-}
