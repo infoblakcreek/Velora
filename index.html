@@ -36,78 +36,79 @@
 <body>
       <div id="loginScreen">
 
-    <div class="loginCard">
-
-        <div class="loginBrand">
-
-            <div class="loginLogo">
-                🧾
-            </div>
-
-            <h1>
-                Velora
-            </h1>
-
-            <p>
-                Professional Billing Management System
-            </p>
-
-        </div>
-
-
-        <h2>
-            Welcome Back
-        </h2>
-
-
-        <div class="loginFormGroup">
-
-            <label>
-                Email Address
-            </label>
-
-            <input
-                type="email"
-                id="email"
-                placeholder="Enter your email">
-
-        </div>
-
-
-        <div class="loginFormGroup">
-
-            <label>
-                Password
-            </label>
-
-            <input
-                type="password"
-                id="password"
-                placeholder="Enter your password">
-
-        </div>
-
-
-        <button
-            id="loginButton">
-
-            Login to Dashboard
-
-        </button>
-
-
-        <div id="loginMessage"></div>
-
-
-        <div class="loginFooter">
-
-            Secure access to your billing dashboard
-
-        </div>
-
-    </div>
-
-</div>
+          <div class="loginCard">
+      
+              <div class="loginBrand">
+      
+                  <div class="loginLogo">
+                      🧾
+                  </div>
+      
+                  <h1>
+                      Velora
+                  </h1>
+      
+                  <p>
+                      Professional Billing Management System
+                  </p>
+      
+              </div>
+      
+      
+              <h2>
+                  Welcome Back
+              </h2>
+      
+      
+              <div class="loginFormGroup">
+      
+                  <label>
+                      Email Address
+                  </label>
+      
+                  <input
+                      type="email"
+                      id="loginEmail"
+                      placeholder="Enter your email">
+      
+              </div>
+      
+      
+              <div class="loginFormGroup">
+      
+                  <label>
+                      Password
+                  </label>
+      
+                  <input
+                      type="password"
+                      id="loginPassword"
+                      placeholder="Enter your password">
+      
+              </div>
+      
+      
+              <button
+                  id="loginButton"
+                  type="button">
+      
+                  Login to Dashboard
+      
+              </button>
+      
+      
+              <div id="loginMessage"></div>
+      
+      
+              <div class="loginFooter">
+      
+                  Secure access to your billing dashboard
+      
+              </div>
+      
+          </div>
+      
+      </div>
 
     <!-- ==================================================
                         APP LAYOUT
@@ -151,28 +152,43 @@
 
             <div class="userProfile">
 
-                <div class="profileAvatar">
+                <div
+                    class="profileAvatar"
+                    id="profileAvatar">
+            
                     BP
+            
                 </div>
-
-
+            
+            
                 <div class="profileInfo">
-
-                    <strong>
+            
+                    <strong
+                        id="profileName">
+            
                         Bipin Patel
+            
                     </strong>
-
-                    <span>
+            
+            
+                    <span
+                        id="profileRole">
+            
                         Administrator
+            
                     </span>
-
+            
                 </div>
-
-
-                <button class="profileMenu">
+            
+            
+                <button
+                    class="profileMenu"
+                    type="button">
+            
                     <i class="fa-solid fa-ellipsis-vertical"></i>
+            
                 </button>
-
+            
             </div>
 
 
@@ -254,7 +270,7 @@
                     </span>
 
                     <span>
-                        Bill Type 3
+                        તાળા પત્રક
                     </span>
 
                     <i class="fa-solid fa-chevron-right navArrow"></i>
@@ -273,7 +289,7 @@
                     </span>
 
                     <span>
-                        Bill Type 4
+                        શિક્ષણ ઉપકર
                     </span>
 
                     <i class="fa-solid fa-chevron-right navArrow"></i>
@@ -773,7 +789,7 @@
                                 <div class="systemContent">
 
                                     <h3>
-                                        Bill Type 3
+                                        તાળા પત્રક
                                     </h3>
 
                                     <p>
@@ -806,7 +822,7 @@
                                 <div class="systemContent">
 
                                     <h3>
-                                        Bill Type 4
+                                        શિક્ષણ ઉપકર
                                     </h3>
 
                                     <p>
@@ -1751,7 +1767,10 @@
                                   
                                           <label>તારીખ:</label>
                             
-                                          <input type="date" id="dPavtiDate">
+                                          <input
+                                              type="text"
+                                              id="dPavtiDate"
+                                              readonly>
                                           
                                       </div>
                             
