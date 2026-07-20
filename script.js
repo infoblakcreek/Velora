@@ -1337,7 +1337,30 @@ document.addEventListener(
 
 // ==========================================================================
 
+// ==========================================
+// FORMAT DATE IN INDIAN FORMAT
+// ==========================================
 
+function formatIndianDate(dateValue) {
+
+    if (!dateValue) return "";
+
+    const date =
+        new Date(
+            dateValue + "T00:00:00"
+        );
+
+
+    return date.toLocaleDateString(
+        "en-IN",
+        {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric"
+        }
+    );
+
+}
 // ==========================================
 // GENERATE RECEIPT BUTTON
 // ==========================================
@@ -1445,7 +1468,9 @@ function generateReceipt() {
                 "dPavtiDate"
             )
             .value =
-            billDate;
+            formatIndianDate(
+                billDate
+            );
 
 
         /*
@@ -1507,6 +1532,30 @@ function generateReceipt() {
 
 
 // ==========================================
+// FORMAT DATE IN INDIAN FORMAT
+// ==========================================
+
+function formatIndianDate(dateValue) {
+
+    if (!dateValue) return "";
+
+    const date =
+        new Date(
+            dateValue + "T00:00:00"
+        );
+
+
+    return date.toLocaleDateString(
+        "en-IN",
+        {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric"
+        }
+    );
+
+}
+// ==========================================
 // GENERATE RECEIPT ITEMS
 // ==========================================
 
@@ -1563,9 +1612,11 @@ function generatePrintableBills() {
     document
         .getElementById("pBillDate")
         .textContent =
-        document
-            .getElementById("billDate")
-            .value;
+        formatIndianDate(
+            document
+                .getElementById("billDate")
+                .value
+        );
 
 
     document
@@ -1908,6 +1959,10 @@ window.addEventListener(
 
 // ==========================================================================
 
+/* ============================================================
+        LOGIN
+============================================================ */
+
 function loginUser() {
 
     const email =
@@ -1944,25 +1999,70 @@ function loginUser() {
             password
         )
 
+        .then(function(result) {
+
+            const user =
+                result.user;
+
+
+            return user.updateProfile({
+
+                displayName:
+                    "Bipin Patel"
+
+            });
+
+        })
+
+        .then(function() {
+
+            console.log(
+                "Bipin Patel saved successfully."
+            );
+
+        })
+
         .catch(function(error) {
-
-            loginMessage.textContent =
-                "Wrong email or password";
-
 
             console.error(
                 "Login error:",
                 error
             );
 
+
+            loginMessage.textContent =
+                "Wrong email or password.";
+
         });
 
 }
 
+
 /* ============================================================
-        FIREBASE AUTHENTICATION STATE
+        LOGIN BUTTON
 ============================================================ */
 
+const loginButton =
+    document.getElementById(
+        "loginButton"
+    );
+
+
+if (loginButton) {
+
+    loginButton.addEventListener(
+        "click",
+        loginUser
+    );
+
+}
+
+
+
+
+/* ============================================================
+        AUTHENTICATION STATE
+============================================================ */
 
 document.body.classList.add(
     "authChecking"
@@ -1990,22 +2090,41 @@ firebase
 
             if (user) {
 
-                /* ============================================
-                        USER IS LOGGED IN
-                ============================================ */
-
                 console.log(
                     "User logged in:",
                     user.email
                 );
 
+                 updateUserProfile(
+                      user
+                  );
 
-                loginScreen.style.display =
-                    "none";
+                /*
+                ============================================
+                        HIDE LOGIN
+                ============================================
+                */
+
+                if (loginScreen) {
+
+                    loginScreen.style.display =
+                        "none";
+
+                }
 
 
-                appLayout.style.display =
-                    "flex";
+                /*
+                ============================================
+                        SHOW APP
+                ============================================
+                */
+
+                if (appLayout) {
+
+                    appLayout.style.display =
+                        "flex";
+
+                }
 
 
                 document.body.classList.remove(
@@ -2018,33 +2137,46 @@ firebase
                 );
 
 
-                /* Load dashboard data */
-
                 loadDashboardStats();
 
                 loadRecentBills();
-
 
             }
 
 
             else {
 
-                /* ============================================
-                        USER IS NOT LOGGED IN
-                ============================================ */
-
                 console.log(
                     "No user logged in."
                 );
 
 
-                appLayout.style.display =
-                    "none";
+                /*
+                ============================================
+                        HIDE APP
+                ============================================
+                */
+
+                if (appLayout) {
+
+                    appLayout.style.display =
+                        "none";
+
+                }
 
 
-                loginScreen.style.display =
-                    "flex";
+                /*
+                ============================================
+                        SHOW LOGIN
+                ============================================
+                */
+
+                if (loginScreen) {
+
+                    loginScreen.style.display =
+                        "flex";
+
+                }
 
 
                 document.body.classList.remove(
@@ -2062,10 +2194,6 @@ firebase
 
     );
 
-
-
-
-/* ============================================================================
 
 /* ============================================================
         LOGOUT
@@ -2110,5 +2238,64 @@ if (logoutButton) {
         "click",
         logoutUser
     );
+
+}
+
+
+
+/* ============================================================
+        UPDATE USER PROFILE
+============================================================ */
+
+function updateUserProfile(user) {
+
+    if (!user) return;
+
+
+    const profileName =
+        document.getElementById(
+            "profileName"
+        );
+
+
+    const profileAvatar =
+        document.getElementById(
+            "profileAvatar"
+        );
+
+
+    const userName =
+        user.displayName
+        || "User";
+
+
+    const initials =
+        userName
+            .split(" ")
+            .map(function(name) {
+
+                return name
+                    .charAt(0)
+                    .toUpperCase();
+
+            })
+            .slice(0, 2)
+            .join("");
+
+
+    if (profileName) {
+
+        profileName.textContent =
+            userName;
+
+    }
+
+
+    if (profileAvatar) {
+
+        profileAvatar.textContent =
+            initials;
+
+    }
 
 }
