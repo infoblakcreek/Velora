@@ -925,7 +925,7 @@ if (mainBillNav) {
         LOAD ALL MAIN BILLS
 ========================================== */
 
-async function loadAllMainBills() {
+async function loadAllMainBills(searchTerm = "") {
 
     const mainBillsBody =
         document.getElementById(
@@ -968,27 +968,13 @@ async function loadAllMainBills() {
         mainBillsBody.innerHTML = "";
 
 
-        if (snapshot.empty) {
+        const search =
+            searchTerm
+                .trim()
+                .toLowerCase();
 
-            mainBillsBody.innerHTML = `
 
-                <tr>
-
-                    <td
-                        colspan="6"
-                        class="loadingBills">
-
-                        No bills saved yet.
-
-                    </td>
-
-                </tr>
-
-            `;
-
-            return;
-
-        }
+        let foundBills = 0;
 
 
         snapshot.forEach(
@@ -996,6 +982,48 @@ async function loadAllMainBills() {
 
                 const bill =
                     doc.data();
+
+
+                const billNumber =
+                    String(
+                        bill.billNo || ""
+                    )
+                    .toLowerCase();
+
+
+                const customerName =
+                    String(
+                        bill.customerName || ""
+                    )
+                    .toLowerCase();
+
+
+                /*
+                ==========================================
+                    SEARCH BY BILL NUMBER OR CUSTOMER NAME
+                ==========================================
+                */
+
+                if (
+
+                    search
+
+                    &&
+
+                    !billNumber.includes(search)
+
+                    &&
+
+                    !customerName.includes(search)
+
+                ) {
+
+                    return;
+
+                }
+
+
+                foundBills++;
 
 
                 const billDate =
@@ -1119,6 +1147,39 @@ async function loadAllMainBills() {
         );
 
 
+        /*
+        ==========================================
+                NO SEARCH RESULTS
+        ==========================================
+        */
+
+        if (foundBills === 0) {
+
+            mainBillsBody.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="6"
+                        class="loadingBills">
+
+                        No bills found for:
+
+                        <strong>
+                            "${searchTerm}"
+                        </strong>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+            return;
+
+        }
+
+
         attachBillActionListeners();
 
 
@@ -1152,6 +1213,27 @@ async function loadAllMainBills() {
 
 }
 
+
+const mainBillSearch =
+    document.getElementById(
+        "mainBillSearch"
+    );
+
+
+if (mainBillSearch) {
+
+    mainBillSearch.addEventListener(
+        "input",
+        function() {
+
+            loadAllMainBills(
+                this.value
+            );
+
+        }
+    );
+
+}
 /* ==================================================
         BILL ACTION BUTTONS
 ================================================== */
