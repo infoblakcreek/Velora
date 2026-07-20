@@ -151,49 +151,63 @@ if (loginButton) {
         AUTHENTICATION STATE
 ============================================================ */
 
-auth.onAuthStateChanged(
-    function (user) {
+auth.onAuthStateChanged((user) => {
 
-        if (user) {
+    if (user) {
 
-            console.log(
-                "User is logged in:",
-                user.email
-            );
+        console.log(
+            "User is logged in:",
+            user.email
+        );
 
+
+        // Hide login screen
+
+        if (loginScreen) {
 
             loginScreen.style.display =
                 "none";
 
-
-            dashboardView.style.display =
-                "block";
-
-
-            loadDashboardStats();
-
-            loadRecentBills();
-
         }
 
-        else {
 
-            console.log(
-                "No user logged in"
-            );
+        // Show dashboard
 
+        showDashboard();
+
+
+        // Load Firebase data ONLY after login
+
+        loadDashboardStats();
+
+        loadRecentBills();
+
+    }
+
+    else {
+
+        console.log(
+            "No user logged in"
+        );
+
+
+        // Hide all application views
+
+        hideAllViews();
+
+
+        // Show login screen
+
+        if (loginScreen) {
 
             loginScreen.style.display =
                 "flex";
 
-
-            dashboardView.style.display =
-                "none";
-
         }
 
     }
-);
+
+});
 
 /* ==================================================
         PAGE ELEMENTS
@@ -222,6 +236,122 @@ const newMainBillButton =
 
 const createBillButton =
     document.getElementById("createBillButton");
+
+/* ============================================================
+        VIEW MANAGEMENT
+============================================================ */
+
+function hideAllViews() {
+
+    dashboardView.style.display =
+        "none";
+
+    mainBillsView.style.display =
+        "none";
+
+    invoiceView.style.display =
+        "none";
+
+}
+
+
+function showDashboard() {
+
+    hideAllViews();
+
+    dashboardView.style.display =
+        "block";
+
+
+    dashboardNav.classList.add(
+        "active"
+    );
+
+    mainBillNav.classList.remove(
+        "active"
+    );
+
+}
+
+
+function showMainBills() {
+
+    hideAllViews();
+
+    mainBillsView.style.display =
+        "block";
+
+
+    dashboardNav.classList.remove(
+        "active"
+    );
+
+    mainBillNav.classList.add(
+        "active"
+    );
+
+
+    loadAllMainBills();
+
+
+    window.scrollTo(
+        0,
+        0
+    );
+
+}
+
+
+function showInvoice() {
+
+    hideAllViews();
+
+    invoiceView.style.display =
+        "block";
+
+
+    dashboardNav.classList.remove(
+        "active"
+    );
+
+    mainBillNav.classList.remove(
+        "active"
+    );
+
+}
+
+dashboardNav.addEventListener(
+    "click",
+    function(event) {
+
+        event.preventDefault();
+
+        showDashboard();
+
+    }
+);
+
+
+mainBillNav.addEventListener(
+    "click",
+    function(event) {
+
+        event.preventDefault();
+
+        showMainBills();
+
+    }
+);
+
+
+createBillButton.addEventListener(
+    "click",
+    function() {
+
+        showInvoice();
+
+    }
+);
 
 
 /* ==================================================
@@ -674,8 +804,67 @@ function updateMainBillCount(totalBills) {
     }
 
 }
+/* ============================================================
+        AUTHENTICATION STATE
+============================================================ */
 
-loadDashboardStats();
+auth.onAuthStateChanged((user) => {
+
+    if (user) {
+
+        console.log(
+            "User is logged in:",
+            user.email
+        );
+
+
+        // Hide login screen
+
+        if (loginScreen) {
+
+            loginScreen.style.display =
+                "none";
+
+        }
+
+
+        // Show dashboard
+
+        showDashboard();
+
+
+        // Load Firebase data ONLY after login
+
+        loadDashboardStats();
+
+        loadRecentBills();
+
+    }
+
+    else {
+
+        console.log(
+            "No user logged in"
+        );
+
+
+        // Hide all application views
+
+        hideAllViews();
+
+
+        // Show login screen
+
+        if (loginScreen) {
+
+            loginScreen.style.display =
+                "flex";
+
+        }
+
+    }
+
+});
 
 async function loadRecentBills() {
 
@@ -868,55 +1057,14 @@ async function loadRecentBills() {
 
     }
 
-}
+}function showMainBills() {
 
-loadRecentBills();
+    hideAllViews();
 
-/* ==========================================
-        OPEN MAIN BILL DATABASE
-========================================== */
+    mainBillsView.style.display =
+        "block";
 
-if (mainBillNav) {
-
-    mainBillNav.addEventListener(
-        "click",
-        function(event) {
-
-            event.preventDefault();
-
-
-            dashboardView.style.display =
-                "none";
-
-
-            invoiceView.style.display =
-                "none";
-
-
-            mainBillsView.style.display =
-                "block";
-
-
-            dashboardNav.classList.remove(
-                "active"
-            );
-
-
-            mainBillNav.classList.add(
-                "active"
-            );
-
-
-            loadAllMainBills();
-
-
-            window.scrollTo(
-                0,
-                0
-            );
-
-        }
-    );
+    loadAllMainBills();
 
 }
 
@@ -2990,3 +3138,67 @@ window.addEventListener(
 
     }
 );
+
+
+/* ============================================================
+        LOGOUT SYSTEM
+============================================================ */
+
+const logoutButton =
+    document.getElementById("logoutButton");
+
+
+if (logoutButton) {
+
+    logoutButton.addEventListener(
+        "click",
+        async function () {
+
+            try {
+
+                await auth.signOut();
+
+                console.log("User logged out successfully");
+
+                // Hide all application views
+                hideAllViews();
+
+                // Show login screen
+                if (loginScreen) {
+
+                    loginScreen.style.display =
+                        "flex";
+
+                }
+
+                // Clear login fields
+                if (loginEmail) {
+
+                    loginEmail.value =
+                        "";
+
+                }
+
+                if (loginPassword) {
+
+                    loginPassword.value =
+                        "";
+
+                }
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Logout error:",
+                    error
+                );
+
+            }
+
+        }
+
+    );
+
+}
