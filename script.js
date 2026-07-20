@@ -1911,30 +1911,204 @@ window.addEventListener(
 function loginUser() {
 
     const email =
-        document.getElementById("loginEmail").value;
+        document
+            .getElementById(
+                "loginEmail"
+            )
+            .value
+            .trim();
+
 
     const password =
-        document.getElementById("loginPassword").value;
+        document
+            .getElementById(
+                "loginPassword"
+            )
+            .value;
+
 
     const loginMessage =
-        document.getElementById("loginMessage");
+        document.getElementById(
+            "loginMessage"
+        );
 
-    firebase.auth()
-        .signInWithEmailAndPassword(email, password)
 
-        .then(() => {
+    loginMessage.textContent =
+        "";
 
-            document.getElementById("loginScreen")
-                .style.display = "none";
 
-        })
+    firebase
+        .auth()
+        .signInWithEmailAndPassword(
+            email,
+            password
+        )
 
-        .catch((error) => {
+        .catch(function(error) {
 
             loginMessage.textContent =
                 "Wrong email or password";
 
-            console.error(error);
+
+            console.error(
+                "Login error:",
+                error
+            );
 
         });
+
+}
+
+/* ============================================================
+        FIREBASE AUTHENTICATION STATE
+============================================================ */
+
+
+document.body.classList.add(
+    "authChecking"
+);
+
+
+const loginScreen =
+    document.getElementById(
+        "loginScreen"
+    );
+
+
+const appLayout =
+    document.getElementById(
+        "appLayout"
+    );
+
+
+firebase
+    .auth()
+    .onAuthStateChanged(
+
+        function(user) {
+
+
+            if (user) {
+
+                /* ============================================
+                        USER IS LOGGED IN
+                ============================================ */
+
+                console.log(
+                    "User logged in:",
+                    user.email
+                );
+
+
+                loginScreen.style.display =
+                    "none";
+
+
+                appLayout.style.display =
+                    "flex";
+
+
+                document.body.classList.remove(
+                    "authChecking"
+                );
+
+
+                document.body.classList.add(
+                    "userLoggedIn"
+                );
+
+
+                /* Load dashboard data */
+
+                loadDashboardStats();
+
+                loadRecentBills();
+
+
+            }
+
+
+            else {
+
+                /* ============================================
+                        USER IS NOT LOGGED IN
+                ============================================ */
+
+                console.log(
+                    "No user logged in."
+                );
+
+
+                appLayout.style.display =
+                    "none";
+
+
+                loginScreen.style.display =
+                    "flex";
+
+
+                document.body.classList.remove(
+                    "authChecking"
+                );
+
+
+                document.body.classList.remove(
+                    "userLoggedIn"
+                );
+
+            }
+
+        }
+
+    );
+
+
+
+
+/* ============================================================================
+
+/* ============================================================
+        LOGOUT
+============================================================ */
+
+async function logoutUser() {
+
+    try {
+
+        await firebase
+            .auth()
+            .signOut();
+
+
+        console.log(
+            "User logged out."
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Logout error:",
+            error
+        );
+
+    }
+
+}
+
+
+const logoutButton =
+    document.getElementById(
+        "logoutButton"
+    );
+
+
+if (logoutButton) {
+
+    logoutButton.addEventListener(
+        "click",
+        logoutUser
+    );
+
 }
