@@ -5071,3 +5071,309 @@ body.receiptGeneratedMode
     color: white;
 
 }
+
+
+
+/* ===========================================================================
+
+
+/* ============================================================
+        MAIN BILLS MANAGEMENT
+============================================================ */
+
+.mainBillsView {
+
+    padding: 30px;
+
+}
+
+
+/* ============================================================
+        PAGE HEADER
+============================================================ */
+
+.pageHeader {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 26px;
+
+}
+
+
+.pageEyebrow {
+
+    color: var(--orange);
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 1px;
+
+}
+
+
+.pageHeader h1 {
+
+    margin: 5px 0;
+
+    color: var(--text-primary);
+
+    font-size: 28px;
+
+}
+
+
+.pageHeader p {
+
+    margin: 0;
+
+    color: var(--text-secondary);
+
+    font-size: 13px;
+
+}
+
+
+/* ============================================================
+        SEARCH
+============================================================ */
+
+.billSearchBox {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    width: 280px;
+
+    height: 42px;
+
+    padding: 0 14px;
+
+    border: 1px solid var(--border-color);
+
+    border-radius: 10px;
+
+    background: var(--card-background);
+
+}
+
+
+.billSearchBox i {
+
+    color: #999;
+
+}
+
+
+.billSearchBox input {
+
+    width: 100%;
+
+    border: none;
+
+    outline: none;
+
+    background: transparent;
+
+    color: var(--text-primary);
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+}
+
+
+/* ============================================================
+        TABLE
+============================================================ */
+
+.allBillsTableWrapper {
+
+    width: 100%;
+
+    overflow-x: auto;
+
+}
+
+
+.allBillsTable {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+}
+
+
+.allBillsTable th {
+
+    padding: 15px 18px;
+
+    border-bottom: 1px solid var(--border-color);
+
+    color: var(--text-secondary);
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    text-align: left;
+
+    white-space: nowrap;
+
+}
+
+
+.allBillsTable td {
+
+    padding: 16px 18px;
+
+    border-bottom: 1px solid var(--border-color);
+
+    color: var(--text-primary);
+
+    font-size: 13px;
+
+}
+
+
+.allBillsTable tbody tr {
+
+    transition: background .2s ease;
+
+}
+
+
+.allBillsTable tbody tr:hover {
+
+    background: rgba(244, 123, 32, .04);
+
+}
+
+
+/* ============================================================
+        BILL NUMBER
+============================================================ */
+
+.tableBillNumber {
+
+    color: var(--orange);
+
+    font-weight: 700;
+
+}
+
+
+/* ============================================================
+        ACTION BUTTONS
+============================================================ */
+
+.billActions {
+
+    display: flex;
+
+    gap: 8px;
+
+}
+
+
+.billActionButton {
+
+    width: 34px;
+
+    height: 34px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: none;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    transition:
+
+        transform .2s ease,
+
+        background .2s ease;
+
+}
+
+
+.billActionButton:hover {
+
+    transform: translateY(-2px);
+
+}
+
+
+.editBillButton {
+
+    background: rgba(21, 101, 192, .10);
+
+    color: #1565C0;
+
+}
+
+
+.editBillButton:hover {
+
+    background: rgba(21, 101, 192, .18);
+
+}
+
+
+.deleteBillButton {
+
+    background: rgba(217, 48, 37, .10);
+
+    color: #d93025;
+
+}
+
+
+.deleteBillButton:hover {
+
+    background: rgba(217, 48, 37, .18);
+
+}
+
+
+/* ============================================================
+        RESPONSIVE
+============================================================ */
+
+@media (max-width: 800px) {
+
+    .pageHeader {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 18px;
+
+    }
+
+
+    .billSearchBox {
+
+        width: 100%;
+
+    }
+
+}
