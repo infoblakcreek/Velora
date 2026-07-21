@@ -3507,13 +3507,19 @@ if (logoutButton) {
 
 const activityList =
     document.getElementById(
-        "activityList"
+        "recentActivityList"
     );
 
 
 const activityMoreButton =
     document.getElementById(
         "activityMoreButton"
+    );
+
+
+const activityCard =
+    document.querySelector(
+        ".activityCard"
     );
 
 
@@ -3955,5 +3961,380 @@ function formatActivityTime(timestamp) {
                 month: "short"
             }
         );
+
+}
+
+/* ============================================================
+   RECENT ACTIVITY MENU
+============================================================ */
+
+
+let activityMenu =
+    null;
+
+
+/* ============================================================
+   CREATE MENU
+============================================================ */
+
+function createActivityMenu() {
+
+    if (activityMenu) return;
+
+
+    activityMenu =
+        document.createElement("div");
+
+
+    activityMenu.className =
+        "activityMenu";
+
+
+    activityMenu.innerHTML = `
+
+        <button
+            type="button"
+            class="activityMenuItem"
+            id="refreshActivityButton">
+
+            <i class="fa-solid fa-arrows-rotate"></i>
+
+            <span>
+                Refresh activity
+            </span>
+
+        </button>
+
+
+        <button
+            type="button"
+            class="activityMenuItem"
+            id="viewAllActivityButton">
+
+            <i class="fa-solid fa-list"></i>
+
+            <span>
+                View all activity
+            </span>
+
+        </button>
+
+
+        <button
+            type="button"
+            class="activityMenuItem danger"
+            id="hideActivityButton">
+
+            <i class="fa-solid fa-eye-slash"></i>
+
+            <span>
+                Hide activity
+            </span>
+
+        </button>
+
+    `;
+
+
+    activityCard.appendChild(
+        activityMenu
+    );
+
+
+    setupActivityMenuActions();
+
+}
+
+
+/* ============================================================
+   TOGGLE MENU
+============================================================ */
+
+if (activityMoreButton) {
+
+    activityMoreButton.addEventListener(
+        "click",
+        function(event) {
+
+            event.stopPropagation();
+
+            createActivityMenu();
+
+            activityMenu.classList.toggle(
+                "show"
+            );
+
+        }
+    );
+
+}
+
+
+/* ============================================================
+   CLOSE MENU OUTSIDE
+============================================================ */
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        if (
+
+            activityMenu &&
+
+            !activityMenu.contains(
+                event.target
+            ) &&
+
+            !activityMoreButton.contains(
+                event.target
+            )
+
+        ) {
+
+            activityMenu.classList.remove(
+                "show"
+            );
+
+        }
+
+    }
+);
+
+
+/* ============================================================
+   MENU ACTIONS
+============================================================ */
+
+function setupActivityMenuActions() {
+
+
+    /* --------------------------------------------------------
+       REFRESH
+    -------------------------------------------------------- */
+
+    const refreshButton =
+        document.getElementById(
+            "refreshActivityButton"
+        );
+
+
+    refreshButton.addEventListener(
+        "click",
+        async function() {
+
+            activityMenu.classList.remove(
+                "show"
+            );
+
+
+            activityList.innerHTML = `
+
+                <div class="activityLoading">
+
+                    Refreshing activity...
+
+                </div>
+
+            `;
+
+
+            /*
+             * Replace this function name
+             * with your existing activity
+             * loading function.
+             */
+
+            if (
+                typeof loadRecentActivity ===
+                "function"
+            ) {
+
+                await loadRecentActivity();
+
+            }
+
+        }
+    );
+
+
+    /* --------------------------------------------------------
+       VIEW ALL
+    -------------------------------------------------------- */
+
+    const viewAllButton =
+        document.getElementById(
+            "viewAllActivityButton"
+        );
+
+
+    viewAllButton.addEventListener(
+        "click",
+        function() {
+
+            activityMenu.classList.remove(
+                "show"
+            );
+
+
+            /*
+             * If you already have an
+             * All Bills page, navigate there.
+             */
+
+            const allBillsButton =
+                document.querySelector(
+                    "#allBillsNav"
+                );
+
+
+            if (allBillsButton) {
+
+                allBillsButton.click();
+
+            }
+
+            else {
+
+                console.log(
+                    "View all activity clicked"
+                );
+
+            }
+
+        }
+    );
+
+
+    /* --------------------------------------------------------
+       HIDE ACTIVITY
+    -------------------------------------------------------- */
+
+    const hideButton =
+        document.getElementById(
+            "hideActivityButton"
+        );
+
+
+    hideButton.addEventListener(
+        "click",
+        function() {
+
+            activityMenu.classList.remove(
+                "show"
+            );
+
+
+            activityList.classList.add(
+                "activityHidden"
+            );
+
+
+            showActivityHiddenState();
+
+        }
+    );
+
+}
+
+/* ============================================================
+   HIDDEN ACTIVITY STATE
+============================================================ */
+
+function showActivityHiddenState() {
+
+    let hiddenState =
+        activityCard.querySelector(
+            ".activityHiddenState"
+        );
+
+
+    if (!hiddenState) {
+
+        hiddenState =
+            document.createElement("div");
+
+
+        hiddenState.className =
+            "activityHiddenState";
+
+
+        hiddenState.innerHTML = `
+
+            <i class="fa-solid fa-eye-slash"></i>
+
+            <span>
+                Recent activity is hidden
+            </span>
+
+
+            <button
+                type="button"
+                class="activityMenuItem"
+                id="showActivityButton">
+
+                <i class="fa-solid fa-eye"></i>
+
+                Show activity
+
+            </button>
+
+        `;
+
+
+        activityCard.appendChild(
+            hiddenState
+        );
+
+
+        document
+            .getElementById(
+                "showActivityButton"
+            )
+            .addEventListener(
+                "click",
+                showActivityAgain
+            );
+
+    }
+
+
+    hiddenState.classList.add(
+        "show"
+    );
+
+}
+
+
+/* ============================================================
+   SHOW ACTIVITY AGAIN
+============================================================ */
+
+function showActivityAgain() {
+
+    const hiddenState =
+        document.querySelector(
+            ".activityHiddenState"
+        );
+
+
+    hiddenState.classList.remove(
+        "show"
+    );
+
+
+    activityList.classList.remove(
+        "activityHidden"
+    );
+
+
+    if (
+        typeof loadRecentActivity ===
+        "function"
+    ) {
+
+        loadRecentActivity();
+
+    }
 
 }
