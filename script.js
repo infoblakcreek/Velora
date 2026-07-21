@@ -4582,6 +4582,13 @@ const talapatrakBody =
         "talapatrakBody"
     );
 
+if (!talapatrakBody) {
+
+    console.warn(
+        "Talapatrak table body not found yet."
+    );
+
+}
 
 const addTalapatrakRowButton =
     document.getElementById(
@@ -5080,7 +5087,35 @@ if (printTalapatrakButton) {
 
             try {
 
-                await saveTalapatrak();
+                printTalapatrakButton.disabled =
+                    true;
+
+
+                printTalapatrakButton.innerHTML = `
+
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+
+                    Saving...
+
+                `;
+
+
+                /*
+                 * Save silently.
+                 * No alert before printing.
+                 */
+
+                const saved =
+                    await saveTalapatrak(
+                        false
+                    );
+
+
+                if (!saved) {
+
+                    return;
+
+                }
 
 
                 console.log(
@@ -5088,7 +5123,36 @@ if (printTalapatrakButton) {
                 );
 
 
-                window.print();
+                /*
+                 * Restore button
+                 */
+
+                printTalapatrakButton.disabled =
+                    false;
+
+
+                printTalapatrakButton.innerHTML = `
+
+                    <i class="fa-solid fa-print"></i>
+
+                    Print
+
+                `;
+
+
+                /*
+                 * Open browser print dialog
+                 */
+
+                setTimeout(
+                    function() {
+
+                        window.print();
+
+                    },
+                    100
+                );
+
 
             }
 
@@ -5104,6 +5168,19 @@ if (printTalapatrakButton) {
                     "Talapatrak could not be saved."
                 );
 
+
+                printTalapatrakButton.disabled =
+                    false;
+
+
+                printTalapatrakButton.innerHTML = `
+
+                    <i class="fa-solid fa-print"></i>
+
+                    Print
+
+                `;
+
             }
 
         }
@@ -5116,7 +5193,9 @@ if (printTalapatrakButton) {
         SAVE TALAPATRAK TO FIREBASE
 ============================================================ */
 
-async function saveTalapatrak() {
+async function saveTalapatrak(
+    showSuccessMessage = true
+) {
 
     try {
 
@@ -5126,7 +5205,49 @@ async function saveTalapatrak() {
                 "Please login before saving the Talapatrak."
             );
 
-            return;
+            return false;
+
+        }
+
+
+        const mojeInput =
+            document.getElementById(
+                "talapatrakMoje"
+            );
+
+
+        const moje =
+            mojeInput
+                ? mojeInput.value.trim()
+                : "";
+
+
+        if (!moje) {
+
+            alert(
+                "Please enter મોજે before saving the Talapatrak."
+            );
+
+
+            if (mojeInput) {
+
+                mojeInput.focus();
+
+            }
+
+
+            return false;
+
+        }
+
+
+        if (!talapatrakBody) {
+
+            alert(
+                "Talapatrak table is not loaded."
+            );
+
+            return false;
 
         }
 
@@ -5147,107 +5268,87 @@ async function saveTalapatrak() {
 
                 A: row.querySelector(
                     ".columnA"
-                ).value || "",
-
+                )?.value || "",
 
                 B: row.querySelector(
                     ".columnB"
-                ).value || "",
-
+                )?.value || "",
 
                 C: row.querySelector(
                     ".columnC"
-                ).value || "",
-
+                )?.value || "",
 
                 D: row.querySelector(
                     ".columnD"
-                ).value || "",
-
+                )?.value || "",
 
                 E: row.querySelector(
                     ".columnE"
-                ).value || "",
-
+                )?.value || "",
 
                 F: row.querySelector(
                     ".columnF"
-                ).value || "",
-
+                )?.value || "",
 
                 G: row.querySelector(
                     ".columnG"
-                ).value || "",
-
+                )?.value || "",
 
                 H: row.querySelector(
                     ".columnH"
-                ).value || "",
-
+                )?.value || "",
 
                 I: row.querySelector(
                     ".columnI"
-                ).value || "",
-
+                )?.value || "",
 
                 J: row.querySelector(
                     ".columnJ"
-                ).value || "",
-
+                )?.value || "",
 
                 K: row.querySelector(
                     ".columnK"
-                ).value || "",
-
+                )?.value || "",
 
                 L: row.querySelector(
                     ".columnL"
-                ).value || "",
-
+                )?.value || "",
 
                 M: row.querySelector(
                     ".columnM"
-                ).value || "",
-
+                )?.value || "",
 
                 N: row.querySelector(
                     ".columnN"
-                ).value || "",
-
+                )?.value || "",
 
                 O: row.querySelector(
                     ".columnO"
-                ).value || "",
-
+                )?.value || "",
 
                 P: row.querySelector(
                     ".columnP"
-                ).value || "",
-
+                )?.value || "",
 
                 Q: row.querySelector(
                     ".columnQ"
-                ).value || "",
-
+                )?.value || "",
 
                 R: row.querySelector(
                     ".columnR"
-                ).value || "",
-
+                )?.value || "",
 
                 S: row.querySelector(
                     ".columnS"
-                ).value || "",
-
+                )?.value || "",
 
                 T: row.querySelector(
                     ".columnT"
-                ).value || "",
-
+                )?.value || "",
 
                 U: row.querySelector(
                     ".columnU"
-                ).value || ""
+                )?.value || ""
 
             };
 
@@ -5264,53 +5365,60 @@ async function saveTalapatrak() {
             type:
                 "talapatrak",
 
+            moje:
+                moje,
 
             rows:
                 talapatrakRows,
 
-
             rowCount:
                 talapatrakRows.length,
-
 
             userId:
                 auth.currentUser.uid,
 
-
             userEmail:
                 auth.currentUser.email,
 
-
             updatedAt:
                 firebase.firestore.FieldValue.serverTimestamp(),
-
 
             createdAt:
                 firebase.firestore.FieldValue.serverTimestamp()
 
         };
 
-
-        const savedDocument =
-            await db
+      const savedDocument =
+            db
                 .collection(
                     "talapatraks"
                 )
-                .add(
-                    talapatrakData
+                .doc(
+                    moje
                 );
-
-
+        
+        
+        await savedDocument.set(
+            talapatrakData
+        );
+        
+        
         console.log(
             "Talapatrak saved successfully:",
             savedDocument.id
         );
 
 
-        alert(
-            "Talapatrak saved successfully."
-        );
+        if (showSuccessMessage) {
 
+            alert(
+                `Talapatrak for "${moje}" saved successfully.`
+            );
+        
+        }
+
+
+        return true;
 
     }
 
@@ -5326,6 +5434,9 @@ async function saveTalapatrak() {
             "Talapatrak could not be saved: " +
             error.message
         );
+
+
+        return false;
 
     }
 
