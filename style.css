@@ -1,4 +1,4 @@
-/* ==================================================
+/* ==================================================      
         RESET
 ================================================== */
 
@@ -6667,5 +6667,328 @@ body.dark-theme .mainBillsTableWrapper::-webkit-scrollbar-thumb:hover,
 [data-theme="dark"] .mainBillsTableWrapper::-webkit-scrollbar-thumb:hover {
 
     background:#f97316;
+
+}
+
+
+
+/* ============================================================================
+
+/* ============================================================
+   RECENT ACTIVITY CARD
+============================================================ */
+
+.activityCard {
+
+    position: relative;
+
+}
+
+
+/* ============================================================
+   MORE BUTTON
+============================================================ */
+
+.moreButton {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 34px;
+
+    height: 34px;
+
+    border: 1px solid var(--border-color);
+
+    border-radius: 9px;
+
+    background: var(--card-background);
+
+    color: var(--text-muted);
+
+    cursor: pointer;
+
+    transition:
+
+        background .2s ease,
+        color .2s ease,
+        border-color .2s ease,
+        transform .2s ease;
+
+}
+
+
+.moreButton:hover {
+
+    background: var(--hover-background);
+
+    color: var(--primary-color);
+
+    border-color: var(--primary-color);
+
+    transform: translateY(-1px);
+
+}
+
+
+/* ============================================================
+   ACTIVITY MENU
+============================================================ */
+
+.activityMenu {
+
+    position: absolute;
+
+    top: 62px;
+
+    right: 22px;
+
+    z-index: 100;
+
+    width: 190px;
+
+    padding: 6px;
+
+    border: 1px solid var(--border-color);
+
+    border-radius: 12px;
+
+    background: var(--card-background);
+
+    box-shadow:
+
+        0 12px 30px rgba(0, 0, 0, .12);
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    transform: translateY(-6px) scale(.97);
+
+    transform-origin: top right;
+
+    transition:
+
+        opacity .18s ease,
+        visibility .18s ease,
+        transform .18s ease;
+
+}
+
+
+.activityMenu.show {
+
+    opacity: 1;
+
+    visibility: visible;
+
+    transform: translateY(0) scale(1);
+
+}
+
+
+/* ============================================================
+   MENU ITEM
+============================================================ */
+
+.activityMenuItem {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    width: 100%;
+
+    padding: 10px 11px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: transparent;
+
+    color: var(--text-color);
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+
+        background .18s ease,
+        color .18s ease;
+
+}
+
+
+.activityMenuItem:hover {
+
+    background: var(--hover-background);
+
+    color: var(--primary-color);
+
+}
+
+
+.activityMenuItem i {
+
+    width: 16px;
+
+    color: var(--text-muted);
+
+    text-align: center;
+
+}
+
+
+.activityMenuItem:hover i {
+
+    color: var(--primary-color);
+
+}
+
+
+/* Danger option */
+
+.activityMenuItem.danger:hover {
+
+    color: #dc2626;
+
+    background: rgba(220, 38, 38, .08);
+
+}
+
+
+.activityMenuItem.danger:hover i {
+
+    color: #dc2626;
+
+}
+
+
+/* ============================================================
+   ACTIVITY LIST
+============================================================ */
+
+.activityList {
+
+    transition:
+
+        opacity .25s ease,
+        max-height .3s ease;
+
+}
+
+
+.activityList.activityHidden {
+
+    display: none;
+
+}
+
+
+/* ============================================================
+   EMPTY / HIDDEN STATE
+============================================================ */
+
+.activityHiddenState {
+
+    display: none;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    min-height: 150px;
+
+    color: var(--text-muted);
+
+    text-align: center;
+
+}
+
+
+.activityHiddenState.show {
+
+    display: flex;
+
+}
+
+
+.activityHiddenState i {
+
+    font-size: 24px;
+
+    color: var(--text-muted);
+
+}
+
+
+.activityHiddenState span {
+
+    font-size: 13px;
+
+}
+
+
+/* ============================================================
+   LIGHT THEME
+============================================================ */
+
+[data-theme="light"] {
+
+    --activity-menu-shadow:
+
+        0 12px 30px rgba(0, 0, 0, .12);
+
+}
+
+
+/* ============================================================
+   DARK THEME
+============================================================ */
+
+[data-theme="dark"] {
+
+    --activity-menu-shadow:
+
+        0 12px 30px rgba(0, 0, 0, .45);
+
+}
+
+
+[data-theme="dark"] .activityMenu {
+
+    box-shadow: var(--activity-menu-shadow);
+
+}
+
+
+/* ============================================================
+   REDUCED MOTION
+============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .activityMenu,
+    .moreButton,
+    .activityMenuItem {
+
+        transition: none;
+
+    }
 
 }
