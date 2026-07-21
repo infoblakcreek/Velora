@@ -245,14 +245,40 @@ const createBillButton =
 
 function hideAllViews() {
 
-    dashboardView.style.display =
-        "none";
+    document.body.classList.remove(
+        "talapatrakFullscreen"
+    );
+  
+    if (dashboardView) {
 
-    mainBillsView.style.display =
-        "none";
+        dashboardView.style.display =
+            "none";
 
-    invoiceView.style.display =
-        "none";
+    }
+
+
+    if (mainBillsView) {
+
+        mainBillsView.style.display =
+            "none";
+
+    }
+
+
+    if (invoiceView) {
+
+        invoiceView.style.display =
+            "none";
+
+    }
+
+
+    if (talapatrakView) {
+
+        talapatrakView.style.display =
+            "none";
+
+    }
 
 }
 
@@ -999,7 +1025,8 @@ async function loadRecentBills() {
 
     }
 
-}function showMainBills() {
+}
+function showMainBills() {
 
     hideAllViews();
 
@@ -3359,10 +3386,6 @@ if (backToEditBtn) {
 // PRINT BILL
 // ==========================================
 
-// ==========================================
-// PRINT BILL
-// ==========================================
-
 const printBillBtn =
     document.getElementById(
         "printBillBtn"
@@ -4336,5 +4359,1024 @@ function showActivityAgain() {
         loadRecentActivity();
 
     }
+
+}
+
+
+
+
+
+/* ===========================================================================
+
+
+/* ============================================================
+        TALAPATRAK NAVIGATION
+============================================================ */
+
+/* ============================================================
+        TALAPATRAK FULL-SCREEN NAVIGATION
+============================================================ */
+
+const talapatrakNav =
+    document.getElementById(
+        "talapatrakNav"
+    );
+
+
+const talapatrakView =
+    document.getElementById(
+        "talapatrakView"
+    );
+
+
+if (
+
+    talapatrakNav &&
+
+    talapatrakView
+
+) {
+
+
+    talapatrakNav.addEventListener(
+
+        "click",
+
+        function(event) {
+
+
+            event.preventDefault();
+
+
+            /*
+               Hide all normal views
+            */
+
+            hideAllViews();
+
+
+            /*
+               Show Talapatrak
+            */
+
+            talapatrakView.style.display =
+                "block";
+
+
+            /*
+               Activate full-screen mode
+            */
+
+            document.body.classList.add(
+
+                "talapatrakFullscreen"
+
+            );
+
+
+            /*
+               Make Talapatrak active
+            */
+
+            document
+                .querySelectorAll(
+                    ".navItem"
+                )
+                .forEach(
+                    function(item) {
+
+                        item.classList.remove(
+                            "active"
+                        );
+
+                    }
+                );
+
+
+            talapatrakNav.classList.add(
+                "active"
+            );
+
+
+        }
+
+    );
+
+}
+
+
+/* ============================================================
+        BACK TO DASHBOARD
+============================================================ */
+
+const backToDashboardButton =
+    document.getElementById(
+        "backToDashboardFromTalapatrak"
+    );
+
+
+if (backToDashboardButton) {
+
+    backToDashboardButton.addEventListener(
+
+        "click",
+
+        function() {
+
+
+            /*
+               Exit fullscreen mode
+            */
+
+            document.body.classList.remove(
+
+                "talapatrakFullscreen"
+
+            );
+
+
+            /*
+               Hide Talapatrak
+            */
+
+            talapatrakView.style.display =
+                "none";
+
+
+            /*
+               Show Dashboard
+            */
+
+            if (dashboardView) {
+
+                dashboardView.style.display =
+                    "block";
+
+            }
+
+
+            /*
+               Remove active state
+               from all navigation items
+            */
+
+            document
+                .querySelectorAll(
+                    ".navItem"
+                )
+                .forEach(
+
+                    function(item) {
+
+                        item.classList.remove(
+                            "active"
+                        );
+
+                    }
+
+                );
+
+
+            /*
+               Activate Dashboard navigation
+            */
+
+            const dashboardNav =
+                document.getElementById(
+                    "dashboardNav"
+                );
+
+
+            if (dashboardNav) {
+
+                dashboardNav.classList.add(
+                    "active"
+                );
+
+            }
+
+
+            /*
+               Scroll dashboard to top
+            */
+
+            window.scrollTo({
+
+                top:0,
+
+                behavior:"smooth"
+
+            });
+
+        }
+
+    );
+
+}
+/* ============================================================
+        TALAPATRAK ROW SYSTEM
+============================================================ */
+
+const talapatrakBody =
+    document.getElementById(
+        "talapatrakBody"
+    );
+
+
+const addTalapatrakRowButton =
+    document.getElementById(
+        "addTalapatrakRow"
+    );
+
+
+/* ============================================================
+        ADD NEW ROW
+============================================================ */
+
+if (addTalapatrakRowButton) {
+
+    addTalapatrakRowButton.addEventListener(
+        "click",
+        function () {
+
+            const rows =
+                talapatrakBody.querySelectorAll(
+                    ".talapatrakRow"
+                );
+
+
+            const lastRow =
+                rows[rows.length - 1];
+
+
+            const newRow =
+                lastRow.cloneNode(true);
+
+
+            /*
+             * Find last sequence number
+             */
+
+            const lastSequenceInput =
+                lastRow.querySelector(
+                    ".columnA"
+                );
+
+
+            const lastSequence =
+                Number(
+                    lastSequenceInput.value
+                ) || 0;
+
+
+            /*
+             * Clear all inputs
+             */
+
+            newRow
+                .querySelectorAll("input")
+                .forEach(function(input) {
+
+                    if (
+                        input.classList.contains(
+                            "columnA"
+                        )
+                    ) {
+
+                        input.value =
+                            lastSequence + 1;
+
+                    }
+
+                    else {
+
+                        input.value =
+                            "";
+
+                    }
+
+                });
+
+
+            /*
+             * Add new row
+             */
+
+            talapatrakBody.appendChild(
+                newRow
+            );
+
+            formatTalapatrakNumberInputs();
+
+
+            /*
+             * Focus first editable field
+             */
+
+            const firstInput =
+                newRow.querySelector(
+                    ".columnB"
+                );
+
+
+            if (firstInput) {
+
+                firstInput.focus();
+
+            }
+
+
+            /*
+             * Recalculate all rows
+             */
+
+            calculateAllTalapatrakRows();
+
+        }
+
+    );
+
+}
+
+
+/* ============================================================
+        DELETE ROW
+============================================================ */
+
+function deleteTalapatrakRow(button) {
+
+    const rows =
+        talapatrakBody.querySelectorAll(
+            ".talapatrakRow"
+        );
+
+
+    /*
+     * Never delete the final row
+     */
+
+    if (rows.length === 1) {
+
+        alert(
+            "At least one row is required."
+        );
+
+        return;
+
+    }
+
+
+    const row =
+        button.closest(
+            ".talapatrakRow"
+        );
+
+
+    row.remove();
+
+
+    renumberTalapatrakRows();
+
+
+    calculateAllTalapatrakRows();
+
+}
+
+
+/* ============================================================
+        AUTOMATIC SEQUENCE NUMBERS
+============================================================ */
+
+function renumberTalapatrakRows() {
+
+    const rows =
+        talapatrakBody.querySelectorAll(
+            ".talapatrakRow"
+        );
+
+
+    rows.forEach(function(row, index) {
+
+        const sequenceInput =
+            row.querySelector(
+                ".columnA"
+            );
+
+
+        if (sequenceInput) {
+
+            sequenceInput.value =
+                index + 1;
+
+        }
+
+    });
+
+}
+
+/* ============================================================
+        CALCULATE TALAPATRAK ROW
+============================================================ */
+
+function calculateTalapatrakRow(input) {
+
+    const row =
+        input.closest(
+            ".talapatrakRow"
+        );
+
+
+    if (!row) return;
+
+
+    const getValue =
+        function(column) {
+
+            const element =
+                row.querySelector(
+                    "." + column
+                );
+
+
+            return Number(
+                element.value
+            ) || 0;
+
+        };
+
+
+    const setValue =
+    function(column, value) {
+
+        const element =
+            row.querySelector(
+                "." + column
+            );
+
+
+        element.value =
+            Number(value).toFixed(2);
+
+    };
+
+
+    /*
+     * H = C + D + E + F + G
+     */
+
+    const C =
+        getValue("columnC");
+
+    const D =
+        getValue("columnD");
+
+    const E =
+        getValue("columnE");
+
+    const F =
+        getValue("columnF");
+
+    const G =
+        getValue("columnG");
+
+
+    const H =
+        C + D + E + F + G;
+
+
+    setValue(
+        "columnH",
+        H
+    );
+
+
+    /*
+     * I = D
+     */
+
+    const I =
+        D;
+
+
+    setValue(
+        "columnI",
+        I
+    );
+
+
+    /*
+     * J = H - I
+     */
+
+    const J =
+        H - I;
+
+
+    setValue(
+        "columnJ",
+        J
+    );
+
+
+    /*
+     * O = K + N
+     */
+
+    const K =
+        getValue("columnK");
+
+    const N =
+        getValue("columnN");
+
+
+    const O =
+        K + N;
+
+
+    setValue(
+        "columnO",
+        O
+    );
+
+
+    /*
+     * T = H - I - O
+     */
+
+    const T =
+        H - I - O;
+
+
+    setValue(
+        "columnT",
+        T
+    );
+
+
+    /*
+     * U = IF(T < O, T, O)
+     */
+
+    const U =
+        T < O
+            ? T
+            : O;
+
+
+    setValue(
+        "columnU",
+        U
+    );
+
+
+    /*
+     * R = -(U)
+     */
+
+    const R =
+        -U;
+
+
+    setValue(
+        "columnR",
+        R
+    );
+
+
+    /*
+     * P = O - R
+     */
+
+    const P =
+        O - R;
+
+
+    setValue(
+        "columnP",
+        P
+    );
+
+
+    /*
+     * Q = IF(T > O, T, O)
+     */
+
+    const Q =
+        T > O
+            ? T
+            : O;
+
+
+    setValue(
+        "columnQ",
+        Q
+    );
+
+}
+
+
+/* ============================================================
+        CALCULATE ALL ROWS
+============================================================ */
+
+function calculateAllTalapatrakRows() {
+
+    const rows =
+        talapatrakBody.querySelectorAll(
+            ".talapatrakRow"
+        );
+
+
+    rows.forEach(function(row) {
+
+        const input =
+            row.querySelector(
+                ".columnC"
+            );
+
+
+        if (input) {
+
+            calculateTalapatrakRow(
+                input
+            );
+
+        }
+
+    });
+
+}
+
+/* ============================================================
+        FORMAT USER-ENTERED NUMBERS TO 2 DECIMAL PLACES
+============================================================ */
+
+function formatTalapatrakNumberInputs() {
+
+    talapatrakBody
+        .querySelectorAll(
+            "input[type='number']"
+        )
+        .forEach(function(input) {
+
+            /*
+             * Prevent adding the same event listener
+             * multiple times
+             */
+
+            if (
+                input.dataset.decimalFormatterAttached
+            ) {
+
+                return;
+
+            }
+
+
+            input.dataset.decimalFormatterAttached =
+                "true";
+
+
+            input.addEventListener(
+                "blur",
+                function() {
+
+                    if (
+                        this.value !== ""
+                    ) {
+
+                        this.value =
+                            Number(
+                                this.value
+                            ).toFixed(2);
+
+                    }
+
+                }
+
+            );
+
+        });
+
+}
+
+formatTalapatrakNumberInputs();
+
+/* ============================================================
+        PRINT TALAPATRAK
+============================================================ */
+
+const printTalapatrakButton =
+    document.getElementById(
+        "printTalapatrakButton"
+    );
+
+
+if (printTalapatrakButton) {
+
+    printTalapatrakButton.addEventListener(
+        "click",
+        async function() {
+
+            try {
+
+                await saveTalapatrak();
+
+
+                console.log(
+                    "Talapatrak saved before printing."
+                );
+
+
+                window.print();
+
+            }
+
+            catch(error) {
+
+                console.error(
+                    "Error saving Talapatrak before print:",
+                    error
+                );
+
+
+                alert(
+                    "Talapatrak could not be saved."
+                );
+
+            }
+
+        }
+
+    );
+
+}
+
+/* ============================================================
+        SAVE TALAPATRAK TO FIREBASE
+============================================================ */
+
+async function saveTalapatrak() {
+
+    try {
+
+        if (!auth.currentUser) {
+
+            alert(
+                "Please login before saving the Talapatrak."
+            );
+
+            return;
+
+        }
+
+
+        const rows =
+            talapatrakBody.querySelectorAll(
+                ".talapatrakRow"
+            );
+
+
+        const talapatrakRows =
+            [];
+
+
+        rows.forEach(function(row) {
+
+            const rowData = {
+
+                A: row.querySelector(
+                    ".columnA"
+                ).value || "",
+
+
+                B: row.querySelector(
+                    ".columnB"
+                ).value || "",
+
+
+                C: row.querySelector(
+                    ".columnC"
+                ).value || "",
+
+
+                D: row.querySelector(
+                    ".columnD"
+                ).value || "",
+
+
+                E: row.querySelector(
+                    ".columnE"
+                ).value || "",
+
+
+                F: row.querySelector(
+                    ".columnF"
+                ).value || "",
+
+
+                G: row.querySelector(
+                    ".columnG"
+                ).value || "",
+
+
+                H: row.querySelector(
+                    ".columnH"
+                ).value || "",
+
+
+                I: row.querySelector(
+                    ".columnI"
+                ).value || "",
+
+
+                J: row.querySelector(
+                    ".columnJ"
+                ).value || "",
+
+
+                K: row.querySelector(
+                    ".columnK"
+                ).value || "",
+
+
+                L: row.querySelector(
+                    ".columnL"
+                ).value || "",
+
+
+                M: row.querySelector(
+                    ".columnM"
+                ).value || "",
+
+
+                N: row.querySelector(
+                    ".columnN"
+                ).value || "",
+
+
+                O: row.querySelector(
+                    ".columnO"
+                ).value || "",
+
+
+                P: row.querySelector(
+                    ".columnP"
+                ).value || "",
+
+
+                Q: row.querySelector(
+                    ".columnQ"
+                ).value || "",
+
+
+                R: row.querySelector(
+                    ".columnR"
+                ).value || "",
+
+
+                S: row.querySelector(
+                    ".columnS"
+                ).value || "",
+
+
+                T: row.querySelector(
+                    ".columnT"
+                ).value || "",
+
+
+                U: row.querySelector(
+                    ".columnU"
+                ).value || ""
+
+            };
+
+
+            talapatrakRows.push(
+                rowData
+            );
+
+        });
+
+
+        const talapatrakData = {
+
+            type:
+                "talapatrak",
+
+
+            rows:
+                talapatrakRows,
+
+
+            rowCount:
+                talapatrakRows.length,
+
+
+            userId:
+                auth.currentUser.uid,
+
+
+            userEmail:
+                auth.currentUser.email,
+
+
+            updatedAt:
+                firebase.firestore.FieldValue.serverTimestamp(),
+
+
+            createdAt:
+                firebase.firestore.FieldValue.serverTimestamp()
+
+        };
+
+
+        const savedDocument =
+            await db
+                .collection(
+                    "talapatraks"
+                )
+                .add(
+                    talapatrakData
+                );
+
+
+        console.log(
+            "Talapatrak saved successfully:",
+            savedDocument.id
+        );
+
+
+        alert(
+            "Talapatrak saved successfully."
+        );
+
+
+    }
+
+    catch(error) {
+
+        console.error(
+            "Error saving Talapatrak:",
+            error
+        );
+
+
+        alert(
+            "Talapatrak could not be saved: " +
+            error.message
+        );
+
+    }
+
+}
+
+/* ============================================================
+        SAVE BUTTON
+============================================================ */
+
+const saveTalapatrakButton =
+    document.getElementById(
+        "saveTalapatrakButton"
+    );
+
+
+if (saveTalapatrakButton) {
+
+    saveTalapatrakButton.addEventListener(
+        "click",
+        async function() {
+
+            saveTalapatrakButton.disabled =
+                true;
+
+
+            saveTalapatrakButton.innerHTML = `
+
+                <i class="fa-solid fa-spinner fa-spin"></i>
+
+                Saving...
+
+            `;
+
+
+            await saveTalapatrak();
+
+
+            saveTalapatrakButton.disabled =
+                false;
+
+
+            saveTalapatrakButton.innerHTML = `
+
+                <i class="fa-solid fa-floppy-disk"></i>
+
+                Save
+
+            `;
+
+        }
+
+    );
 
 }
