@@ -6672,1683 +6672,1896 @@ body.dark-theme .mainBillsTableWrapper::-webkit-scrollbar-thumb:hover,
 
 
 
-/* ============================================================================
-
-
+/* ========================================================================*/
 
 
 /* ============================================================
-        MAIN VIEW
+   TALAPATRAK DESIGN SYSTEM
+============================================================ */
+
+:root {
+
+    --talapatrak-primary: #6366f1;
+    --talapatrak-primary-dark: #4f46e5;
+
+    --talapatrak-purple: #8b5cf6;
+    --talapatrak-blue: #3b82f6;
+    --talapatrak-cyan: #06b6d4;
+    --talapatrak-green: #10b981;
+    --talapatrak-orange: #f97316;
+    --talapatrak-pink: #ec4899;
+
+    --talapatrak-bg: #f5f7ff;
+    --talapatrak-card: #ffffff;
+
+    --talapatrak-text: #1e293b;
+    --talapatrak-muted: #64748b;
+    --talapatrak-border: #e2e8f0;
+
+    --talapatrak-shadow:
+        0 12px 35px rgba(79, 70, 229, 0.08);
+
+    --talapatrak-radius: 18px;
+
+}
+
+
+/* ============================================================
+   MAIN MANAGEMENT VIEW
 ============================================================ */
 
 .talapatrakView {
 
-    position:fixed;
+    min-height: 100vh;
 
-    inset:0;
-
-    z-index:9999;
-
-    width:100vw;
-
-    height:100vh;
-
-    min-height:100vh;
-
-    padding:0;
-
-    overflow:auto;
-
-    background:var(--page-background);
-
-}
-
-
-/* ============================================================
-        MAIN PAGE
-============================================================ */
-
-.talapatrakPage {
-
-    width:100%;
-
-    min-height:100vh;
-
-    padding:24px;
-
-    background:var(--card-background);
-
-    border:none;
-
-    border-radius:0;
-
-    box-shadow:none;
-
-}
-
-
-/* ============================================================
-        HEADER
-============================================================ */
-
-.talapatrakHeader {
-
-    position:sticky;
-
-    top:0;
-
-    z-index:50;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:20px;
-
-    min-height:76px;
-
-    margin:-24px -24px 24px;
-
-    padding:16px 24px;
+    width: 100%;
 
     background:
 
-        linear-gradient(
+        radial-gradient(
+            circle at 10% 0%,
+            rgba(99, 102, 241, 0.12),
+            transparent 30%
+        ),
 
-            135deg,
+        radial-gradient(
+            circle at 90% 10%,
+            rgba(236, 72, 153, 0.10),
+            transparent 28%
+        ),
 
-            var(--primary-color),
+        var(--talapatrak-bg);
 
-            #f97316
-
-        );
-
-    color:#ffffff;
-
-    border-bottom:3px solid rgba(255,255,255,.25);
-
-    box-shadow:
-
-        0 4px 16px rgba(0,0,0,.15);
+    color: var(--talapatrak-text);
 
 }
 
-
-.talapatrakHeader h1 {
-
-    margin:0;
-
-    color:#ffffff;
-
-    font-size:26px;
-
-    font-weight:800;
-
-}
-
-
-.talapatrakHeader p {
-
-    margin:4px 0 0;
-
-    color:rgba(255,255,255,.85);
-
-    font-size:13px;
-
-}
 
 /* ============================================================
-        TABLE WRAPPER
+   MANAGEMENT TOP BAR
 ============================================================ */
 
-.talapatrakTableWrapper {
+.talapatrakManagementTopBar {
 
-    width:100%;
+    min-height: 82px;
 
-    max-width:100%;
+    padding: 16px 32px;
 
-    overflow-x:auto;
-    overflow-y:visible;
+    display: flex;
 
-    border:2px solid var(--primary-color);
+    align-items: center;
 
-    border-radius:12px;
+    justify-content: space-between;
 
-    background:var(--card-background);
+    gap: 24px;
 
-    box-shadow:
-        0 4px 16px rgba(0,0,0,.08);
+    background: rgba(255, 255, 255, 0.86);
+
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+
+    backdrop-filter: blur(18px);
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 100;
 
 }
 
 
 /* ============================================================
-        MAIN TABLE
+   TOP LEFT
 ============================================================ */
 
-.talapatrakTable {
+.talapatrakManagementTopLeft {
 
-    /*
-        IMPORTANT:
-        Do not force the table into 2600px.
-        The columns need their actual total width.
-    */
+    display: flex;
 
-    width:max-content;
+    align-items: center;
 
-    min-width:100%;
+    gap: 24px;
 
-    border-collapse:collapse;
-
-    border-spacing:0;
-
-    table-layout:fixed;
-
-    border:2px solid var(--border-color);
+    min-width: 0;
 
 }
 
 
 /* ============================================================
-        COLUMN WIDTHS
-        Use the colgroup directly
-============================================================ */
-
-.talapatrakTable .colA {
-    width:90px;
-}
-
-.talapatrakTable .colB {
-    width:220px;
-}
-
-.talapatrakTable .colC {
-    width:145px;
-}
-
-.talapatrakTable .colD {
-    width:135px;
-}
-
-.talapatrakTable .colE {
-    width:145px;
-}
-
-.talapatrakTable .colF {
-    width:170px;
-}
-
-.talapatrakTable .colG {
-    width:120px;
-}
-
-.talapatrakTable .colH {
-    width:165px;
-}
-
-.talapatrakTable .colI {
-    width:145px;
-}
-
-.talapatrakTable .colJ {
-    width:190px;
-}
-
-.talapatrakTable .colK {
-    width:145px;
-}
-
-.talapatrakTable .colL {
-    width:145px;
-}
-
-.talapatrakTable .colM {
-    width:125px;
-}
-
-.talapatrakTable .colN {
-    width:165px;
-}
-
-.talapatrakTable .colO {
-    width:110px;
-}
-
-.talapatrakTable .colP {
-    width:155px;
-}
-
-.talapatrakTable .colQ {
-    width:155px;
-}
-
-.talapatrakTable .colR {
-    width:135px;
-}
-
-.talapatrakTable .colS {
-    width:120px;
-}
-
-.talapatrakTable .colT {
-    width:125px;
-}
-
-.talapatrakTable .colU {
-    width:125px;
-}
-
-.talapatrakTable .colAction {
-    width:85px;
-}
-
-
-/* ============================================================
-        COMPLETE GRID BORDERS
-============================================================ */
-
-.talapatrakTable th,
-.talapatrakTable td {
-
-    border:1px solid var(--border-color) !important;
-
-}
-
-
-/* ============================================================
-        HEADER
-============================================================ */
-
-.talapatrakTable thead {
-
-    position:sticky;
-
-    top:0;
-
-    z-index:20;
-
-}
-
-
-.talapatrakTable thead th {
-
-    min-height:90px;
-
-    padding:12px 10px;
-
-    background:
-        linear-gradient(
-            180deg,
-            var(--table-header-bg),
-            var(--card-background)
-        );
-
-    color:var(--text-color);
-
-    font-size:13px;
-
-    font-weight:800;
-
-    line-height:1.5;
-
-    text-align:center;
-
-    vertical-align:middle;
-
-    white-space:normal;
-
-    word-break:normal;
-
-    overflow-wrap:break-word;
-
-}
-
-
-/* ============================================================
-        BODY CELLS
-============================================================ */
-
-.talapatrakTable tbody td {
-
-    height:70px;
-
-    padding:8px;
-
-    background:var(--card-background);
-
-    text-align:center;
-
-    vertical-align:middle;
-
-}
-
-
-/* ============================================================
-        INPUTS
-============================================================ */
-
-.talapatrakInput {
-
-    display:block;
-
-    width:100%;
-
-    height:46px;
-
-    padding:8px 10px;
-
-    box-sizing:border-box;
-
-    border:2px solid var(--border-color);
-
-    border-radius:8px;
-
-    background:var(--input-background);
-
-    color:var(--text-color);
-
-    font-family:inherit;
-
-    font-size:14px;
-
-    text-align:center;
-
-    outline:none;
-
-}
-
-
-.talapatrakInput.columnB {
-
-    text-align:left;
-
-}
-
-
-.talapatrakInput.calculated {
-
-    background:var(--calculated-background);
-
-    color:var(--primary-color);
-
-    font-weight:800;
-
-}
-
-
-/* ============================================================
-        HEADER GROUPS
-============================================================ */
-
-.talapatrakTable thead tr:nth-child(2) th:nth-child(3) {
-
-    background:
-        linear-gradient(
-            135deg,
-            #fff7ed,
-            #fed7aa
-        ) !important;
-
-    color:#9a3412;
-
-    font-size:17px;
-
-    border-bottom:3px solid #f97316 !important;
-
-}
-
-
-.talapatrakTable thead tr:nth-child(2) th:nth-child(7) {
-
-    background:
-        linear-gradient(
-            135deg,
-            #eff6ff,
-            #bfdbfe
-        ) !important;
-
-    color:#1d4ed8;
-
-    font-size:17px;
-
-    border-bottom:3px solid #3b82f6 !important;
-
-}
-
-
-/* ============================================================
-        SUBHEADERS
-============================================================ */
-
-.talapatrakTable thead tr:nth-child(3) th {
-
-    background:#fffaf5;
-
-}
-
-
-.talapatrakTable thead tr:nth-child(3) th:nth-child(n+7) {
-
-    background:#f5f9ff;
-
-}
-/* ============================================================
-        DELETE BUTTON
-============================================================ */
-
-.deleteTalapatrakRow {
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    width:36px;
-
-    height:36px;
-
-    margin:auto;
-
-    border:1px solid #fecdd3;
-
-    border-radius:8px;
-
-    background:#fff1f2;
-
-    color:#e11d48;
-
-    cursor:pointer;
-
-    transition:all .2s ease;
-
-}
-
-
-.deleteTalapatrakRow:hover {
-
-    background:#e11d48;
-
-    color:#ffffff;
-
-    transform:translateY(-1px);
-
-}
-
-
-/* ============================================================
-        ACTION BAR
-============================================================ */
-
-.talapatrakActions {
-
-    position:sticky;
-
-    bottom:0;
-
-    z-index:40;
-
-    display:flex;
-
-    align-items:center;
-
-    gap:10px;
-
-    margin:24px -24px -24px;
-
-    padding:16px 24px;
-
-    background:var(--card-background);
-
-    border-top:1px solid var(--border-color);
-
-    box-shadow:
-
-        0 -4px 14px rgba(0,0,0,.08);
-
-}
-
-
-/* ============================================================
-        ALL ACTION BUTTONS
-============================================================ */
-
-.talapatrakActions button {
-
-    display:inline-flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    gap:8px;
-
-    min-height:42px;
-
-    padding:10px 17px;
-
-    border-radius:9px;
-
-    font-family:inherit;
-
-    font-size:13px;
-
-    font-weight:700;
-
-    cursor:pointer;
-
-    transition:
-
-        transform .2s ease,
-
-        box-shadow .2s ease,
-
-        background .2s ease,
-
-        border-color .2s ease;
-
-}
-
-
-.talapatrakActions button:hover {
-
-    transform:translateY(-1px);
-
-    box-shadow:
-
-        0 5px 14px rgba(0,0,0,.12);
-
-}
-
-
-/* ============================================================
-        ADD ROW — ORANGE THEME
-============================================================ */
-
-#addTalapatrakRow {
-
-    color:#c2410c;
-
-    background:#fff7ed;
-
-    border:1px solid #fed7aa;
-
-}
-
-
-#addTalapatrakRow:hover {
-
-    background:#ffedd5;
-
-    border-color:#fb923c;
-
-}
-
-
-/* ============================================================
-        SAVE — BLUE
-============================================================ */
-
-#saveTalapatrakButton {
-
-    color:#1d4ed8;
-
-    background:#eff6ff;
-
-    border:1px solid #bfdbfe;
-
-}
-
-
-#saveTalapatrakButton:hover {
-
-    background:#dbeafe;
-
-    border-color:#60a5fa;
-
-}
-
-
-/* ============================================================
-        PRINT — GREEN
-============================================================ */
-
-#printTalapatrakButton {
-
-    color:#15803d;
-
-    background:#f0fdf4;
-
-    border:1px solid #bbf7d0;
-
-}
-
-
-#printTalapatrakButton:hover {
-
-    background:#dcfce7;
-
-    border-color:#4ade80;
-
-}
-
-
-/* ============================================================
-        BACK — NEUTRAL
-============================================================ */
-
-#backToDashboardFromTalapatrak {
-
-    margin-left:auto;
-
-    color:var(--text-color);
-
-    background:var(--card-background);
-
-    border:1px solid var(--border-color);
-
-}
-
-
-#backToDashboardFromTalapatrak:hover {
-
-    color:var(--primary-color);
-
-    border-color:var(--primary-color);
-
-    background:var(--hover-background);
-
-}
-
-
-/* ============================================================
-        DARK MODE
-============================================================ */
-
-[data-theme="dark"] .talapatrakTableWrapper {
-
-    border-color:#fb923c;
-
-}
-
-
-[data-theme="dark"] .talapatrakTable {
-
-    border-color:#596273;
-
-}
-
-
-[data-theme="dark"] .talapatrakTable th,
-
-[data-theme="dark"] .talapatrakTable td {
-
-    border-color:#596273 !important;
-
-}
-
-
-[data-theme="dark"] .talapatrakTable thead th {
-
-    background:#202938;
-
-    color:#f1f5f9;
-
-}
-
-
-[data-theme="dark"] .talapatrakTable tbody td {
-
-    background:#151b26;
-
-}
-
-
-[data-theme="dark"] .talapatrakInput {
-
-    background:#202938;
-
-    border-color:#596273;
-
-    color:#ffffff;
-
-}
-
-
-[data-theme="dark"] .talapatrakInput:focus {
-
-    background:#293548;
-
-    border-color:#fb923c;
-
-}
-
-
-[data-theme="dark"] .talapatrakActions {
-
-    background:#151b26;
-
-    border-color:#303746;
-
-}
-
-
-[data-theme="dark"] #addTalapatrakRow {
-
-    color:#fdba74;
-
-    background:#2a1d13;
-
-    border-color:#6b3415;
-
-}
-
-
-[data-theme="dark"] #saveTalapatrakButton {
-
-    color:#93c5fd;
-
-    background:#172554;
-
-    border-color:#1e40af;
-
-}
-
-
-[data-theme="dark"] #printTalapatrakButton {
-
-    color:#86efac;
-
-    background:#14261c;
-
-    border-color:#225c37;
-
-}
-
-
-/* ============================================================
-        PRINT — A4 LANDSCAPE
-============================================================ */
-
-@page {
-    size: A4 landscape;
-    margin: 10mm;
-}
-
-
-@media print {
-
-    html,
-    body {
-
-        margin:0 !important;
-        padding:0 !important;
-
-        width:auto !important;
-        height:auto !important;
-
-        overflow:visible !important;
-
-    }
-
-
-    body * {
-
-        visibility:hidden;
-
-    }
-
-
-    #talapatrakView,
-    #talapatrakView * {
-
-        visibility:visible;
-
-    }
-
-
-    #talapatrakView {
-
-        position:absolute !important;
-
-        left:0 !important;
-        top:0 !important;
-
-        width:100% !important;
-        height:auto !important;
-
-        min-height:0 !important;
-
-        margin:0 !important;
-        padding:0 !important;
-
-        overflow:visible !important;
-
-        background:#ffffff !important;
-
-    }
-
-
-    .talapatrakPage {
-
-        width:100% !important;
-
-        min-width:0 !important;
-        min-height:0 !important;
-
-        margin:0 !important;
-        padding:0 !important;
-
-        background:#ffffff !important;
-
-    }
-
-
-    .talapatrakTableWrapper {
-
-        width:100% !important;
-
-        max-width:none !important;
-
-        overflow:visible !important;
-
-        margin:0 !important;
-        padding:0 !important;
-
-        border:none !important;
-
-        box-shadow:none !important;
-
-    }
-
-
-    .talapatrakTable {
-
-        width:100% !important;
-
-        max-width:none !important;
-
-        min-width:0 !important;
-
-        table-layout:fixed !important;
-
-        border-collapse:collapse !important;
-
-    }
-
-
-    .talapatrakTable col {
-
-        width:auto !important;
-
-    }
-
-
-    .talapatrakTable th,
-    .talapatrakTable td {
-
-        border:1px solid #000 !important;
-
-        width:auto !important;
-
-        max-width:none !important;
-
-    }
-
-
-    .talapatrakTable thead {
-
-        position:static !important;
-
-    }
-
-
-    .talapatrakTable thead th {
-
-        padding:3px 2px !important;
-
-        font-size:7px !important;
-
-        line-height:1.1 !important;
-
-        white-space:normal !important;
-
-        word-break:normal !important;
-
-        overflow-wrap:break-word !important;
-
-    }
-
-
-    .talapatrakTable tbody td {
-
-        height:28px !important;
-
-        padding:2px !important;
-
-    }
-
-
-    .talapatrakInput {
-
-        width:100% !important;
-
-        height:22px !important;
-
-        min-height:22px !important;
-
-        padding:1px 2px !important;
-
-        border:none !important;
-
-        background:transparent !important;
-
-        color:#000 !important;
-
-        font-size:7px !important;
-
-    }
-
-
-    .talapatrakActions,
-    .talapatrakTopActions,
-    .deleteTalapatrakRow {
-
-        display:none !important;
-
-    }
-
-}
-
-
-/* ============================================================
-        TALAPATRAK — HIDE NORMAL DASHBOARD COMPLETELY
-============================================================ */
-
-/* Hide sidebar */
-body.talapatrakFullscreen .sidebar,
-body.talapatrakFullscreen #sidebar {
-
-    display:none !important;
-
-}
-
-
-/* Hide top dashboard / top bar */
-body.talapatrakFullscreen .topBar,
-body.talapatrakFullscreen #topBar,
-body.talapatrakFullscreen .dashboardHeader,
-body.talapatrakFullscreen .dashboardTop,
-body.talapatrakFullscreen .mainHeader {
-
-    display:none !important;
-
-}
-
-
-/* Hide dashboard content behind Talapatrak */
-body.talapatrakFullscreen .dashboardView,
-body.talapatrakFullscreen #dashboardView,
-body.talapatrakFullscreen .dashboard {
-
-    display:none !important;
-
-}
-
-
-/* Main content becomes the complete screen */
-body.talapatrakFullscreen .mainContent {
-
-    position:fixed;
-
-    inset:0;
-
-    width:100vw !important;
-
-    height:100vh !important;
-
-    max-width:none !important;
-
-    margin:0 !important;
-
-    padding:0 !important;
-
-}
-
-
-/* Talapatrak itself fills screen */
-body.talapatrakFullscreen #talapatrakView {
-
-    position:fixed !important;
-
-    inset:0 !important;
-
-    z-index:999999 !important;
-
-    display:block !important;
-
-    width:100vw !important;
-
-    height:100vh !important;
-
-    min-height:100vh !important;
-
-    margin:0 !important;
-
-    padding:0 !important;
-
-    overflow:auto !important;
-
-}
-
-/* ============================================================
-        TALAPATRAK TOP DASHBOARD BAR
-============================================================ */
-
-.talapatrakTopBar {
-
-    position:sticky;
-
-    top:0;
-
-    z-index:100;
-
-    width:100%;
-
-    min-height:70px;
-
-    padding:12px 24px;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:20px;
-
-    background:var(--card-background);
-
-    border-bottom:1px solid var(--border-color);
-
-    box-shadow:
-
-        0 4px 14px rgba(15,23,42,.06);
-
-}
-
-
-/* ============================================================
-        LEFT SIDE
-============================================================ */
-
-.talapatrakTopLeft {
-
-    display:flex;
-
-    align-items:center;
-
-    gap:20px;
-
-}
-
-
-/* ============================================================
-        TITLE AREA
-============================================================ */
-
-.talapatrakTopTitle {
-
-    display:flex;
-
-    align-items:center;
-
-    gap:12px;
-
-}
-
-
-.talapatrakTopIcon {
-
-    width:40px;
-
-    height:40px;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    border-radius:11px;
-
-    background:
-
-        linear-gradient(
-
-            135deg,
-
-            #fff7ed,
-
-            #ffedd5
-
-        );
-
-    color:#f97316;
-
-    font-size:17px;
-
-}
-
-
-.talapatrakTopTitle h2 {
-
-    margin:0;
-
-    color:var(--text-color);
-
-    font-size:17px;
-
-    font-weight:800;
-
-}
-
-
-.talapatrakTopTitle span {
-
-    display:block;
-
-    margin-top:2px;
-
-    color:var(--text-muted);
-
-    font-size:11px;
-
-}
-
-
-/* ============================================================
-        ACTIONS
-============================================================ */
-
-.talapatrakTopActions {
-
-    display:flex;
-
-    align-items:center;
-
-    gap:9px;
-
-}
-
-
-/* ============================================================
-        COMMON BUTTON
+   COMMON TOP BUTTON
 ============================================================ */
 
 .talapatrakTopButton {
 
-    display:inline-flex;
+    border: none;
 
-    align-items:center;
+    cursor: pointer;
 
-    justify-content:center;
+    display: inline-flex;
 
-    gap:8px;
+    align-items: center;
 
-    min-height:38px;
+    justify-content: center;
 
-    padding:9px 14px;
+    gap: 9px;
 
-    border-radius:9px;
+    height: 42px;
 
-    font-family:inherit;
+    padding: 0 16px;
 
-    font-size:12px;
+    border-radius: 12px;
 
-    font-weight:700;
+    font-size: 14px;
 
-    cursor:pointer;
+    font-weight: 700;
 
-    transition:
-
-        transform .2s ease,
-
-        box-shadow .2s ease,
-
-        background .2s ease,
-
-        border-color .2s ease;
+    transition: all 0.22s ease;
 
 }
 
 
-/* ============================================================
-        BACK TO DASHBOARD
-============================================================ */
+/* BACK BUTTON */
 
 .talapatrakTopButton.back {
 
-    color:#475569;
+    color: #475569;
 
-    background:#f8fafc;
+    background: #f1f5f9;
 
-    border:1px solid #e2e8f0;
+    border: 1px solid #e2e8f0;
 
 }
 
 
 .talapatrakTopButton.back:hover {
 
-    color:#f97316;
+    color: var(--talapatrak-primary);
 
-    background:#fff7ed;
+    background: #eef2ff;
 
-    border-color:#fed7aa;
+    border-color: #c7d2fe;
 
-    transform:translateX(-2px);
-
-}
-
-
-/* ============================================================
-        SAVE
-============================================================ */
-
-.talapatrakTopButton.save {
-
-    color:#2563eb;
-
-    background:#eff6ff;
-
-    border:1px solid #dbeafe;
-
-}
-
-
-.talapatrakTopButton.save:hover {
-
-    background:#dbeafe;
-
-    border-color:#bfdbfe;
-
-    transform:translateY(-1px);
-
-    box-shadow:
-
-        0 4px 10px rgba(37,99,235,.12);
+    transform: translateX(-2px);
 
 }
 
 
 /* ============================================================
-        PRINT
+   MANAGEMENT TITLE
 ============================================================ */
 
-.talapatrakTopButton.print {
+.talapatrakManagementTitle {
 
-    color:#16a34a;
+    display: flex;
 
-    background:#f0fdf4;
+    align-items: center;
 
-    border:1px solid #bbf7d0;
-
-}
-
-
-.talapatrakTopButton.print:hover {
-
-    background:#dcfce7;
-
-    border-color:#86efac;
-
-    transform:translateY(-1px);
-
-    box-shadow:
-
-        0 4px 10px rgba(22,163,74,.12);
+    gap: 13px;
 
 }
 
 
-/* ============================================================
-        DARK THEME
-============================================================ */
+.talapatrakManagementIcon {
 
-[data-theme="dark"] .talapatrakTopBar {
+    width: 46px;
 
-    background:#151922;
+    height: 46px;
 
-    border-bottom-color:#252b36;
+    display: flex;
 
-    box-shadow:
+    align-items: center;
 
-        0 4px 14px rgba(0,0,0,.20);
+    justify-content: center;
 
-}
+    border-radius: 14px;
 
+    color: white;
 
-[data-theme="dark"] .talapatrakTopButton.back {
-
-    color:#cbd5e1;
-
-    background:#202632;
-
-    border-color:#303746;
-
-}
-
-
-[data-theme="dark"] .talapatrakTopButton.back:hover {
-
-    color:#fb923c;
-
-    background:#2a1d13;
-
-    border-color:#6b3415;
-
-}
-
-
-[data-theme="dark"] .talapatrakTopIcon {
-
-    background:#2a1d13;
-
-    color:#fb923c;
-
-}
-
-
-[data-theme="dark"] .talapatrakTopButton.save {
-
-    color:#60a5fa;
-
-    background:#172554;
-
-    border-color:#1e40af;
-
-}
-
-
-[data-theme="dark"] .talapatrakTopButton.print {
-
-    color:#4ade80;
-
-    background:#14261c;
-
-    border-color:#225c37;
-
-}
-
-
-/* ============================================================
-        MOBILE
-============================================================ */
-
-@media (max-width:700px) {
-
-    .talapatrakTopBar {
-
-        padding:10px 12px;
-
-    }
-
-
-    .talapatrakTopLeft {
-
-        gap:10px;
-
-    }
-
-
-    .talapatrakTopTitle {
-
-        display:none;
-
-    }
-
-
-    .talapatrakTopButton span {
-
-        display:none;
-
-    }
-
-
-    .talapatrakTopButton {
-
-        width:38px;
-
-        padding:9px;
-
-    }
-
-}
-/* ============================================================
-        TOP INFORMATION ROW
-============================================================ */
-
-.talapatrakTable thead tr.talapatrakInfoRow th {
-
-    height:auto;
-
-    padding:16px 20px;
+    font-size: 20px;
 
     background:
 
         linear-gradient(
-
             135deg,
+            var(--talapatrak-primary),
+            var(--talapatrak-purple)
+        );
 
-            #fff7ed,
+    box-shadow:
 
-            #ffffff 45%,
-
-            #eff6ff
-
-        ) !important;
-
-    color:var(--text-color);
-
-    text-align:left;
-
-    vertical-align:middle;
-
-    border-bottom:2px solid var(--primary-color) !important;
+        0 8px 18px rgba(99, 102, 241, 0.28);
 
 }
 
 
-.talapatrakInfo {
+.talapatrakManagementTitle h2 {
 
-    display:flex;
+    margin: 0;
 
-    align-items:center;
+    font-size: 19px;
 
-    gap:28px;
+    font-weight: 800;
 
-    width:100%;
+    color: #1e293b;
+
+}
+
+
+.talapatrakManagementTitle span {
+
+    display: block;
+
+    margin-top: 2px;
+
+    color: var(--talapatrak-muted);
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+}
+
+
+/* ============================================================
+   TOP ACTIONS
+============================================================ */
+
+.talapatrakManagementTopActions {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+}
+
+
+/* ============================================================
+   SEARCH BOX
+============================================================ */
+
+.talapatrakSearchBox {
+
+    width: 270px;
+
+    height: 44px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 0 15px;
+
+    background: #ffffff;
+
+    border: 1px solid var(--talapatrak-border);
+
+    border-radius: 13px;
+
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+
+    transition: all 0.2s ease;
+
+}
+
+
+.talapatrakSearchBox:focus-within {
+
+    border-color: var(--talapatrak-primary);
+
+    box-shadow:
+
+        0 0 0 4px rgba(99, 102, 241, 0.10),
+
+        0 6px 18px rgba(99, 102, 241, 0.08);
+
+}
+
+
+.talapatrakSearchBox i {
+
+    color: #94a3b8;
+
+    font-size: 15px;
+
+}
+
+
+.talapatrakSearchBox input {
+
+    width: 100%;
+
+    border: none;
+
+    outline: none;
+
+    background: transparent;
+
+    color: var(--talapatrak-text);
+
+    font-size: 14px;
+
+}
+
+
+.talapatrakSearchBox input::placeholder {
+
+    color: #94a3b8;
+
+}
+
+
+/* ============================================================
+   ADD BUTTON
+============================================================ */
+
+.talapatrakAddButton {
+
+    height: 44px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 0 18px;
+
+    border: none;
+
+    border-radius: 13px;
+
+    cursor: pointer;
+
+    color: white;
+
+    font-size: 14px;
+
+    font-weight: 800;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            var(--talapatrak-primary),
+            var(--talapatrak-purple)
+        );
+
+    box-shadow:
+
+        0 8px 18px rgba(99, 102, 241, 0.24);
+
+    transition: all 0.22s ease;
+
+}
+
+
+.talapatrakAddButton:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+
+        0 12px 24px rgba(99, 102, 241, 0.32);
+
+}
+
+
+.talapatrakAddButton:active {
+
+    transform: translateY(0);
+
+}
+
+
+/* ============================================================
+   MANAGEMENT CONTENT
+============================================================ */
+
+.talapatrakManagementContent {
+
+    width: min(1500px, calc(100% - 64px));
+
+    margin: 0 auto;
+
+    padding: 38px 0 60px;
+
+}
+
+
+/* ============================================================
+   PAGE HEADER
+============================================================ */
+
+.talapatrakManagementHeader {
+
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: space-between;
+
+    gap: 24px;
+
+    margin-bottom: 24px;
+
+}
+
+
+.talapatrakManagementHeader h1 {
+
+    margin: 0;
+
+    font-size: 32px;
+
+    line-height: 1.1;
+
+    font-weight: 900;
+
+    letter-spacing: -0.8px;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #1e293b,
+            var(--talapatrak-primary)
+        );
+
+    -webkit-background-clip: text;
+
+    -webkit-text-fill-color: transparent;
+
+}
+
+
+.talapatrakManagementHeader p {
+
+    margin: 8px 0 0;
+
+    color: var(--talapatrak-muted);
+
+    font-size: 14px;
+
+}
+
+
+/* ============================================================
+   VIEW CONTROLS
+============================================================ */
+
+.talapatrakViewControls {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+}
+
+
+/* ============================================================
+   SORT WRAPPER
+============================================================ */
+
+.talapatrakSortWrapper {
+
+    position: relative;
+
+}
+
+
+.talapatrakControlButton {
+
+    height: 42px;
+
+    min-width: 130px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 9px;
+
+    padding: 0 13px;
+
+    cursor: pointer;
+
+    border: 1px solid var(--talapatrak-border);
+
+    border-radius: 11px;
+
+    background: white;
+
+    color: #475569;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    transition: all 0.2s ease;
+
+}
+
+
+.talapatrakControlButton:hover {
+
+    color: var(--talapatrak-primary);
+
+    border-color: #c7d2fe;
+
+    background: #f8faff;
+
+}
+
+
+.talapatrakControlButton i:first-child {
+
+    color: var(--talapatrak-primary);
+
+}
+
+
+.talapatrakControlButton i:last-child {
+
+    font-size: 11px;
+
+    color: #94a3b8;
+
+}
+
+
+/* ============================================================
+   SORT DROPDOWN
+============================================================ */
+
+.talapatrakSortMenu {
+
+    position: absolute;
+
+    top: calc(100% + 8px);
+
+    right: 0;
+
+    width: 175px;
+
+    padding: 6px;
+
+    display: none;
+
+    flex-direction: column;
+
+    gap: 3px;
+
+    background: white;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 14px;
+
+    box-shadow:
+
+        0 18px 40px rgba(15, 23, 42, 0.14);
+
+    z-index: 200;
+
+}
+
+
+.talapatrakSortMenu.open {
+
+    display: flex;
+
+}
+
+
+.talapatrakSortOption {
+
+    width: 100%;
+
+    min-height: 38px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 0 11px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background: transparent;
+
+    cursor: pointer;
+
+    color: #475569;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    text-align: left;
+
+}
+
+
+.talapatrakSortOption:hover {
+
+    background: #f1f5ff;
+
+    color: var(--talapatrak-primary);
+
+}
+
+
+.talapatrakSortOption.active {
+
+    color: var(--talapatrak-primary);
+
+    background: #eef2ff;
+
+    font-weight: 800;
+
+}
+
+
+.talapatrakSortOption i {
+
+    width: 16px;
+
+}
+
+
+/* ============================================================
+   GRID / LIST BUTTONS
+============================================================ */
+
+.talapatrakIconButton {
+
+    width: 42px;
+
+    height: 42px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: 1px solid var(--talapatrak-border);
+
+    border-radius: 11px;
+
+    background: white;
+
+    color: #94a3b8;
+
+    cursor: pointer;
+
+    font-size: 16px;
+
+    transition: all 0.2s ease;
+
+}
+
+
+.talapatrakIconButton:hover {
+
+    color: var(--talapatrak-primary);
+
+    border-color: #c7d2fe;
+
+}
+
+
+.talapatrakIconButton.active {
+
+    color: white;
+
+    border-color: transparent;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            var(--talapatrak-primary),
+            var(--talapatrak-purple)
+        );
+
+    box-shadow:
+
+        0 6px 14px rgba(99, 102, 241, 0.22);
+
+}
+
+
+/* ============================================================
+   RECORD SUMMARY
+============================================================ */
+
+.talapatrakSearchSummary {
+
+    margin-bottom: 22px;
+
+    padding: 13px 17px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    border-radius: 12px;
+
+    background: rgba(255, 255, 255, 0.72);
+
+    border: 1px solid rgba(226, 232, 240, 0.8);
+
+    color: var(--talapatrak-muted);
+
+    font-size: 13px;
+
+}
+
+
+.talapatrakSearchSummary strong {
+
+    color: var(--talapatrak-primary);
+
+    font-size: 17px;
+
+    margin-right: 4px;
+
+}
+
+
+/* ============================================================
+   VILLAGE CARD GRID
+============================================================ */
+
+.talapatrakVillageGrid {
+
+    display: grid;
+
+    grid-template-columns:
+
+        repeat(
+            auto-fill,
+            minmax(280px, 1fr)
+        );
+
+    gap: 22px;
+
+}
+
+
+/* ============================================================
+   VILLAGE CARD
+============================================================ */
+
+.talapatrakVillageCard {
+
+    position: relative;
+
+    overflow: hidden;
+
+    min-height: 250px;
+
+    padding: 22px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    background: white;
+
+    border: 1px solid rgba(226, 232, 240, 0.9);
+
+    border-radius: 20px;
+
+    box-shadow: var(--talapatrak-shadow);
+
+    transition: all 0.25s ease;
+
+}
+
+
+.talapatrakVillageCard::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+
+    left: 0;
+
+    right: 0;
+
+    height: 5px;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            var(--talapatrak-primary),
+            var(--talapatrak-purple),
+            var(--talapatrak-pink)
+        );
+
+}
+
+
+.talapatrakVillageCard:hover {
+
+    transform: translateY(-5px);
+
+    box-shadow:
+
+        0 20px 42px rgba(79, 70, 229, 0.14);
+
+    border-color: #c7d2fe;
+
+}
+
+
+/* ============================================================
+   CARD HEADER
+============================================================ */
+
+.talapatrakCardHeader {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+}
+
+
+.talapatrakCardVillageIcon {
+
+    width: 48px;
+
+    height: 48px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 15px;
+
+    color: white;
+
+    font-size: 20px;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #06b6d4,
+            #3b82f6
+        );
+
+    box-shadow:
+
+        0 8px 18px rgba(59, 130, 246, 0.22);
+
+}
+
+
+.talapatrakCardMenuButton {
+
+    width: 34px;
+
+    height: 34px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background: #f8fafc;
+
+    color: #94a3b8;
+
+    cursor: pointer;
+
+}
+
+
+.talapatrakCardMenuButton:hover {
+
+    color: var(--talapatrak-primary);
+
+    background: #eef2ff;
+
+}
+
+
+/* ============================================================
+   CARD CONTENT
+============================================================ */
+
+.talapatrakCardTitle {
+
+    margin: 20px 0 5px;
+
+    color: #1e293b;
+
+    font-size: 20px;
+
+    font-weight: 900;
+
+}
+
+
+.talapatrakCardLocation {
+
+    color: var(--talapatrak-muted);
+
+    font-size: 13px;
+
+}
+
+
+.talapatrakCardLocation i {
+
+    margin-right: 5px;
+
+    color: var(--talapatrak-orange);
+
+}
+
+
+/* ============================================================
+   CARD STATS
+============================================================ */
+
+.talapatrakCardStats {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 10px;
+
+    margin-top: 20px;
+
+}
+
+
+.talapatrakCardStat {
+
+    padding: 11px;
+
+    border-radius: 12px;
+
+    background: #f8fafc;
+
+}
+
+
+.talapatrakCardStatLabel {
+
+    display: block;
+
+    color: #94a3b8;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+}
+
+
+.talapatrakCardStatValue {
+
+    display: block;
+
+    margin-top: 4px;
+
+    color: #334155;
+
+    font-size: 14px;
+
+    font-weight: 800;
+
+}
+
+
+/* ============================================================
+   CARD FOOTER
+============================================================ */
+
+.talapatrakCardFooter {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-top: auto;
+
+    padding-top: 20px;
+
+}
+
+
+.talapatrakCardOpenButton {
+
+    flex: 1;
+
+    height: 40px;
+
+    border: none;
+
+    border-radius: 11px;
+
+    color: white;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            var(--talapatrak-primary),
+            var(--talapatrak-purple)
+        );
+
+    cursor: pointer;
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+    transition: all 0.2s ease;
+
+}
+
+
+.talapatrakCardOpenButton:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+
+        0 8px 16px rgba(99, 102, 241, 0.25);
+
+}
+
+
+/* ============================================================
+   LIST VIEW
+============================================================ */
+
+.talapatrakVillageGrid.listView {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+}
+
+
+.talapatrakVillageGrid.listView
+.talapatrakVillageCard {
+
+    min-height: auto;
+
+    display: grid;
+
+    grid-template-columns: auto 1fr auto;
+
+    align-items: center;
+
+    gap: 20px;
+
+    padding: 18px 22px;
+
+}
+
+
+.talapatrakVillageGrid.listView
+.talapatrakCardTitle {
+
+    margin: 0;
+
+}
+
+
+.talapatrakVillageGrid.listView
+.talapatrakCardStats {
+
+    display: flex;
+
+    margin: 0;
+
+}
+
+
+.talapatrakVillageGrid.listView
+.talapatrakCardFooter {
+
+    margin: 0;
+
+    padding: 0;
+
+}
+
+
+/* ============================================================
+   EMPTY STATE
+============================================================ */
+
+.talapatrakEmptyState {
+
+    min-height: 360px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 40px;
+
+    text-align: center;
+
+    background: rgba(255, 255, 255, 0.72);
+
+    border: 2px dashed #cbd5e1;
+
+    border-radius: 22px;
+
+}
+
+
+.talapatrakEmptyIcon {
+
+    width: 72px;
+
+    height: 72px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 22px;
+
+    color: var(--talapatrak-primary);
+
+    background: #eef2ff;
+
+    font-size: 30px;
+
+}
+
+
+.talapatrakEmptyState h3 {
+
+    margin: 18px 0 6px;
+
+    color: #334155;
+
+    font-size: 20px;
+
+}
+
+
+.talapatrakEmptyState p {
+
+    margin: 0;
+
+    color: var(--talapatrak-muted);
+
+    font-size: 14px;
+
+}
+
+
+.talapatrakEmptyAddButton {
+
+    margin-top: 20px;
+
+    padding: 11px 18px;
+
+    border: none;
+
+    border-radius: 11px;
+
+    color: white;
+
+    background: var(--talapatrak-primary);
+
+    cursor: pointer;
+
+    font-weight: 800;
+
+}
+
+
+/* ============================================================
+   EDITOR VIEW
+============================================================ */
+
+.talapatrakEditorView {
+
+    min-height: 100vh;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #f8faff,
+            #eef2ff
+        );
+
+}
+
+
+/* ============================================================
+   EDITOR TOP BAR
+============================================================ */
+
+.talapatrakEditorTopBar {
+
+    min-height: 76px;
+
+    padding: 14px 28px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    background: white;
+
+    border-bottom: 1px solid #e2e8f0;
+
+    box-shadow:
+
+        0 4px 16px rgba(15, 23, 42, 0.05);
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 100;
+
+}
+
+
+/* ============================================================
+   EDITOR TITLE
+============================================================ */
+
+.talapatrakEditorTitle {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+}
+
+
+.talapatrakEditorTitle > i {
+
+    color: var(--talapatrak-primary);
+
+    font-size: 24px;
+
+}
+
+
+.talapatrakEditorTitle h2 {
+
+    margin: 0;
+
+    color: #1e293b;
+
+    font-size: 18px;
+
+    font-weight: 900;
+
+}
+
+
+.talapatrakEditorTitle span {
+
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--talapatrak-muted);
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+}
+
+
+/* ============================================================
+   EDITOR ACTIONS
+============================================================ */
+
+.talapatrakEditorActions {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+}
+
+
+.talapatrakTopButton.save {
+
+    color: white;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #10b981,
+            #059669
+        );
+
+}
+
+
+.talapatrakTopButton.print {
+
+    color: white;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #f97316,
+            #ea580c
+        );
+
+}
+
+
+.talapatrakTopButton.save:hover,
+.talapatrakTopButton.print:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+
+        0 8px 18px rgba(15, 23, 42, 0.16);
+
+}
+
+
+/* ============================================================
+   EDITOR CONTENT
+============================================================ */
+
+.talapatrakEditorContent {
+
+    width: 100%;
+
+    padding: 36px;
+
+    overflow-x: auto;
+
+}
+
+
+/* ============================================================
+   TALAPATRAK PAGE
+============================================================ */
+
+.talapatrakPage {
+
+    width: max-content;
+
+    min-width: 1200px;
+
+    margin: 0 auto;
+
+    padding: 28px;
+
+    background: white;
+
+    border-radius: 20px;
+
+    box-shadow:
+
+        0 18px 50px rgba(15, 23, 42, 0.10);
+
+}
+
+
+/* ============================================================
+   INFORMATION PANEL
+============================================================ */
+
+.talapatrakInfoPanel {
+
+    display: grid;
+
+    grid-template-columns:
+
+        repeat(
+            5,
+            minmax(180px, 1fr)
+        );
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+
+    padding: 20px;
+
+    border-radius: 16px;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #f8faff,
+            #eef2ff
+        );
+
+    border: 1px solid #e0e7ff;
 
 }
 
 
 .talapatrakInfoField {
 
-    display:flex;
+    display: flex;
 
-    align-items:center;
+    flex-direction: column;
 
-    gap:8px;
-
-    white-space:nowrap;
+    gap: 7px;
 
 }
 
 
 .talapatrakInfoField label {
 
-    color:#475569;
+    color: #64748b;
 
-    font-size:13px;
+    font-size: 12px;
 
-    font-weight:800;
+    font-weight: 800;
 
 }
 
 
 .talapatrakInfoInput {
 
-    width:145px;
+    min-height: 38px;
 
-    height:36px;
+    resize: none;
 
-    min-height:36px;
+    padding: 9px 11px;
 
-    padding:6px 9px;
+    border: 1px solid #cbd5e1;
 
-    box-sizing:border-box;
+    border-radius: 9px;
 
-    resize:none;
+    outline: none;
 
-    border:2px solid #fed7aa;
+    background: white;
 
-    border-radius:8px;
+    color: #1e293b;
 
-    background:#ffffff;
+    font-family: inherit;
 
-    color:#334155;
-
-    font-family:inherit;
-
-    font-size:13px;
-
-    outline:none;
-
-    transition:
-
-        border-color .2s ease,
-
-        box-shadow .2s ease,
-
-        background .2s ease;
+    font-size: 13px;
 
 }
 
 
 .talapatrakInfoInput:focus {
 
-    border-color:#f97316;
-
-    background:#fffaf5;
+    border-color: var(--talapatrak-primary);
 
     box-shadow:
 
-        0 0 0 3px rgba(249,115,22,.12);
+        0 0 0 3px rgba(99, 102, 241, 0.10);
 
 }
 
 
 .talapatrakInfoStatic {
 
-    padding:7px 12px;
+    min-height: 38px;
 
-    border-radius:8px;
+    display: flex;
 
-    background:#fff7ed;
+    align-items: center;
 
-    color:#c2410c;
+    padding: 0 11px;
 
-    font-size:15px;
+    border-radius: 9px;
 
-    font-weight:900;
+    color: var(--talapatrak-primary);
+
+    background: #eef2ff;
+
+    font-size: 13px;
+
+    font-weight: 800;
 
 }
+
 
 /* ============================================================
-        DARK MODE — GROUP HEADERS
+   TABLE WRAPPER
 ============================================================ */
 
-[data-theme="dark"]
-.talapatrakTable thead tr:nth-child(2)
-th:nth-child(3) {
+.talapatrakTableWrapper {
 
-    background:#2a1d13 !important;
+    width: 100%;
 
-    color:#fdba74;
+    overflow-x: auto;
 
-    border-bottom-color:#f97316 !important;
+    border: 1px solid #cbd5e1;
 
-}
-
-
-[data-theme="dark"]
-.talapatrakTable thead tr:nth-child(2)
-th:nth-child(7) {
-
-    background:#172554 !important;
-
-    color:#93c5fd;
-
-    border-bottom-color:#3b82f6 !important;
+    border-radius: 14px;
 
 }
 
 
-[data-theme="dark"]
-.talapatrakTable thead tr:nth-child(3) th {
+/* ============================================================
+   TABLE
+============================================================ */
 
-    background:#211c17 !important;
+.talapatrakTable {
+
+    width: max-content;
+
+    min-width: 100%;
+
+    border-collapse: separate;
+
+    border-spacing: 0;
+
+    color: #1e293b;
+
+    font-size: 12px;
 
 }
 
 
-[data-theme="dark"]
-.talapatrakTable thead tr:nth-child(3)
-th:nth-child(n+7) {
+.talapatrakTable th {
 
-    background:#172033 !important;
+    padding: 12px 10px;
 
-}
-
-
-[data-theme="dark"]
-.talapatrakTable thead tr.talapatrakInfoRow th {
+    color: white;
 
     background:
 
         linear-gradient(
-
             135deg,
+            #4f46e5,
+            #7c3aed
+        );
 
-            #2a1d13,
+    border-right: 1px solid rgba(255, 255, 255, 0.22);
 
-            #151b26
+    border-bottom: 1px solid #4338ca;
 
-        ) !important;
+    text-align: center;
 
-}
+    font-weight: 800;
 
-
-[data-theme="dark"]
-.talapatrakInfoInput {
-
-    background:#202938;
-
-    border-color:#6b3415;
-
-    color:#ffffff;
+    vertical-align: middle;
 
 }
 
 
-[data-theme="dark"]
-.talapatrakInfoStatic {
+.talapatrakTable tr:nth-child(3) th {
 
-    background:#2a1d13;
+    background:
 
-    color:#fdba74;
+        linear-gradient(
+            135deg,
+            #6366f1,
+            #8b5cf6
+        );
 
 }
 
+
+.talapatrakTable td {
+
+    padding: 8px;
+
+    border-right: 1px solid #e2e8f0;
+
+    border-bottom: 1px solid #e2e8f0;
+
+    background: white;
+
+    text-align: center;
+
+}
+
+
+.talapatrakTable tbody tr:hover td {
+
+    background: #f8faff;
+
+}
+
+
+/* ============================================================
+   TABLE ACTIONS
+============================================================ */
+
+.talapatrakActions {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    margin-top: 18px;
+
+}
+
+
+#addTalapatrakRow {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 11px 18px;
+
+    border: none;
+
+    border-radius: 11px;
+
+    color: white;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            var(--talapatrak-primary),
+            var(--talapatrak-purple)
+        );
+
+    cursor: pointer;
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+    box-shadow:
+
+        0 7px 16px rgba(99, 102, 241, 0.20);
+
+}
+
+
+#addTalapatrakRow:hover {
+
+    transform: translateY(-2px);
+
+}
+
+
+/* ============================================================
+   RESPONSIVE DESIGN
+============================================================ */
+
+@media (max-width: 1000px) {
+
+    .talapatrakManagementTopBar {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+    }
+
+
+    .talapatrakManagementTopActions {
+
+        width: 100%;
+
+    }
+
+
+    .talapatrakSearchBox {
+
+        flex: 1;
+
+        width: auto;
+
+    }
+
+
+    .talapatrakManagementHeader {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+    }
+
+
+    .talapatrakInfoPanel {
+
+        grid-template-columns:
+
+            repeat(
+                3,
+                minmax(180px, 1fr)
+            );
+
+    }
+
+}
+
+
+@media (max-width: 650px) {
+
+    .talapatrakManagementTopBar {
+
+        padding: 14px 18px;
+
+    }
+
+
+    .talapatrakManagementTopLeft {
+
+        width: 100%;
+
+    }
+
+
+    .talapatrakManagementTitle {
+
+        min-width: 0;
+
+    }
+
+
+    .talapatrakManagementTitle h2 {
+
+        font-size: 16px;
+
+    }
+
+
+    .talapatrakManagementContent {
+
+        width: calc(100% - 32px);
+
+        padding-top: 26px;
+
+    }
+
+
+    .talapatrakManagementTopActions {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+    .talapatrakSearchBox {
+
+        width: 100%;
+
+    }
+
+
+    .talapatrakAddButton {
+
+        justify-content: center;
+
+    }
+
+
+    .talapatrakViewControls {
+
+        width: 100%;
+
+    }
+
+
+    .talapatrakSortWrapper {
+
+        flex: 1;
+
+    }
+
+
+    .talapatrakControlButton {
+
+        width: 100%;
+
+    }
+
+
+    .talapatrakEditorTopBar {
+
+        padding: 12px 16px;
+
+    }
+
+
+    .talapatrakEditorContent {
+
+        padding: 18px;
+
+    }
+
+
+    .talapatrakPage {
+
+        padding: 16px;
+
+    }
+
+}
