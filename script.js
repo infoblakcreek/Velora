@@ -4370,93 +4370,341 @@ function showActivityAgain() {
 
 
 /* ============================================================
-        TALAPATRAK NAVIGATION
+        TALAPATRAK SYSTEM
+        STEP 1: NAVIGATION + MANAGEMENT + EDITOR
 ============================================================ */
+
 
 /* ============================================================
-        TALAPATRAK FULL-SCREEN NAVIGATION
+        ELEMENT REFERENCES
 ============================================================ */
 
-const talapatrakNav =
+const talapatrakNavElement =
     document.getElementById(
         "talapatrakNav"
     );
 
 
-const talapatrakView =
+const dashboardViewElement =
+    document.getElementById(
+        "dashboardView"
+    );
+
+
+const talapatrakViewElement =
     document.getElementById(
         "talapatrakView"
     );
 
 
-if (
-
-    talapatrakNav &&
-
-    talapatrakView
-
-) {
+const talapatrakEditorViewElement =
+    document.getElementById(
+        "talapatrakEditorView"
+    );
 
 
-    talapatrakNav.addEventListener(
+const backToDashboardButtonElement =
+    document.getElementById(
+        "backToDashboardFromTalapatrak"
+    );
+
+
+const backToTalapatrakManagementButton =
+    document.getElementById(
+        "backToTalapatrakManagement"
+    );
+
+
+const addTalapatrakButton =
+    document.getElementById(
+        "addTalapatrakButton"
+    );
+
+
+const emptyAddTalapatrakButton =
+    document.getElementById(
+        "emptyAddTalapatrakButton"
+    );
+
+
+/* ============================================================
+        HIDE ALL MAIN VIEWS
+============================================================ */
+
+function hideAllMainViews() {
+
+    if (dashboardViewElement) {
+
+        dashboardViewElement.style.display =
+            "none";
+
+    }
+
+
+    if (talapatrakViewElement) {
+
+        talapatrakViewElement.style.display =
+            "none";
+
+    }
+
+
+    if (talapatrakEditorViewElement) {
+
+        talapatrakEditorViewElement.style.display =
+            "none";
+
+    }
+
+}
+
+
+/* ============================================================
+        CLEAR ACTIVE NAVIGATION
+============================================================ */
+
+function clearNavigationActiveState() {
+
+    document
+        .querySelectorAll(
+            ".navItem"
+        )
+        .forEach(
+            function(item) {
+
+                item.classList.remove(
+                    "active"
+                );
+
+            }
+        );
+
+}
+
+
+/* ============================================================
+        OPEN TALAPATRAK MANAGEMENT
+============================================================ */
+
+function openTalapatrakManagement() {
+
+    console.log(
+        "Opening Talapatrak Management..."
+    );
+
+
+    /*
+        Hide dashboard and editor
+    */
+
+    hideAllMainViews();
+
+
+    /*
+        Show management page
+    */
+
+    if (talapatrakViewElement) {
+
+        talapatrakViewElement.style.display =
+            "block";
+
+    }
+
+
+    /*
+        Hide normal dashboard topbar/layout
+        if your CSS uses fullscreen mode
+    */
+
+    document.body.classList.add(
+        "talapatrakFullscreen"
+    );
+
+
+    /*
+        Activate Talapatrak navigation
+    */
+
+    clearNavigationActiveState();
+
+
+    if (talapatrakNavElement) {
+
+        talapatrakNavElement.classList.add(
+            "active"
+        );
+
+    }
+
+
+    window.scrollTo({
+
+        top: 0,
+
+        behavior: "smooth"
+
+    });
+
+    /*
+    Load latest Talapatrak records
+    */
+    
+    loadTalapatrakRecords();
+
+}
+
+
+/* ============================================================
+        TALAPATRAK NAVIGATION CLICK
+============================================================ */
+
+if (talapatrakNavElement) {
+
+    talapatrakNavElement.addEventListener(
 
         "click",
 
         function(event) {
 
+            event.preventDefault();
+
+
+            openTalapatrakManagement();
+
+        }
+
+    );
+
+}
+
+
+/* ============================================================
+        OPEN TALAPATRAK EDITOR
+============================================================ */
+
+function openTalapatrakEditor() {
+
+    console.log(
+        "Opening Talapatrak Editor..."
+    );
+
+
+    /*
+        Hide all views
+    */
+
+    hideAllMainViews();
+
+
+    /*
+        Show editor
+    */
+
+    if (talapatrakEditorViewElement) {
+
+        talapatrakEditorViewElement.style.display =
+            "block";
+
+    }
+
+
+    /*
+        Keep fullscreen mode
+    */
+
+    document.body.classList.add(
+        "talapatrakFullscreen"
+    );
+
+
+    /*
+        Keep Talapatrak navigation active
+    */
+
+    clearNavigationActiveState();
+
+
+    if (talapatrakNavElement) {
+
+        talapatrakNavElement.classList.add(
+            "active"
+        );
+
+    }
+
+
+    window.scrollTo({
+
+        top: 0,
+
+        behavior: "smooth"
+
+    });
+
+}
+
+
+/* ============================================================
+        ADD TALAPATRAK BUTTON
+============================================================ */
+
+if (addTalapatrakButton) {
+
+    addTalapatrakButton.addEventListener(
+
+        "click",
+
+        function() {
+
+            openTalapatrakEditor();
+
+        }
+
+    );
+
+}
+
+
+/* ============================================================
+        EMPTY STATE ADD BUTTON
+============================================================ */
+
+if (emptyAddTalapatrakButton) {
+
+    emptyAddTalapatrakButton.addEventListener(
+
+        "click",
+
+        function() {
+
+            openTalapatrakEditor();
+
+        }
+
+    );
+
+}
+
+
+/* ============================================================
+        BACK TO TALAPATRAK MANAGEMENT
+============================================================ */
+
+if (
+    backToTalapatrakManagementButton
+) {
+
+    backToTalapatrakManagementButton.addEventListener(
+
+        "click",
+
+        function(event) {
 
             event.preventDefault();
 
 
-            /*
-               Hide all normal views
-            */
-
-            hideAllViews();
-
-
-            /*
-               Show Talapatrak
-            */
-
-            talapatrakView.style.display =
-                "block";
-
-
-            /*
-               Activate full-screen mode
-            */
-
-            document.body.classList.add(
-
-                "talapatrakFullscreen"
-
-            );
-
-
-            /*
-               Make Talapatrak active
-            */
-
-            document
-                .querySelectorAll(
-                    ".navItem"
-                )
-                .forEach(
-                    function(item) {
-
-                        item.classList.remove(
-                            "active"
-                        );
-
-                    }
-                );
-
-
-            talapatrakNav.classList.add(
-                "active"
-            );
-
+            openTalapatrakManagement();
 
         }
 
@@ -4469,62 +4717,621 @@ if (
         BACK TO DASHBOARD
 ============================================================ */
 
-const backToDashboardButton =
-    document.getElementById(
-        "backToDashboardFromTalapatrak"
-    );
+if (
+    backToDashboardButtonElement
+) {
 
-
-if (backToDashboardButton) {
-
-    backToDashboardButton.addEventListener(
+    backToDashboardButtonElement.addEventListener(
 
         "click",
 
-        function() {
+        function(event) {
+
+            event.preventDefault();
 
 
             /*
-               Exit fullscreen mode
+                Hide all Talapatrak views
+            */
+
+            hideAllMainViews();
+
+
+            /*
+                Exit Talapatrak fullscreen mode
             */
 
             document.body.classList.remove(
-
                 "talapatrakFullscreen"
-
             );
 
 
             /*
-               Hide Talapatrak
+                Show dashboard
             */
 
-            talapatrakView.style.display =
-                "none";
+            if (dashboardViewElement) {
 
-
-            /*
-               Show Dashboard
-            */
-
-            if (dashboardView) {
-
-                dashboardView.style.display =
+                dashboardViewElement.style.display =
                     "block";
 
             }
 
 
             /*
-               Remove active state
-               from all navigation items
+                Clear navigation
             */
 
-            document
-                .querySelectorAll(
-                    ".navItem"
+            clearNavigationActiveState();
+
+
+            /*
+                Activate Dashboard
+            */
+
+            const dashboardNavElement =
+                document.getElementById(
+                    "dashboardNav"
+                );
+
+
+            if (dashboardNavElement) {
+
+                dashboardNavElement.classList.add(
+                    "active"
+                );
+
+            }
+
+
+            window.scrollTo({
+
+                top: 0,
+
+                behavior: "smooth"
+
+            });
+
+        }
+
+    );
+
+}
+
+
+/* ============================================================
+        SET DEFAULT TALAPATRAK VIEW
+============================================================ */
+
+function initializeTalapatrakViews() {
+
+    /*
+        Make sure Talapatrak pages
+        are hidden when app loads
+    */
+
+    if (talapatrakViewElement) {
+
+        talapatrakViewElement.style.display =
+            "none";
+
+    }
+
+
+    if (talapatrakEditorViewElement) {
+
+        talapatrakEditorViewElement.style.display =
+            "none";
+
+    }
+
+}
+
+
+initializeTalapatrakViews();
+
+
+console.log(
+    "Talapatrak navigation initialized successfully."
+);
+
+
+
+ /* ==========================================================================
+
+/* ============================================================
+        TALAPATRAK MANAGEMENT CONTROLS
+============================================================ */
+
+
+/* ============================================================
+        ELEMENT REFERENCES
+============================================================ */
+
+const talapatrakSearchInputElement =
+    document.getElementById(
+        "talapatrakSearchInput"
+    );
+
+
+const talapatrakSortButtonElement =
+    document.getElementById(
+        "talapatrakSortButton"
+    );
+
+
+const talapatrakSortMenuElement =
+    document.getElementById(
+        "talapatrakSortMenu"
+    );
+
+
+const talapatrakSortLabelElement =
+    document.getElementById(
+        "talapatrakSortLabel"
+    );
+
+
+const talapatrakGridViewButtonElement =
+    document.getElementById(
+        "talapatrakGridViewButton"
+    );
+
+
+const talapatrakListViewButtonElement =
+    document.getElementById(
+        "talapatrakListViewButton"
+    );
+
+
+const talapatrakRecordCountElement =
+    document.getElementById(
+        "talapatrakRecordCount"
+    );
+
+
+const talapatrakVillageGridElement =
+    document.getElementById(
+        "talapatrakVillageGrid"
+    );
+
+
+const talapatrakEmptyStateElement =
+    document.getElementById(
+        "talapatrakEmptyState"
+    );
+
+
+/* ============================================================
+        STATE
+============================================================ */
+
+let talapatrakSearchTerm =
+    "";
+
+
+let talapatrakSortMode =
+    "recent";
+
+
+let talapatrakViewMode =
+    "grid";
+
+
+let talapatrakRecords = [
+
+    {
+        id: "1",
+
+        moje: "મહેસાણા",
+
+        taluka: "મહેસાણા",
+
+        jillo: "મહેસાણા",
+
+        year: "2025-2026",
+
+        rows: [
+
+            {},
+
+            {},
+
+            {}
+
+        ],
+
+        updatedAt: new Date()
+
+    },
+
+
+    {
+        id: "2",
+
+        moje: "અમદાવાદ",
+
+        taluka: "અમદાવાદ",
+
+        jillo: "અમદાવાદ",
+
+        year: "2025-2026",
+
+        rows: [
+
+            {},
+
+            {}
+
+        ],
+
+        updatedAt: new Date(
+            Date.now() - 86400000
+        )
+
+    },
+
+
+    {
+        id: "3",
+
+        moje: "પાટણ",
+
+        taluka: "પાટણ",
+
+        jillo: "પાટણ",
+
+        year: "2025-2026",
+
+        rows: [
+
+            {},
+
+            {},
+
+            {},
+
+            {}
+
+        ],
+
+        updatedAt: new Date(
+            Date.now() - 172800000
+        )
+
+    }
+
+];
+
+/* ============================================================
+        LOAD TALAPATRAK RECORDS FROM FIREBASE
+============================================================ */
+
+async function loadTalapatrakRecords() {
+
+    try {
+
+        /*
+            Make sure a user is logged in
+        */
+
+        if (
+            !auth ||
+            !auth.currentUser
+        ) {
+
+            console.warn(
+                "No user logged in. Cannot load Talapatrak records."
+            );
+
+            talapatrakRecords =
+                [];
+
+            renderTalapatrakManagement();
+
+            return;
+
+        }
+
+
+        /*
+            Show loading message
+        */
+
+        if (
+            talapatrakVillageGridElement
+        ) {
+
+            talapatrakVillageGridElement.innerHTML = `
+
+                <div
+                    class="talapatrakLoadingState">
+
+                    <i
+                        class="fa-solid fa-spinner fa-spin">
+                    </i>
+
+                    <p>
+                        Loading Talapatrak records...
+                    </p>
+
+                </div>
+
+            `;
+
+        }
+
+
+        /*
+            Get records belonging
+            to current user
+        */
+
+        const snapshot =
+            await db
+                .collection(
+                    "talapatraks"
                 )
-                .forEach(
+                .where(
+                    "userId",
+                    "==",
+                    auth.currentUser.uid
+                )
+                .get();
+
+
+        /*
+            Clear old records
+        */
+
+        talapatrakRecords =
+            [];
+
+
+        /*
+            Convert Firestore documents
+            into JavaScript objects
+        */
+
+        snapshot.forEach(
+
+            function(doc) {
+
+                talapatrakRecords.push({
+
+                    id:
+                        doc.id,
+
+                    ...doc.data()
+
+                });
+
+            }
+
+        );
+
+
+        console.log(
+            "Talapatrak records loaded:",
+            talapatrakRecords
+        );
+
+
+        /*
+            Render management page
+        */
+
+        renderTalapatrakManagement();
+
+    }
+
+    catch(error) {
+
+        console.error(
+            "Error loading Talapatrak records:",
+            error
+        );
+
+
+        if (
+            talapatrakVillageGridElement
+        ) {
+
+            talapatrakVillageGridElement.innerHTML = `
+
+                <div
+                    class="talapatrakLoadingState">
+
+                    <i
+                        class="fa-solid fa-triangle-exclamation">
+                    </i>
+
+                    <p>
+                        Unable to load Talapatrak records.
+                    </p>
+
+                </div>
+
+            `;
+
+        }
+
+    }
+
+}
+
+/* ============================================================
+        SEARCH
+============================================================ */
+
+if (
+    talapatrakSearchInputElement
+) {
+
+    talapatrakSearchInputElement.addEventListener(
+
+        "input",
+
+        function() {
+
+            talapatrakSearchTerm =
+                this.value
+                    .trim()
+                    .toLowerCase();
+
+
+            renderTalapatrakManagement();
+
+        }
+
+    );
+
+}
+
+
+/* ============================================================
+        FILTER RECORDS
+============================================================ */
+
+function getFilteredTalapatrakRecords() {
+
+    if (
+        !talapatrakSearchTerm
+    ) {
+
+        return [
+            ...talapatrakRecords
+        ];
+
+    }
+
+
+    return talapatrakRecords.filter(
+
+        function(record) {
+
+            const villageName =
+                String(
+                    record.moje || ""
+                )
+                .toLowerCase();
+
+
+            return villageName.includes(
+                talapatrakSearchTerm
+            );
+
+        }
+
+    );
+
+}
+
+
+/* ============================================================
+        TALAPATRAK SORT DROPDOWN
+============================================================ */
+
+
+/* ============================================================
+        ELEMENT REFERENCES
+============================================================ */
+
+const talapatrakSortWrapperElement =
+    document.querySelector(
+        ".talapatrakSortWrapper"
+    );
+
+
+const talapatrakSortOptions =
+    document.querySelectorAll(
+        ".talapatrakSortOption"
+    );
+
+
+/* ============================================================
+        OPEN / CLOSE DROPDOWN
+============================================================ */
+
+if (
+    talapatrakSortButtonElement &&
+    talapatrakSortMenuElement
+) {
+
+    talapatrakSortButtonElement.addEventListener(
+
+        "click",
+
+        function(event) {
+
+            /*
+                Stop this click from reaching
+                the document click listener
+            */
+
+            event.stopPropagation();
+
+
+            /*
+                Toggle dropdown
+            */
+
+            talapatrakSortMenuElement.classList.toggle(
+                "open"
+            );
+
+        }
+
+    );
+
+}
+
+
+/* ============================================================
+        SELECT SORT OPTION
+============================================================ */
+
+talapatrakSortOptions.forEach(
+
+    function(option) {
+
+        option.addEventListener(
+
+            "click",
+
+            function(event) {
+
+                event.stopPropagation();
+
+
+                /*
+                    Save selected sort mode
+                */
+
+                talapatrakSortMode =
+                    this.dataset.sort;
+
+
+                /*
+                    Update button label
+                */
+
+                if (
+                    talapatrakSortLabelElement
+                ) {
+
+                    talapatrakSortLabelElement.textContent =
+                        this.textContent.trim();
+
+                }
+
+
+                /*
+                    Remove active state
+                    from every option
+                */
+
+                talapatrakSortOptions.forEach(
 
                     function(item) {
 
@@ -4537,167 +5344,308 @@ if (backToDashboardButton) {
                 );
 
 
-            /*
-               Activate Dashboard navigation
-            */
+                /*
+                    Activate selected option
+                */
 
-            const dashboardNav =
-                document.getElementById(
-                    "dashboardNav"
+                this.classList.add(
+                    "active"
                 );
 
 
-            if (dashboardNav) {
+                /*
+                    Close dropdown
+                */
 
-                dashboardNav.classList.add(
+                if (
+                    talapatrakSortMenuElement
+                ) {
+
+                    talapatrakSortMenuElement.classList.remove(
+                        "open"
+                    );
+
+                }
+
+
+                /*
+                    Re-render records
+                */
+
+                renderTalapatrakManagement();
+
+            }
+
+        );
+
+    }
+
+);
+
+
+/* ============================================================
+        CLOSE DROPDOWN WHEN CLICKING OUTSIDE
+============================================================ */
+
+document.addEventListener(
+
+    "click",
+
+    function(event) {
+
+        if (
+            talapatrakSortWrapperElement &&
+            !talapatrakSortWrapperElement.contains(
+                event.target
+            )
+        ) {
+
+            if (
+                talapatrakSortMenuElement
+            ) {
+
+                talapatrakSortMenuElement.classList.remove(
+                    "open"
+                );
+
+            }
+
+        }
+
+    }
+
+);
+
+
+
+/* ============================================================
+        SORT RECORDS
+============================================================ */
+
+function sortTalapatrakRecords(
+    records
+) {
+
+    const sortedRecords =
+        [
+            ...records
+        ];
+
+
+    switch (
+        talapatrakSortMode
+    ) {
+
+
+        case "recent":
+
+            sortedRecords.sort(
+
+                function(a, b) {
+
+                    const dateA =
+                        a.updatedAt?.toDate
+                            ? a.updatedAt.toDate()
+                            : new Date(
+                                a.updatedAt || 0
+                            );
+
+
+                    const dateB =
+                        b.updatedAt?.toDate
+                            ? b.updatedAt.toDate()
+                            : new Date(
+                                b.updatedAt || 0
+                            );
+
+
+                    return dateB - dateA;
+
+                }
+
+            );
+
+            break;
+
+
+        case "oldest":
+
+            sortedRecords.sort(
+
+                function(a, b) {
+
+                    const dateA =
+                        a.createdAt?.toDate
+                            ? a.createdAt.toDate()
+                            : new Date(
+                                a.createdAt || 0
+                            );
+
+
+                    const dateB =
+                        b.createdAt?.toDate
+                            ? b.createdAt.toDate()
+                            : new Date(
+                                b.createdAt || 0
+                            );
+
+
+                    return dateA - dateB;
+
+                }
+
+            );
+
+            break;
+
+
+        case "az":
+
+            sortedRecords.sort(
+
+                function(a, b) {
+
+                    return String(
+                        a.moje || ""
+                    )
+                    .localeCompare(
+                        String(
+                            b.moje || ""
+                        ),
+                        "gu"
+                    );
+
+                }
+
+            );
+
+            break;
+
+
+        case "za":
+
+            sortedRecords.sort(
+
+                function(a, b) {
+
+                    return String(
+                        b.moje || ""
+                    )
+                    .localeCompare(
+                        String(
+                            a.moje || ""
+                        ),
+                        "gu"
+                    );
+
+                }
+
+            );
+
+            break;
+
+    }
+
+
+    return sortedRecords;
+
+}
+
+
+/* ============================================================
+        GRID VIEW
+============================================================ */
+
+if (
+    talapatrakGridViewButtonElement
+) {
+
+    talapatrakGridViewButtonElement.addEventListener(
+
+        "click",
+
+        function() {
+
+            talapatrakViewMode =
+                "grid";
+
+
+            this.classList.add(
+                "active"
+            );
+
+
+            if (
+                talapatrakListViewButtonElement
+            ) {
+
+                talapatrakListViewButtonElement.classList.remove(
                     "active"
                 );
 
             }
 
 
-            /*
-               Scroll dashboard to top
-            */
+            if (
+                talapatrakVillageGridElement
+            ) {
 
-            window.scrollTo({
+                talapatrakVillageGridElement.classList.remove(
+                    "listView"
+                );
 
-                top:0,
-
-                behavior:"smooth"
-
-            });
+            }
 
         }
 
     );
 
 }
-/* ============================================================
-        TALAPATRAK ROW SYSTEM
-============================================================ */
-
-const talapatrakBody =
-    document.getElementById(
-        "talapatrakBody"
-    );
-
-if (!talapatrakBody) {
-
-    console.warn(
-        "Talapatrak table body not found yet."
-    );
-
-}
-
-const addTalapatrakRowButton =
-    document.getElementById(
-        "addTalapatrakRow"
-    );
 
 
 /* ============================================================
-        ADD NEW ROW
+        LIST VIEW
 ============================================================ */
 
-if (addTalapatrakRowButton) {
+if (
+    talapatrakListViewButtonElement
+) {
 
-    addTalapatrakRowButton.addEventListener(
+    talapatrakListViewButtonElement.addEventListener(
+
         "click",
-        function () {
 
-            const rows =
-                talapatrakBody.querySelectorAll(
-                    ".talapatrakRow"
-                );
+        function() {
 
-
-            const lastRow =
-                rows[rows.length - 1];
+            talapatrakViewMode =
+                "list";
 
 
-            const newRow =
-                lastRow.cloneNode(true);
-
-
-            /*
-             * Find last sequence number
-             */
-
-            const lastSequenceInput =
-                lastRow.querySelector(
-                    ".columnA"
-                );
-
-
-            const lastSequence =
-                Number(
-                    lastSequenceInput.value
-                ) || 0;
-
-
-            /*
-             * Clear all inputs
-             */
-
-            newRow
-                .querySelectorAll("input")
-                .forEach(function(input) {
-
-                    if (
-                        input.classList.contains(
-                            "columnA"
-                        )
-                    ) {
-
-                        input.value =
-                            lastSequence + 1;
-
-                    }
-
-                    else {
-
-                        input.value =
-                            "";
-
-                    }
-
-                });
-
-
-            /*
-             * Add new row
-             */
-
-            talapatrakBody.appendChild(
-                newRow
+            this.classList.add(
+                "active"
             );
 
-            formatTalapatrakNumberInputs();
 
+            if (
+                talapatrakGridViewButtonElement
+            ) {
 
-            /*
-             * Focus first editable field
-             */
-
-            const firstInput =
-                newRow.querySelector(
-                    ".columnB"
+                talapatrakGridViewButtonElement.classList.remove(
+                    "active"
                 );
-
-
-            if (firstInput) {
-
-                firstInput.focus();
 
             }
 
 
-            /*
-             * Recalculate all rows
-             */
+            if (
+                talapatrakVillageGridElement
+            ) {
 
-            calculateAllTalapatrakRows();
+                talapatrakVillageGridElement.classList.add(
+                    "listView"
+                );
+
+            }
 
         }
 
@@ -4707,332 +5655,424 @@ if (addTalapatrakRowButton) {
 
 
 /* ============================================================
-        DELETE ROW
+        RENDER MANAGEMENT VIEW
 ============================================================ */
 
-function deleteTalapatrakRow(button) {
+/* ============================================================
+        RENDER TALAPATRAK VILLAGE CARDS
+============================================================ */
 
-    const rows =
-        talapatrakBody.querySelectorAll(
-            ".talapatrakRow"
+function renderTalapatrakManagement() {
+
+
+    /*
+        Get filtered records
+    */
+
+    const filteredRecords =
+        getFilteredTalapatrakRecords();
+
+
+    /*
+        Sort records
+    */
+
+    const sortedRecords =
+        sortTalapatrakRecords(
+            filteredRecords
         );
 
 
     /*
-     * Never delete the final row
-     */
+        Update village count
+    */
 
-    if (rows.length === 1) {
+    if (
+        talapatrakRecordCountElement
+    ) {
 
-        alert(
-            "At least one row is required."
-        );
+        talapatrakRecordCountElement.textContent =
+            sortedRecords.length;
+
+    }
+
+
+    /*
+        Empty state
+    */
+
+    if (
+        talapatrakEmptyStateElement
+    ) {
+
+        talapatrakEmptyStateElement.style.display =
+            sortedRecords.length === 0
+                ? "flex"
+                : "none";
+
+    }
+
+
+    /*
+        Stop if there are no records
+    */
+
+    if (
+        !talapatrakVillageGridElement
+    ) {
 
         return;
 
     }
 
 
-    const row =
-        button.closest(
-            ".talapatrakRow"
+    /*
+        Remove old cards
+        but keep empty state
+    */
+
+    const existingCards =
+        talapatrakVillageGridElement.querySelectorAll(
+            ".talapatrakVillageCard"
         );
 
 
-    row.remove();
+    existingCards.forEach(
 
+        function(card) {
 
-    renumberTalapatrakRows();
-
-
-    calculateAllTalapatrakRows();
-
-}
-
-
-/* ============================================================
-        AUTOMATIC SEQUENCE NUMBERS
-============================================================ */
-
-function renumberTalapatrakRows() {
-
-    const rows =
-        talapatrakBody.querySelectorAll(
-            ".talapatrakRow"
-        );
-
-
-    rows.forEach(function(row, index) {
-
-        const sequenceInput =
-            row.querySelector(
-                ".columnA"
-            );
-
-
-        if (sequenceInput) {
-
-            sequenceInput.value =
-                index + 1;
+            card.remove();
 
         }
 
-    });
-
-}
-
-/* ============================================================
-        CALCULATE TALAPATRAK ROW
-============================================================ */
-
-function calculateTalapatrakRow(input) {
-
-    const row =
-        input.closest(
-            ".talapatrakRow"
-        );
+    );
 
 
-    if (!row) return;
+    /*
+        Create a card for every village
+    */
+
+    sortedRecords.forEach(
+
+        function(record) {
 
 
-    const getValue =
-        function(column) {
-
-            const element =
-                row.querySelector(
-                    "." + column
+            const card =
+                createTalapatrakVillageCard(
+                    record
                 );
 
 
-            return Number(
-                element.value
-            ) || 0;
-
-        };
-
-
-    const setValue =
-    function(column, value) {
-
-        const element =
-            row.querySelector(
-                "." + column
-            );
-
-
-        element.value =
-            Number(value).toFixed(2);
-
-    };
-
-
-    /*
-     * H = C + D + E + F + G
-     */
-
-    const C =
-        getValue("columnC");
-
-    const D =
-        getValue("columnD");
-
-    const E =
-        getValue("columnE");
-
-    const F =
-        getValue("columnF");
-
-    const G =
-        getValue("columnG");
-
-
-    const H =
-        C + D + E + F + G;
-
-
-    setValue(
-        "columnH",
-        H
-    );
-
-
-    /*
-     * I = D
-     */
-
-    const I =
-        D;
-
-
-    setValue(
-        "columnI",
-        I
-    );
-
-
-    /*
-     * J = H - I
-     */
-
-    const J =
-        H - I;
-
-
-    setValue(
-        "columnJ",
-        J
-    );
-
-
-    /*
-     * O = K + N
-     */
-
-    const K =
-        getValue("columnK");
-
-    const N =
-        getValue("columnN");
-
-
-    const O =
-        K + N;
-
-
-    setValue(
-        "columnO",
-        O
-    );
-
-
-    /*
-     * T = H - I - O
-     */
-
-    const T =
-        H - I - O;
-
-
-    setValue(
-        "columnT",
-        T
-    );
-
-
-    /*
-     * U = IF(T < O, T, O)
-     */
-
-    const U =
-        T < O
-            ? T
-            : O;
-
-
-    setValue(
-        "columnU",
-        U
-    );
-
-
-    /*
-     * R = -(U)
-     */
-
-    const R =
-        -U;
-
-
-    setValue(
-        "columnR",
-        R
-    );
-
-
-    /*
-     * P = O - R
-     */
-
-    const P =
-        O - R;
-
-
-    setValue(
-        "columnP",
-        P
-    );
-
-
-    /*
-     * Q = IF(T > O, T, O)
-     */
-
-    const Q =
-        T > O
-            ? T
-            : O;
-
-
-    setValue(
-        "columnQ",
-        Q
-    );
-
-}
-
-
-/* ============================================================
-        CALCULATE ALL ROWS
-============================================================ */
-
-function calculateAllTalapatrakRows() {
-
-    const rows =
-        talapatrakBody.querySelectorAll(
-            ".talapatrakRow"
-        );
-
-
-    rows.forEach(function(row) {
-
-        const input =
-            row.querySelector(
-                ".columnC"
-            );
-
-
-        if (input) {
-
-            calculateTalapatrakRow(
-                input
+            talapatrakVillageGridElement.appendChild(
+                card
             );
 
         }
 
-    });
+    );
+
+
+    console.log(
+        "Talapatrak cards rendered:",
+        sortedRecords.length
+    );
 
 }
-
 /* ============================================================
-        FORMAT USER-ENTERED NUMBERS TO 2 DECIMAL PLACES
+        CREATE TALAPATRAK VILLAGE CARD
 ============================================================ */
 
-function formatTalapatrakNumberInputs() {
+function createTalapatrakVillageCard(
+    record
+) {
 
-    talapatrakBody
-        .querySelectorAll(
-            "input[type='number']"
+
+    /*
+        Create card
+    */
+
+    const card =
+        document.createElement(
+            "article"
+        );
+
+
+    card.className =
+        "talapatrakVillageCard";
+
+
+    /*
+        Safely get values
+    */
+
+    const villageName =
+        record.moje ||
+        "Unnamed Village";
+
+
+    const taluka =
+        record.taluka ||
+        "—";
+
+
+    const jillo =
+        record.jillo ||
+        "—";
+
+
+    const year =
+        record.year ||
+        "2025-2026";
+
+
+    const rowCount =
+        Array.isArray(
+            record.rows
         )
-        .forEach(function(input) {
+            ? record.rows.length
+            : 0;
+
+
+    /*
+        Format updated date
+    */
+
+    let updatedText =
+        "Not updated yet";
+
+
+    if (
+        record.updatedAt
+    ) {
+
+        const updatedDate =
+            record.updatedAt?.toDate
+                ? record.updatedAt.toDate()
+                : new Date(
+                    record.updatedAt
+                );
+
+
+        if (
+            !isNaN(
+                updatedDate
+            )
+        ) {
+
+            updatedText =
+                updatedDate.toLocaleDateString(
+                    "en-IN",
+                    {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric"
+                    }
+                );
+
+        }
+
+    }
+
+
+    /*
+        Card HTML
+    */
+
+    card.innerHTML = `
+
+        <!-- CARD HEADER -->
+
+        <div
+            class="talapatrakVillageCardHeader">
+
+
+            <div
+                class="talapatrakVillageIcon">
+
+                <i
+                    class="fa-solid fa-location-dot">
+                </i>
+
+            </div>
+
+
+            <div
+                class="talapatrakVillageTitle">
+
+                <h3>
+                    ${escapeTalapatrakHTML(
+                        villageName
+                    )}
+                </h3>
+
+                <span>
+                    Talapatrak
+                </span>
+
+            </div>
+
+
+            <!-- CARD MENU -->
+
+            <button
+                type="button"
+                class="talapatrakCardMenuButton"
+                title="More options">
+
+                <i
+                    class="fa-solid fa-ellipsis-vertical">
+                </i>
+
+            </button>
+
+
+        </div>
+
+
+        <!-- LOCATION -->
+
+        <div
+            class="talapatrakVillageLocation">
+
+
+            <span>
+
+                <i
+                    class="fa-solid fa-map">
+                </i>
+
+                ${escapeTalapatrakHTML(
+                    taluka
+                )}
+
+            </span>
+
+
+            <span>
+
+                <i
+                    class="fa-solid fa-location-dot">
+                </i>
+
+                ${escapeTalapatrakHTML(
+                    jillo
+                )}
+
+            </span>
+
+
+        </div>
+
+
+        <!-- CARD DETAILS -->
+
+        <div
+            class="talapatrakVillageDetails">
+
+
+            <div
+                class="talapatrakVillageDetail">
+
+
+                <span>
+                    Year
+                </span>
+
+
+                <strong>
+                    ${escapeTalapatrakHTML(
+                        year
+                    )}
+                </strong>
+
+
+            </div>
+
+
+            <div
+                class="talapatrakVillageDetail">
+
+
+                <span>
+                    Records
+                </span>
+
+
+                <strong>
+                    ${rowCount}
+                </strong>
+
+
+            </div>
+
+
+        </div>
+
+
+        <!-- CARD FOOTER -->
+
+        <div
+            class="talapatrakVillageCardFooter">
+
+
+            <span
+                class="talapatrakLastUpdated">
+
+
+                <i
+                    class="fa-regular fa-clock">
+                </i>
+
+
+                Updated ${updatedText}
+
+
+            </span>
+
+
+            <button
+                type="button"
+                class="talapatrakOpenButton">
+
+
+                Open
+
+
+                <i
+                    class="fa-solid fa-arrow-right">
+                </i>
+
+
+            </button>
+
+
+        </div>
+
+    `;
+
+
+    /*
+        Open card when clicking
+    */
+
+    card.addEventListener(
+
+        "click",
+
+        function(event) {
+
 
             /*
-             * Prevent adding the same event listener
-             * multiple times
-             */
+                Do not open when clicking
+                menu button
+            */
 
             if (
-                input.dataset.decimalFormatterAttached
+
+                event.target.closest(
+                    ".talapatrakCardMenuButton"
+                )
+
             ) {
 
                 return;
@@ -5040,454 +6080,222 @@ function formatTalapatrakNumberInputs() {
             }
 
 
-            input.dataset.decimalFormatterAttached =
-                "true";
-
-
-            input.addEventListener(
-                "blur",
-                function() {
-
-                    if (
-                        this.value !== ""
-                    ) {
-
-                        this.value =
-                            Number(
-                                this.value
-                            ).toFixed(2);
-
-                    }
-
-                }
-
+            openTalapatrakRecord(
+                record
             );
 
-        });
+        }
 
-}
-
-formatTalapatrakNumberInputs();
-
-/* ============================================================
-        PRINT TALAPATRAK
-============================================================ */
-
-const printTalapatrakButton =
-    document.getElementById(
-        "printTalapatrakButton"
     );
 
 
-if (printTalapatrakButton) {
+    /*
+        Menu button
+    */
 
-    printTalapatrakButton.addEventListener(
-        "click",
-        async function() {
-
-            try {
-
-                printTalapatrakButton.disabled =
-                    true;
+    const menuButton =
+        card.querySelector(
+            ".talapatrakCardMenuButton"
+        );
 
 
-                printTalapatrakButton.innerHTML = `
+    if (
+        menuButton
+    ) {
 
-                    <i class="fa-solid fa-spinner fa-spin"></i>
+        menuButton.addEventListener(
 
-                    Saving...
+            "click",
 
-                `;
+            function(event) {
 
-
-                /*
-                 * Save silently.
-                 * No alert before printing.
-                 */
-
-                const saved =
-                    await saveTalapatrak(
-                        false
-                    );
-
-
-                if (!saved) {
-
-                    return;
-
-                }
+                event.stopPropagation();
 
 
                 console.log(
-                    "Talapatrak saved before printing."
+                    "Talapatrak menu:",
+                    record
                 );
-
-
-                /*
-                 * Restore button
-                 */
-
-                printTalapatrakButton.disabled =
-                    false;
-
-
-                printTalapatrakButton.innerHTML = `
-
-                    <i class="fa-solid fa-print"></i>
-
-                    Print
-
-                `;
-
-
-                /*
-                 * Open browser print dialog
-                 */
-
-                setTimeout(
-                    function() {
-
-                        window.print();
-
-                    },
-                    100
-                );
-
 
             }
 
-            catch(error) {
+        );
 
-                console.error(
-                    "Error saving Talapatrak before print:",
-                    error
-                );
+    }
 
 
-                alert(
-                    "Talapatrak could not be saved."
-                );
-
-
-                printTalapatrakButton.disabled =
-                    false;
-
-
-                printTalapatrakButton.innerHTML = `
-
-                    <i class="fa-solid fa-print"></i>
-
-                    Print
-
-                `;
-
-            }
-
-        }
-
-    );
+    return card;
 
 }
 
 /* ============================================================
-        SAVE TALAPATRAK TO FIREBASE
+        ESCAPE HTML
 ============================================================ */
 
-async function saveTalapatrak(
-    showSuccessMessage = true
+function escapeTalapatrakHTML(
+    value
 ) {
 
-    try {
-
-        if (!auth.currentUser) {
-
-            alert(
-                "Please login before saving the Talapatrak."
-            );
-
-            return false;
-
-        }
-
-
-        const mojeInput =
-            document.getElementById(
-                "talapatrakMoje"
-            );
-
-
-        const moje =
-            mojeInput
-                ? mojeInput.value.trim()
-                : "";
-
-
-        if (!moje) {
-
-            alert(
-                "Please enter મોજે before saving the Talapatrak."
-            );
-
-
-            if (mojeInput) {
-
-                mojeInput.focus();
-
-            }
-
-
-            return false;
-
-        }
-
-
-        if (!talapatrakBody) {
-
-            alert(
-                "Talapatrak table is not loaded."
-            );
-
-            return false;
-
-        }
-
-
-        const rows =
-            talapatrakBody.querySelectorAll(
-                ".talapatrakRow"
-            );
-
-
-        const talapatrakRows =
-            [];
-
-
-        rows.forEach(function(row) {
-
-            const rowData = {
-
-                A: row.querySelector(
-                    ".columnA"
-                )?.value || "",
-
-                B: row.querySelector(
-                    ".columnB"
-                )?.value || "",
-
-                C: row.querySelector(
-                    ".columnC"
-                )?.value || "",
-
-                D: row.querySelector(
-                    ".columnD"
-                )?.value || "",
-
-                E: row.querySelector(
-                    ".columnE"
-                )?.value || "",
-
-                F: row.querySelector(
-                    ".columnF"
-                )?.value || "",
-
-                G: row.querySelector(
-                    ".columnG"
-                )?.value || "",
-
-                H: row.querySelector(
-                    ".columnH"
-                )?.value || "",
-
-                I: row.querySelector(
-                    ".columnI"
-                )?.value || "",
-
-                J: row.querySelector(
-                    ".columnJ"
-                )?.value || "",
-
-                K: row.querySelector(
-                    ".columnK"
-                )?.value || "",
-
-                L: row.querySelector(
-                    ".columnL"
-                )?.value || "",
-
-                M: row.querySelector(
-                    ".columnM"
-                )?.value || "",
-
-                N: row.querySelector(
-                    ".columnN"
-                )?.value || "",
-
-                O: row.querySelector(
-                    ".columnO"
-                )?.value || "",
-
-                P: row.querySelector(
-                    ".columnP"
-                )?.value || "",
-
-                Q: row.querySelector(
-                    ".columnQ"
-                )?.value || "",
-
-                R: row.querySelector(
-                    ".columnR"
-                )?.value || "",
-
-                S: row.querySelector(
-                    ".columnS"
-                )?.value || "",
-
-                T: row.querySelector(
-                    ".columnT"
-                )?.value || "",
-
-                U: row.querySelector(
-                    ".columnU"
-                )?.value || ""
-
-            };
-
-
-            talapatrakRows.push(
-                rowData
-            );
-
-        });
-
-
-        const talapatrakData = {
-
-            type:
-                "talapatrak",
-
-            moje:
-                moje,
-
-            rows:
-                talapatrakRows,
-
-            rowCount:
-                talapatrakRows.length,
-
-            userId:
-                auth.currentUser.uid,
-
-            userEmail:
-                auth.currentUser.email,
-
-            updatedAt:
-                firebase.firestore.FieldValue.serverTimestamp(),
-
-            createdAt:
-                firebase.firestore.FieldValue.serverTimestamp()
-
-        };
-
-      const savedDocument =
-            db
-                .collection(
-                    "talapatraks"
-                )
-                .doc(
-                    moje
-                );
-        
-        
-        await savedDocument.set(
-            talapatrakData
-        );
-        
-        
-        console.log(
-            "Talapatrak saved successfully:",
-            savedDocument.id
-        );
-
-
-        if (showSuccessMessage) {
-
-            alert(
-                `Talapatrak for "${moje}" saved successfully.`
-            );
-        
-        }
-
-
-        return true;
-
-    }
-
-    catch(error) {
-
-        console.error(
-            "Error saving Talapatrak:",
-            error
-        );
-
-
-        alert(
-            "Talapatrak could not be saved: " +
-            error.message
-        );
-
-
-        return false;
-
-    }
+    return String(
+        value
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
 
 }
 
 /* ============================================================
-        SAVE BUTTON
+        OPEN TALAPATRAK RECORD
 ============================================================ */
 
-const saveTalapatrakButton =
-    document.getElementById(
-        "saveTalapatrakButton"
+function openTalapatrakRecord(
+    record
+) {
+
+
+    console.log(
+        "Opening Talapatrak:",
+        record
     );
 
 
-if (saveTalapatrakButton) {
-
-    saveTalapatrakButton.addEventListener(
-        "click",
-        async function() {
-
-            saveTalapatrakButton.disabled =
-                true;
+    openTalapatrakEditor();
 
 
-            saveTalapatrakButton.innerHTML = `
+    /*
+        Fill village information
+    */
 
-                <i class="fa-solid fa-spinner fa-spin"></i>
-
-                Saving...
-
-            `;
-
-
-            await saveTalapatrak();
+    const mojeInput =
+        document.getElementById(
+            "talapatrakMoje"
+        );
 
 
-            saveTalapatrakButton.disabled =
-                false;
+    const talukaInput =
+        document.getElementById(
+            "talapatrakTaluka"
+        );
 
 
-            saveTalapatrakButton.innerHTML = `
+    const jilloInput =
+        document.getElementById(
+            "talapatrakJillo"
+        );
 
-                <i class="fa-solid fa-floppy-disk"></i>
 
-                Save
+    if (
+        mojeInput
+    ) {
 
-            `;
+        mojeInput.value =
+            record.moje ||
+            "";
 
-        }
+    }
 
-    );
+
+    if (
+        talukaInput
+    ) {
+
+        talukaInput.value =
+            record.taluka ||
+            "";
+
+    }
+
+
+    if (
+        jilloInput
+    ) {
+
+        jilloInput.value =
+            record.jillo ||
+            "";
+
+    }
+
+
+    /*
+        Update editor title
+    */
+
+    const editorVillageName =
+        document.getElementById(
+            "talapatrakEditorVillageName"
+        );
+
+
+    if (
+        editorVillageName
+    ) {
+
+        editorVillageName.textContent =
+            record.moje ||
+            "Talapatrak";
+
+    }
+
+
+    /*
+        Update year
+    */
+
+    const editorYear =
+        document.getElementById(
+            "talapatrakEditorYear"
+        );
+
+
+    const yearElement =
+        document.getElementById(
+            "talapatrakYear"
+        );
+
+
+    if (
+        editorYear
+    ) {
+
+        editorYear.textContent =
+            record.year ||
+            "2025-2026";
+
+    }
+
+
+    if (
+        yearElement
+    ) {
+
+        yearElement.textContent =
+            record.year ||
+            "2025-2026";
+
+    }
 
 }
+/* ============================================================
+        INITIAL RENDER
+============================================================ */
+
+renderTalapatrakManagement();
