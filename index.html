@@ -29,7 +29,7 @@
     <link
         rel="stylesheet"
         href="style.css">
-
+      
 </head>
 
 
@@ -260,24 +260,38 @@
                 </a>
 
 
-                <!-- TALAPATRAK -->
 
-                <a
-                    href="#"
-                    id="talapatrakNav"
-                    class="navItem billNavItem">
-                
-                    <span class="navIcon purple">
-                        <i class="fa-solid fa-file-lines"></i>
-                    </span>
-                
-                    <span>
-                        તાળાપત્રક
-                    </span>
-                
-                    <i class="fa-solid fa-chevron-right navArrow"></i>
-                
-                </a>
+                 <!-- TALAPATRAK -->
+
+                  <a
+                      href="#"
+                      id="talapatrakNav"
+                      class="navItem billNavItem">
+                  
+                  
+                      <span
+                          class="navIcon purple">
+                  
+                  
+                          <i
+                              class="fa-solid fa-table-list">
+                          </i>
+                  
+                  
+                      </span>
+                  
+                  
+                      <span>
+                          તાળાપત્રક
+                      </span>
+                  
+                  
+                      <i
+                          class="fa-solid fa-chevron-right navArrow">
+                      </i>
+                  
+                  
+                  </a>
 
 
                 <!-- FUTURE BILL 4 -->
@@ -781,7 +795,8 @@
                             </div>
 
 
-                            <!-- TALAPATRAK -->
+                          
+                          <!-- TALAPATRAK -->
                           
                           <div
                               class="systemCard purpleSystem"
@@ -1973,76 +1988,437 @@
               </section>
 
 
+                 <!-- ==========================================
+                                  TALAPATRAK MANAGEMENT VIEW
+                          ================================================ -->
+                          
+                         <section
+                              id="talapatrakView"
+                              class="talapatrakView"
+                              style="display:none;">
 
-                <!-- ==================================================
-                                TALAPATRAK VIEW
-                ================================================== -->
+                          
+                          
+                              <!-- ==========================================
+                                      TALAPATRAK TOP BAR
+                              ============================================ -->
+                          
+                              <div class="talapatrakManagementTopBar">
+                          
+                          
+                                  <!-- LEFT SIDE -->
+                          
+                                  <div class="talapatrakManagementTopLeft">
+                          
+                          
+                                      <!-- BACK TO DASHBOARD -->
+                          
+                                      <button
+                                          type="button"
+                                          id="backToDashboardFromTalapatrak"
+                                          class="talapatrakTopButton back">
+                          
+                                          <i class="fa-solid fa-arrow-left"></i>
+                          
+                                          <span>
+                                              Dashboard
+                                          </span>
+                          
+                                      </button>
+                          
+                          
+                                      <!-- TITLE -->
+                          
+                                      <div
+                                          class="talapatrakManagementTitle">
+                          
+                          
+                                          <div
+                                              class="talapatrakManagementIcon">
+                          
+                                              <i
+                                                  class="fa-solid fa-table-list">
+                                              </i>
+                          
+                                          </div>
+                          
+                          
+                                          <div>
+                          
+                                              <h2>
+                                                  તાળાપત્રક
+                                              </h2>
+                          
+                                              <span>
+                                                  Talapatrak Management
+                                              </span>
+                          
+                                          </div>
+                          
+                          
+                                      </div>
+                          
+                          
+                                  </div>
+                          
+                          
+                                  <!-- RIGHT SIDE -->
+                          
+                                  <div
+                                      class="talapatrakManagementTopActions">
+                          
+                          
+                                      <!-- SEARCH -->
+                          
+                                      <div
+                                          class="talapatrakSearchBox">
+                          
+                          
+                                          <i
+                                              class="fa-solid fa-magnifying-glass">
+                                          </i>
+                          
+                          
+                                          <input
+                                              type="search"
+                                              id="talapatrakSearchInput"
+                                              placeholder="Search village...">
+                          
+                          
+                                      </div>
+                          
+                          
+                                      <!-- ADD -->
+                          
+                                      <button
+                                          type="button"
+                                          id="addTalapatrakButton"
+                                          class="talapatrakAddButton">
+                          
+                          
+                                          <i
+                                              class="fa-solid fa-plus">
+                                          </i>
+                          
+                          
+                                          <span>
+                                              Add Talapatrak
+                                          </span>
+                          
+                          
+                                      </button>                                                                                                                                  
+                                  </div>                                         
+
+                                </div> 
+
+
+                              <!-- ===========================================
+                                      MANAGEMENT CONTENT
+                              ============================================= -->
+                          
+                              <main
+                                  class="talapatrakManagementContent">
+                          
+                          
+                                  <!-- PAGE HEADER -->
+                          
+                                  <div
+                                      class="talapatrakManagementHeader">
+                          
+                          
+                                      <div>
+                          
+                          
+                                          <h1>
+                                              Talapatrak
+                                          </h1>
+                          
+                          
+                                          <p>
+                                              Manage village records and yearly Talapatrak data
+                                          </p>
+                          
+                          
+                                      </div>
+                          
+                          
+                                      <!-- VIEW CONTROLS -->
+                          
+                                     <div  class="talapatrakViewControls">
+                  
+                                      
+                                          <!-- SORT DROPDOWN -->
+                                      
+                                          <div class="talapatrakSortWrapper">
+                                          
+                                              <button
+                                                  type="button"
+                                                  id="talapatrakSortButton"
+                                                  class="talapatrakControlButton">
+                                          
+                                                  <i class="fa-solid fa-arrow-down-wide-short"></i>
+                                          
+                                                  <span id="talapatrakSortLabel">
+                                                      Recent
+                                                  </span>
+                                          
+                                                  <i class="fa-solid fa-chevron-down"></i>
+                                          
+                                              </button>
+                                          
+                                          
+                                              <div
+                                                  id="talapatrakSortMenu"
+                                                  class="talapatrakSortMenu">
+                                          
+                                                  <button
+                                                      type="button"
+                                                      class="talapatrakSortOption active"
+                                                      data-sort="recent">
+                                          
+                                                      <i class="fa-solid fa-clock"></i>
+                                          
+                                                      Recent
+                                          
+                                                  </button>
+                                          
+                                          
+                                                  <button
+                                                      type="button"
+                                                      class="talapatrakSortOption"
+                                                      data-sort="oldest">
+                                          
+                                                      <i class="fa-solid fa-clock-rotate-left"></i>
+                                          
+                                                      Oldest
+                                          
+                                                  </button>
+                                          
+                                          
+                                                  <button
+                                                      type="button"
+                                                      class="talapatrakSortOption"
+                                                      data-sort="az">
+                                          
+                                                      <i class="fa-solid fa-arrow-down-a-z"></i>
+                                          
+                                                      A–Z
+                                          
+                                                  </button>
+                                          
+                                          
+                                                  <button
+                                                      type="button"
+                                                      class="talapatrakSortOption"
+                                                      data-sort="za">
+                                          
+                                                      <i class="fa-solid fa-arrow-down-z-a"></i>
+                                          
+                                                      Z–A
+                                          
+                                                  </button>
+                                          
+                                              </div>
+                                          
+                                          </div>
+                                      
+                                      
+                                          <!-- GRID VIEW -->
+                                      
+                                          <button
+                                              type="button"
+                                              id="talapatrakGridViewButton"
+                                              class="talapatrakIconButton active">
+                                      
+                                      
+                                              <i
+                                                  class="fa-solid fa-grip">
+                                              </i>
+                                      
+                                      
+                                          </button>
+                                      
+                                      
+                                          <!-- LIST VIEW -->
+                                      
+                                          <button
+                                              type="button"
+                                              id="talapatrakListViewButton"
+                                              class="talapatrakIconButton">
+                                      
+                                      
+                                              <i
+                                                  class="fa-solid fa-list">
+                                              </i>
+                                      
+                                      
+                                          </button>
+                  
+                  
+                  </div>
+                          
+                                  </div>
+                          
+                          
+                                  <!-- =======================================
+                                          SEARCH / FILTER SUMMARY
+                                  ========================================== -->
+                          
+                          
+                                  <div
+                                      id="talapatrakSearchSummary"
+                                      class="talapatrakSearchSummary">
+                          
+                          
+                                      <span>
+                          
+                                          <strong
+                                              id="talapatrakRecordCount">
+                          
+                                              0
+                          
+                                          </strong>
+                          
+                                          villages
+                          
+                                      </span>
+                          
+                          
+                                  </div>
+                          
+                          
+                                  <!-- ======================================
+                                          VILLAGE CARDS
+                                  ======================================== -->
+                          
+                          
+                                  <div
+                                      id="talapatrakVillageGrid"
+                                      class="talapatrakVillageGrid">
+                                  
+                                      <!-- CARDS WILL BE INSERTED HERE -->
+                                  
+                                  </div>
+                                  
+                                  
+                                  <div
+                                      id="talapatrakEmptyState"
+                                      class="talapatrakEmptyState">
+                          
+                          
+                                      <!--
+                          
+                                          VILLAGE CARDS WILL BE
+                                          CREATED BY JAVASCRIPT
+                          
+                                      -->
+                          
+                          
+                                  </div>
+                          
+                          
+                              </main>
+                          
+                          
+                   </section>
+
+
+                <!-- ===========================================
+                        TALAPATRAK EDITOR VIEW
+                ============================================== -->
                 
                 <section
-                    id="talapatrakView"
-                    class="talapatrakView"
-                    style="display: none;">
-
-                    <!-- =====================================================
-                            TALAPATRAK TOP DASHBOARD BAR
-                    ====================================================== -->
+                    id="talapatrakEditorView"
+                    class="talapatrakEditorView"
+                    style="display:none;">
                 
-                    <div class="talapatrakTopBar">
                 
-                        <div class="talapatrakTopLeft">
+                    <!-- ====================================================
+                            EDITOR TOP BAR
+                    ==================================================== -->
                 
-                            <button
-                                type="button"
-                                id="backToDashboardFromTalapatrak"
-                                class="talapatrakTopButton back">
+                    <div
+                        class="talapatrakEditorTopBar">
                 
-                                <i class="fa-solid fa-arrow-left"></i>
                 
-                                <span>
-                                    Dashboard
+                        <!-- BACK -->
+                
+                        <button
+                            type="button"
+                            id="backToTalapatrakManagement"
+                            class="talapatrakTopButton back">
+                
+                
+                            <i
+                                class="fa-solid fa-arrow-left">
+                            </i>
+                
+                
+                            <span>
+                                Talapatrak
+                            </span>
+                
+                
+                        </button>
+                
+                
+                        <!-- TITLE -->
+                
+                        <div
+                            class="talapatrakEditorTitle">
+                
+                
+                            <i
+                                class="fa-solid fa-table-list">
+                            </i>
+                
+                
+                            <div>
+                
+                
+                                <h2
+                                    id="talapatrakEditorVillageName">
+                
+                                    New Talapatrak
+                
+                                </h2>
+                
+                
+                                <span
+                                    id="talapatrakEditorYear">
+                
+                                    2025-2026
+                
                                 </span>
                 
-                            </button>
-                
-                
-                            <div class="talapatrakTopTitle">
-                
-                                <div class="talapatrakTopIcon">
-                
-                                    <i class="fa-solid fa-table-list"></i>
-                
-                                </div>
-                
-                
-                                <div>
-                
-                                    <h2>
-                                        તાળાપત્રક
-                                    </h2>
-                
-                                    <span>
-                                        Talapatrak Management
-                                    </span>
-                
-                                </div>
                 
                             </div>
+                
                 
                         </div>
                 
                 
-                        <div class="talapatrakTopActions">
+                        <!-- ACTIONS -->
+                
+                        <div
+                            class="talapatrakEditorActions">
+                
                 
                             <button
                                 type="button"
                                 id="saveTalapatrakButton"
                                 class="talapatrakTopButton save">
                 
-                                <i class="fa-solid fa-floppy-disk"></i>
+                
+                                <i
+                                    class="fa-solid fa-floppy-disk">
+                                </i>
+                
                 
                                 <span>
                                     Save
                                 </span>
+                
                 
                             </button>
                 
@@ -2052,632 +2428,498 @@
                                 id="printTalapatrakButton"
                                 class="talapatrakTopButton print">
                 
-                                <i class="fa-solid fa-print"></i>
+                
+                                <i
+                                    class="fa-solid fa-print">
+                                </i>
+                
                 
                                 <span>
                                     Print
                                 </span>
                 
+                
                             </button>
                 
+                
                         </div>
+                
                 
                     </div>
-
-                    <!-- ==================================================
-                                    TALAPATRAK FORM
-                    =================================================== -->
-                
-                    <div class="talapatrakPage">
-                
-                
-                        <!-- HEADER -->
-                
-                        <div class="talapatrakHeader">
-                
-                            <h1>
-                                તાળાપત્રક
-                            </h1>
-                
-                            <p>
-                                Talapatrak Management
-                            </p>
-                
-                        </div>
-                
-                
-                        <!-- TABLE -->
-                
-                        <div class="talapatrakTableWrapper">
-                
-                            <table
-                                id="talapatrakTable"
-                                class="talapatrakTable">
-                
-                                 <colgroup>
-
-                                    <col class="colA">
-                                    <col class="colB">
-                                
-                                    <!-- માંગણું -->
-                                    <col class="colC">
-                                    <col class="colD">
-                                    <col class="colE">
-                                    <col class="colF">
-                                    <col class="colG">
-                                    <col class="colH">
-                                
-                                    <col class="colI">
-                                    <col class="colJ">
-                                    <col class="colK">
-                                
-                                    <!-- વસૂલાત -->
-                                    <col class="colL">
-                                    <col class="colM">
-                                    <col class="colN">
-                                    <col class="colO">
-                                
-                                    <col class="colP">
-                                    <col class="colQ">
-                                    <col class="colR">
-                                    <col class="colS">
-                                    <col class="colT">
-                                    <col class="colU">
-                                
-                                    <col class="colAction">
-                                
-                                </colgroup>
-                                                              
-                                <thead>
-
-                                  <!-- TOP INFORMATION ROW -->
-                                <tr class="talapatrakInfoRow">
-                            
-                                    <!-- A to S = 19 columns -->
-                                    <th colspan="19">
-                            
-                                        <div class="talapatrakInfo">
-                            
-                                            <div class="talapatrakInfoField">
-                                                <label>મોજે :</label>
-                            
-                                                <textarea
-                                                  id="talapatrakMoje"
-                                                  class="talapatrakInfoInput"
-                                                  rows="1"
-                                                    placeholder="ગામનું નામ"></textarea>
-                                            </div>
-                            
-                            
-                                            <div class="talapatrakInfoField">
-                                                <label>તાલુકા :</label>
-                            
-                                                <textarea
-                                                    class="talapatrakInfoInput"
-                                                    rows="1"></textarea>
-                                            </div>
-                            
-                            
-                                            <div class="talapatrakInfoField">
-                                                <label>જિલ્લો :</label>
-                            
-                                                <textarea
-                                                    class="talapatrakInfoInput"
-                                                    rows="1"></textarea>
-                                            </div>
-                            
-                            
-                                            <div class="talapatrakInfoField">
-                            
-                                                <label>
-                                                    ગામના નમૂના નંબર-૧૧
-                                                </label>
-                            
-                                                <span class="talapatrakInfoStatic">
-                                                    તાળાપત્રક
-                                                </span>
-                            
-                                            </div>
-                            
-                            
-                                            <div class="talapatrakInfoField">
-                            
-                                                <label>સ.ને. :</label>
-                            
-                                                <textarea
-                                                    class="talapatrakInfoInput"
-                                                    rows="1"></textarea>
-                            
-                                            </div>
-                            
-                                        </div>
-                            
-                                    </th>
-                            
-                            
-                                    <!-- T -->
-                                    <th></th>
-                            
-                            
-                                    <!-- U -->
-                                    <th></th>
-                            
-                            
-                                    <!-- ACTION -->
-                                    <th></th>
-                            
-                                </tr>
-                            
-                                <!-- ==========================================
-                                     GROUP HEADER ROW
-                                ============================================ -->
-                            
-                                <tr>
-                            
-                                    <!-- A -->
-                                    <th rowspan="2">
-                                        ખાતા નંબર
-                                    </th>
-                            
-                            
-                                    <!-- B -->
-                                    <th rowspan="2">
-                                        ખાતેદારનું નામ
-                                    </th>
-                            
-                            
-                                    <!-- C to H = 6 columns -->
-                                    <th colspan="6">
-                                        માંગણું
-                                    </th>
-                            
-                            
-                                    <!-- I -->
-                                    <th rowspan="2">
-                                        છૂટની રકમ
-                                    </th>
-                            
-                            
-                                    <!-- J -->
-                                    <th rowspan="2">
-                                        ચોખ્ખું લેવા પાત્ર માંગણું
-                                    </th>
-                            
-                            
-                                    <!-- K -->
-                                    <th rowspan="2">
-                                        ગત સાલનું જાદે
-                                    </th>
-                            
-                            
-                                    <!-- L to O = 4 columns -->
-                                    <th colspan="4">
-                                        વસૂલાત
-                                    </th>
-                            
-                            
-                                    <!-- P -->
-                                    <th rowspan="2">
-                                        ખરેખર વસૂલ
-                                    </th>
-                            
-                            
-                                    <!-- Q -->
-                                    <th rowspan="2">
-                                        બિન હુકમી બાકી
-                                    </th>
-                            
-                            
-                                    <!-- R -->
-                                    <th rowspan="2">
-                                        જાદે વસૂલ
-                                    </th>
-                            
-                            
-                                    <!-- S -->
-                                    <th rowspan="2">
-                                        શેરો
-                                    </th>
-                            
-                            
-                                    <!-- T -->
-                                    <th rowspan="2">
-                                        બાકી
-                                    </th>
-                            
-                            
-                                    <!-- U -->
-                                    <th rowspan="2">
-                                        ફાજલ
-                                    </th>
-                            
-                            
-                                    <!-- ACTION -->
-                                    <th rowspan="2">
-                                        ક્રિયા
-                                    </th>
-                            
-                                </tr>
-                            
-                            
-                                <!-- ===========================================
-                                     SUB-HEADER ROW
-                                ============================================ -->
-                            
-                                <tr>
-                            
-                                    <!-- C -->
-                                    <th>
-                                        બિન હુકમી બાકી
-                                    </th>
-                            
-                            
-                                    <!-- D -->
-                                    <th>
-                                        સરકારી
-                                    </th>
-                            
-                            
-                                    <!-- E -->
-                                    <th>
-                                        ખેતી સિવાય
-                                    </th>
-                            
-                            
-                                    <!-- F -->
-                                    <th>
-                                        કાયમનું લોકલ ફંડ
-                                    </th>
-                            
-                            
-                                    <!-- G -->
-                                    <th>
-                                        ફરતી
-                                    </th>
-                            
-                            
-                                    <!-- H -->
-                                    <th>
-                                        કુલ એકંદર માંગણું
-                                    </th>
-                            
-                            
-                                    <!-- L -->
-                                    <th>
-                                        પાવતી નંબર
-                                    </th>
-                            
-                            
-                                    <!-- M -->
-                                    <th>
-                                        તારીખ
-                                    </th>
-                            
-                            
-                                    <!-- N -->
-                                    <th>
-                                        પાવતી મુજબ વસૂલ
-                                    </th>
-                            
-                            
-                                    <!-- O -->
-                                    <th>
-                                        કુલ
-                                    </th>
-                            
-                                </tr>
-
-                              </thead>
-                                  
-                
-                                <tbody
-                                    id="talapatrakBody">
-                
-                
-                                    <!-- FIRST ROW -->
-                
-                                    <tr
-                                        class="talapatrakRow">
-                
-                
-                                        <!-- A -->
-                
-                                        <td>
-                
-                                            <input
-                                                type="number"
-                                                class="talapatrakInput columnA"
-                                                value="1">
-                
-                                        </td>
-                
-                
-                                        <!-- B -->
-                
-                                        <td>
-                
-                                            <input
-                                                type="text"
-                                                class="talapatrakInput columnB">
-                
-                                        </td>
-                
-                
-                                        <!-- C -->
-                
-                                        <td>
-                
-                                            <input
-                                                type="number"
-                                                class="talapatrakInput columnC"
-                                                oninput="calculateTalapatrakRow(this)">
-                
-                                        </td>
-                
-                
-                                        <!-- D -->
-                
-                                        <td>
-                
-                                            <input
-                                                type="number"
-                                                class="talapatrakInput columnD"
-                                                oninput="calculateTalapatrakRow(this)">
-                
-                                        </td>
-                
-                
-                                        <!-- E -->
-                
-                                        <td>
-                
-                                            <input
-                                                type="number"
-                                                class="talapatrakInput columnE"
-                                                oninput="calculateTalapatrakRow(this)">
-                
-                                        </td>
-                
-                
-                                        <!-- F -->
-                
-                                        <td>
-                
-                                            <input
-                                                type="number"
-                                                class="talapatrakInput columnF"
-                                                oninput="calculateTalapatrakRow(this)">
-                
-                                        </td>
-                
-                
-                                        <!-- G -->
-                
-                                        <td>
-                
-                                            <input
-                                                type="number"
-                                                class="talapatrakInput columnG"
-                                                oninput="calculateTalapatrakRow(this)">
-                
-                                        </td>
-                
-                
-                                        <!-- H = C + D + E + F + G -->
-                
-                                        <td>
-                
-                                            <input
-                                                type="number"
-                                                class="talapatrakInput calculated columnH"
-                                                readonly>
-                
-                                        </td>
-                
-                
-                                        <!-- I = D -->
-                
-                                        <td>
-                
-                                            <input
-                                                type="number"
-                                                class="talapatrakInput calculated columnI"
-                                                readonly>
-                
-                                        </td>
-                
-                
-                                        <!-- J = H - I -->
-                
-                                        <td>
-                
-                                            <input
-                                                type="number"
-                                                class="talapatrakInput calculated columnJ"
-                                                readonly>
-                
-                                        </td>
-                
-                
-                                        <!-- K -->
-                
-                                        <td>
-                
-                                            <input
-                                                type="number"
-                                                class="talapatrakInput columnK"
-                                                oninput="calculateTalapatrakRow(this)">
-                
-                                        </td>
-                
-                
-                                        <!-- L -->
-                
-                                        <td>
-                
-                                            <input
-                                                type="number"
-                                                class="talapatrakInput columnL"
-                                                oninput="calculateTalapatrakRow(this)">
-                
-                                        </td>
-                
-                
-                                        <!-- M -->
-                
-                                        <td>
-                
-                                            <input
-                                                type="number"
-                                                class="talapatrakInput columnM"
-                                                oninput="calculateTalapatrakRow(this)">
-                
-                                        </td>
-                
-                
-                                        <!-- N -->
-                
-                                        <td>
-                
-                                            <input
-                                                type="number"
-                                                class="talapatrakInput columnN"
-                                                oninput="calculateTalapatrakRow(this)">
-                
-                                        </td>
-                
-                
-                                        <!-- O = K + N -->
-                
-                                        <td>
-                
-                                            <input
-                                                type="number"
-                                                class="talapatrakInput calculated columnO"
-                                                readonly>
-                
-                                        </td>
-                
                 
-                                        <!-- P = O - R -->
-                
-                                        <td>
-                
-                                            <input
-                                                type="number"
-                                                class="talapatrakInput calculated columnP"
-                                                readonly>
-                
-                                        </td>
-                
-                
-                                        <!-- Q = IF(T > O, T, O) -->
-                
-                                        <td>
-                
-                                            <input
-                                                type="number"
-                                                class="talapatrakInput calculated columnQ"
-                                                readonly>
-                
-                                        </td>
-                
-                
-                                        <!-- R = -(U) -->
-                
-                                        <td>
-                
-                                            <input
-                                                type="number"
-                                                class="talapatrakInput calculated columnR"
-                                                readonly>
-                
-                                        </td>
-                
-                
-                                        <!-- S -->
-                
-                                        <td>
-                
-                                            <input
-                                                type="number"
-                                                class="talapatrakInput columnS"
-                                                oninput="calculateTalapatrakRow(this)">
-                
-                                        </td>
-                
-                
-                                        <!-- T = H - I - O -->
-                
-                                        <td>
-                
-                                            <input
-                                                type="number"
-                                                class="talapatrakInput calculated columnT"
-                                                readonly>
-                
-                                        </td>
-                
-                
-                                        <!-- U = IF(T < O, T, O) -->
-                
-                                        <td>
-                
-                                            <input
-                                                type="number"
-                                                class="talapatrakInput calculated columnU"
-                                                readonly>
-                
-                                        </td>
-                
-                
-                                        <!-- DELETE -->
-                
-                                        <td>
-                
-                                            <button
-                                                type="button"
-                                                class="deleteTalapatrakRow"
-                                                onclick="deleteTalapatrakRow(this)">
-                
-                                                <i class="fa-solid fa-trash"></i>
-                
-                                            </button>
-                
-                                        </td>
-                
-                                    </tr>
-                
-                
-                                </tbody>
-                
-                            </table>
-                
-                        </div>
-                
-                
-                        <!-- ADD ROW -->
-                
-                        <!-- ==================================================
-                                  TALAPATRAK ACTIONS
-                          ================================================== -->
-                          
-                          <div class="talapatrakActions">
-
-                              <button
-                                  type="button"
-                                  id="addTalapatrakRow">
-                          
-                                  <i class="fa-solid fa-plus"></i>
-                          
-                                  Add Row
-                          
-                              </button>
+                
+                    <!-- ===================================================
+                            TABLE AREA
+                    ====================================================== -->
+                
+                
+                    <div
+                        class="talapatrakEditorContent">
+                
+                
+                        <div
+                            class="talapatrakPage">
+                
+                
+                            <!-- =============================================
+                                    TALAPATRAK INFORMATION
+                            =============================================== -->
+                
+                
+                            <div
+                                class="talapatrakInfoPanel">
+                
+                
+                                <div
+                                    class="talapatrakInfoField">
+                
+                
+                                    <label>
+                                        મોજે :
+                                    </label>
+                
+                
+                                    <textarea
+                                        id="talapatrakMoje"
+                                        class="talapatrakInfoInput"
+                                        rows="1"
+                                        placeholder="ગામનું નામ">
+                                    </textarea>
+                
+                
+                                </div>
+                
+                
+                                <div
+                                    class="talapatrakInfoField">
+                
+                
+                                    <label>
+                                        તાલુકા :
+                                    </label>
+                
+                
+                                    <textarea
+                                        id="talapatrakTaluka"
+                                        class="talapatrakInfoInput"
+                                        rows="1">
+                                    </textarea>
+                
+                
+                                </div>
+                
+                
+                                <div
+                                    class="talapatrakInfoField">
+                
+                
+                                    <label>
+                                        જિલ્લો :
+                                    </label>
+                
+                
+                                    <textarea
+                                        id="talapatrakJillo"
+                                        class="talapatrakInfoInput"
+                                        rows="1">
+                                    </textarea>
+                
+                
+                                </div>
+                
+                
+                                <div
+                                    class="talapatrakInfoField">
+                
+                
+                                    <label>
+                                        ગામના નમૂના નંબર-૧૧
+                                    </label>
+                
+                
+                                    <span
+                                        class="talapatrakInfoStatic">
+                
+                
+                                        તાળાપત્રક
+                
+                
+                                    </span>
+                
+                
+                                </div>
+                
+                
+                                <div
+                                    class="talapatrakInfoField">
+                
+                
+                                    <label>
+                                        વર્ષ :
+                                    </label>
+                
+                
+                                    <span
+                                        id="talapatrakYear"
+                                        class="talapatrakInfoStatic">
+                
+                
+                                        2025-2026
+                
+                
+                                    </span>
+                
+                
+                                </div>
+                
                 
                             </div>
                 
-                </section>
-
+                
+                            <!-- ==============================================
+                                    TABLE
+                            ============================================== -->
+                
+                
+                            <div
+                                class="talapatrakTableWrapper">
+                
+                
+                                <table
+                                    id="talapatrakTable"
+                                    class="talapatrakTable">
+                
+                
+                                    <colgroup>
+                
+                
+                                        <col class="colA">
+                
+                                        <col class="colB">
+                
+                
+                                        <col class="colC">
+                
+                                        <col class="colD">
+                
+                                        <col class="colE">
+                
+                                        <col class="colF">
+                
+                                        <col class="colG">
+                
+                                        <col class="colH">
+                
+                
+                                        <col class="colI">
+                
+                                        <col class="colJ">
+                
+                                        <col class="colK">
+                
+                
+                                        <col class="colL">
+                
+                                        <col class="colM">
+                
+                                        <col class="colN">
+                
+                                        <col class="colO">
+                
+                
+                                        <col class="colP">
+                
+                                        <col class="colQ">
+                
+                                        <col class="colR">
+                
+                                        <col class="colS">
+                
+                                        <col class="colT">
+                
+                                        <col class="colU">
+                
+                
+                                        <col class="colAction">
+                
+                
+                                    </colgroup>
+                
+                
+                                    <thead>
+                
+                
+                                        <!-- INFORMATION ROW -->
+                
+                
+                                        <tr
+                                            class="talapatrakInfoRow">
+                
+                
+                                            <th
+                                                colspan="22">
+                
+                
+                                                <div
+                                                    class="talapatrakInfo">
+                
+                
+                                                    <strong>
+                                                        ગામના નમૂના નંબર-૧૧
+                                                    </strong>
+                
+                
+                                                    <span>
+                                                        તાળાપત્રક
+                                                    </span>
+                
+                
+                                                </div>
+                
+                
+                                            </th>
+                
+                
+                                        </tr>
+                
+                
+                                        <!-- GROUP HEADER -->
+                
+                
+                                        <tr>
+                
+                
+                                            <th
+                                                rowspan="2">
+                
+                                                ખાતા નંબર
+                
+                                            </th>
+                
+                
+                                            <th
+                                                rowspan="2">
+                
+                                                ખાતેદારનું નામ
+                
+                                            </th>
+                
+                
+                                            <th
+                                                colspan="6">
+                
+                                                માંગણું
+                
+                                            </th>
+                
+                
+                                            <th
+                                                rowspan="2">
+                
+                                                છૂટની રકમ
+                
+                                            </th>
+                
+                
+                                            <th
+                                                rowspan="2">
+                
+                                                ચોખ્ખું લેવા પાત્ર માંગણું
+                
+                                            </th>
+                
+                
+                                            <th
+                                                rowspan="2">
+                
+                                                ગત સાલનું જાદે
+                
+                                            </th>
+                
+                
+                                            <th
+                                                colspan="4">
+                
+                                                વસૂલાત
+                
+                                            </th>
+                
+                
+                                            <th
+                                                rowspan="2">
+                
+                                                ખરેખર વસૂલ
+                
+                                            </th>
+                
+                
+                                            <th
+                                                rowspan="2">
+                
+                                                બિન હુકમી બાકી
+                
+                                            </th>
+                
+                
+                                            <th
+                                                rowspan="2">
+                
+                                                જાદે વસૂલ
+                
+                                            </th>
+                
+                
+                                            <th
+                                                rowspan="2">
+                
+                                                શેરો
+                
+                                            </th>
+                
+                
+                                            <th
+                                                rowspan="2">
+                
+                                                બાકી
+                
+                                            </th>
+                
+                
+                                            <th
+                                                rowspan="2">
+                
+                                                ફાજલ
+                
+                                            </th>
+                
+                
+                                            <th
+                                                rowspan="2">
+                
+                                                ક્રિયા
+                
+                                            </th>
+                
+                
+                                        </tr>
+                
+                
+                                        <!-- SUB HEADER -->
+                
+                
+                                        <tr>
+                
+                
+                                            <th>
+                                                બિન હુકમી બાકી
+                                            </th>
+                
+                
+                                            <th>
+                                                સરકારી
+                                            </th>
+                
+                
+                                            <th>
+                                                ખેતી સિવાય
+                                            </th>
+                
+                
+                                            <th>
+                                                કાયમનું લોકલ ફંડ
+                                            </th>
+                
+                
+                                            <th>
+                                                ફરતી
+                                            </th>
+                
+                
+                                            <th>
+                                                કુલ એકંદર માંગણું
+                                            </th>
+                
+                
+                                            <th>
+                                                પાવતી નંબર
+                                            </th>
+                
+                
+                                            <th>
+                                                તારીખ
+                                            </th>
+                
+                
+                                            <th>
+                                                પાવતી મુજબ વસૂલ
+                                            </th>
+                
+                
+                                            <th>
+                                                કુલ
+                                            </th>
+                
+                
+                                        </tr>
+                
+                
+                                    </thead>
+                
+                
+                                    <!-- BODY -->
+                
+                
+                                    <tbody
+                                        id="talapatrakBody">
+                
+                
+                                        <!-- ROWS WILL BE CREATED HERE -->
+                
+                
+                                    </tbody>
+                
+                
+                                </table>
+                
+                
+                            </div>
+                
+                
+                            <!-- =============================================
+                                    TABLE ACTIONS
+                            =============================================== -->
+                
+                
+                            <div
+                                class="talapatrakActions">
+                
+                
+                                <button
+                                    type="button"
+                                    id="addTalapatrakRow">
+                
+                
+                                    <i
+                                        class="fa-solid fa-plus">
+                                    </i>
+                
+                
+                                    Add Row
+                
+                
+                                </button>
+                
+                
+                            </div>
+                
+                
+                        </div>
+                
+                
+                    </div>
+                
+                
+                </section>      
         </main>
 
     </div>
