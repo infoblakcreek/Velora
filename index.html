@@ -29,6 +29,10 @@
     <link
         rel="stylesheet"
         href="style.css">
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
       
 </head>
 
@@ -817,9 +821,7 @@
                                       Talapatrak management
                                   </p>
                           
-                                  <span id="talapatrakCount">
-                                      0 records
-                                  </span>
+                                  <span id="talapatrakRecordCount">0</span>
                           
                               </div>
                           
@@ -1952,38 +1954,50 @@
                 
                         </section>
                 
-                                    <!-- ==========================================
-                RECEIPT ACTION BUTTONS
-        =========================================== -->
-
-        <div class="receiptActionButtons">
-
-            <button
-                id="backToEditBtn"
-                type="button">
-
-                ✏️
-                <span>
-                    ← Edit Bill
-                </span>
-
-            </button>
-
-
-            <button
-                id="printBillBtn"
-                type="button">
-
-                🖨️
-                <span>
-                    Print Bill
-                </span>
-
-            </button>
-
-        </div>
-                           
-        </div>
+                      <!-- ===================================
+                              RECEIPT ACTION BUTTONS
+                      ========================================= -->
+                            
+                        <div class="receiptActionButtons">
+                                      
+                            <button
+                                id="backToEditBtn"
+                                type="button">
+                        
+                                ✏️
+                                <span>
+                                    ← Edit Bill
+                                </span>
+                        
+                            </button>
+                        
+                        
+                            <button
+                                id="saveBillBtn"
+                                type="button">
+                        
+                                💾
+                                <span>
+                                    Save Bill
+                                </span>
+                        
+                            </button>
+                        
+                        
+                            <button
+                                id="printBillBtn"
+                                type="button">
+                        
+                                🖨️
+                                <span>
+                                    Print Bill
+                                </span>
+                        
+                            </button>
+                        
+                        </div>
+                                         
+                  </div>
                                     
               </section>
 
@@ -2236,91 +2250,90 @@
                 
                 <section
                       id="talapatrakEditorView"
-                      class="talapatrakEditorView"
-                      style="display:none;">
-                  
+                      class="talapatrakEditorView talapatrakPrintArea">
+            
                       <!-- ====================================================
                            EDITOR TOP BAR
                       ====================================================== -->
                   
-                      <div class="talapatrakEditorTopBar">
-                  
-                          <!-- BACK -->
-                  
-                          <button
-                              type="button"
-                              id="backToTalapatrakManagement"
-                              class="talapatrakTopButton back">
-                  
-                              <i class="fa-solid fa-arrow-left"></i>
-                  
-                              <span>
-                                  Talapatrak
-                              </span>
-                  
-                          </button>
-                  
-                  
-                          <!-- TITLE -->
-                  
-                          <div class="talapatrakEditorTitle">
-                  
-                              <div class="talapatrakEditorTitleIcon">
-                  
-                                  <i class="fa-solid fa-table-list"></i>
-                  
-                              </div>
-                  
-                              <div class="talapatrakEditorTitleText">
-                  
-                                  <h2 id="talapatrakEditorVillageName">
-                                      New Talapatrak
-                                  </h2>
-                  
-                                  <span id="talapatrakEditorYear">
-                                      2025-2026
-                                  </span>
-                  
-                              </div>
-                  
-                          </div>
-                  
-                  
-                          <!-- ACTIONS -->
-                  
-                          <div class="talapatrakEditorActions">
-                  
-                              <button
-                                  type="button"
-                                  id="saveTalapatrakButton"
-                                  class="talapatrakTopButton save">
-                  
-                                  <i class="fa-solid fa-floppy-disk"></i>
-                  
-                                  <span>
-                                      Save
-                                  </span>
-                  
-                              </button>
-                  
-                  
-                              <button
-                                  type="button"
-                                  id="printTalapatrakButton"
-                                  class="talapatrakTopButton print">
-                  
-                                  <i class="fa-solid fa-print"></i>
-                  
-                                  <span>
-                                      Print
-                                  </span>
-                  
-                              </button>
-                  
-                          </div>
-                  
-                      </div>
-                  
+                        <div class="talapatrakEditorTopBar">
+                    
+                            <!-- BACK -->
+                    
+                            <button
+                                type="button"
+                                id="backToTalapatrakManagement"
+                                class="talapatrakTopButton back">
+                    
+                                <i class="fa-solid fa-arrow-left"></i>
+                    
+                                <span>
+                                    Talapatrak
+                                </span>
+                    
+                            </button>
+                    
+                    
+                            <!-- TITLE -->
+                    
+                            <div class="talapatrakEditorTitle">
+                    
+                                <div class="talapatrakEditorTitleIcon">
+                    
+                                    <i class="fa-solid fa-table-list"></i>
+                    
+                                </div>
+                    
+                                <div class="talapatrakEditorTitleText">
+                    
+                                    <h2 id="talapatrakEditorVillageName">
+                                        New Talapatrak
+                                    </h2>
+                    
+                                    <span id="talapatrakEditorYear">
+                                        2025-2026
+                                    </span>
+                    
+                                </div>
+                    
+                            </div>
+                    
+                    
+                            <!-- ACTIONS -->
+                    
+                            <div class="talapatrakEditorActions">
+                    
+                                <button
+                                    type="button"
+                                    id="saveTalapatrakButton"
+                                    class="talapatrakTopButton save">
+                    
+                                    <i class="fa-solid fa-floppy-disk"></i>
+                    
+                                    <span>
+                                        Save
+                                    </span>
+                    
+                                </button>
+                    
+                    
+                                <button
+                                    type="button"
+                                    id="printTalapatrakButton"
+                                    class="talapatrakTopButton print">
+                    
+                                    <i class="fa-solid fa-print"></i>
+                    
+                                    <span>
+                                        Print
+                                    </span>
+                    
+                                </button>
+                    
+                            </div>
+                    
+                        </div>
+                    
                   
                       <!-- ====================================================
                            EDITOR CONTENT
@@ -2331,9 +2344,9 @@
                           <div class="talapatrakPage">
                   
                   
-                              <!-- ====================================================
+                              <!-- ============================================
                                    TALAPATRAK INFORMATION
-                              ==================================================== -->
+                              ========================================== -->
                   
                               <div class="talapatrakInfoPanel">
                   
@@ -2429,9 +2442,9 @@
                               </div>
                   
                   
-                              <!-- ====================================================
+                              <!-- ========================================
                                    TABLE
-                              ==================================================== -->
+                              ========================================== -->
                   
                               <div class="talapatrakTableWrapper">
                   
@@ -2477,9 +2490,9 @@
                                       <thead>
                   
                   
-                                          <!-- ==============================================
+                                          <!-- ================================
                                                INFORMATION ROW
-                                          ================================================ -->
+                                          =============================== -->
                   
                                           <tr class="talapatrakInfoRow">
                   
@@ -2502,9 +2515,9 @@
                                           </tr>
                   
                   
-                                          <!-- ==============================================
+                                          <!-- ===============================
                                                GROUP HEADER
-                                          ================================================= -->
+                                          =============================== -->
                   
                                           <tr>
                   
@@ -2581,9 +2594,9 @@
                                           </tr>
                   
                   
-                                          <!-- ================================================
+                                          <!-- ==============================
                                                SUB HEADER
-                                          =================================================== -->
+                                          ================================= -->
                   
                                           <tr>
                   
@@ -2632,9 +2645,9 @@
                                       </thead>
                   
                   
-                                      <!-- ====================================================
+                                      <!-- =================================
                                            BODY
-                                      ==================================================== -->
+                                      ==================================== -->
                   
                                       <tbody id="talapatrakBody">
                   
@@ -2648,9 +2661,9 @@
                               </div>
                   
                   
-                              <!-- ====================================================
+                              <!-- ============================================
                                    TABLE ACTIONS
-                              ==================================================== -->
+                             ============================================== -->
                   
                               <div class="talapatrakActions">
                   
@@ -2671,7 +2684,10 @@
                   
                       </div>
                   
-                  </section>
+                    </section>
+
+         
+          
         </main>
 
     </div>
