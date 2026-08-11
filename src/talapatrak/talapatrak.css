@@ -2046,6 +2046,91 @@ border:
 
 
 /* ============================================================
+   UPLOAD BUTTON
+============================================================ */
+
+.talapatrakTopButton.upload {
+
+    color: var(--talapatrak-primary);
+
+    background: #ffffff;
+
+    border: 1px solid #c7d2fe;
+
+    box-shadow:
+        0 6px 16px rgba(99, 102, 241, 0.10);
+
+    transition:
+        transform 0.2s ease,
+        color 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+
+}
+
+
+/* ------------------------------------------------------------
+   UPLOAD ICON
+------------------------------------------------------------ */
+
+.talapatrakTopButton.upload i {
+
+    margin-right: 6px;
+
+}
+
+
+/* ------------------------------------------------------------
+   HOVER
+------------------------------------------------------------ */
+
+.talapatrakTopButton.upload:hover {
+
+    color: #ffffff;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--talapatrak-primary),
+            var(--talapatrak-purple)
+        );
+
+    border-color: transparent;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 22px rgba(99, 102, 241, 0.24);
+
+}
+
+
+/* ------------------------------------------------------------
+   ACTIVE
+------------------------------------------------------------ */
+
+.talapatrakTopButton.upload:active {
+
+    transform: translateY(0);
+
+}
+
+
+/* ------------------------------------------------------------
+   FOCUS
+------------------------------------------------------------ */
+
+.talapatrakTopButton.upload:focus-visible {
+
+    outline: 2px solid var(--talapatrak-primary);
+
+    outline-offset: 2px;
+
+}
+
+
+/* ============================================================
    SAVE BUTTON
 ============================================================ */
 
