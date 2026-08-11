@@ -1,0 +1,1229 @@
+       <!-- ==========================================
+                SHIKSHANUPAKARAN MANAGEMENT VIEW
+        ================================================ -->
+        
+        <section
+            id="shikshanupakaranView"
+            class="shikshanupakaranView"
+            style="display:none;">
+        
+        
+            <!-- ==========================================
+                    TOP BAR
+            =========================================== -->
+        
+            <div class="shikshanupakaranManagementTopBar">
+        
+        
+                <div class="shikshanupakaranManagementTopActions">
+        
+        
+                    <!-- SEARCH -->
+        
+                    <div class="shikshanupakaranSearchBox">
+        
+                        <i class="fa-solid fa-magnifying-glass"></i>
+        
+                        <input
+                            type="search"
+                            id="shikshanupakaranSearchInput"
+                            placeholder="Search village...">
+        
+                    </div>
+        
+        
+        
+                    <!-- ADD SHIKSHANUPAKARAN -->
+        
+                    <button
+                        type="button"
+                        id="addShikshanupakaranButton"
+                        class="shikshanupakaranAddButton">
+        
+        
+                        <i class="fa-solid fa-plus"></i>
+        
+        
+                        <span>
+                            Add Shikshanupakaran
+                        </span>
+        
+        
+                    </button>
+        
+        
+                </div>
+        
+        
+            </div>
+        
+        
+        
+        
+        
+            <!-- ==========================================
+                    MANAGEMENT CONTENT
+            =========================================== -->
+        
+        
+            <main
+                class="shikshanupakaranManagementContent">
+        
+        
+        
+                <!-- PAGE HEADER -->
+        
+        
+                <div class="shikshanupakaranManagementHeader">
+        
+        
+                    <div>
+        
+        
+                        <h1>
+                            શિક્ષણ ઉપકર
+                        </h1>
+        
+        
+                        <p>
+                            Manage village records and yearly Shikshanupakaran data
+                        </p>
+        
+        
+                    </div>
+        
+        
+                </div>
+        
+        
+        
+        
+        
+                <!-- RECORD TOOLBAR -->
+        
+        
+                <div class="shikshanupakaranRecordsToolbar">
+        
+        
+        
+                    <!-- TOTAL VILLAGES -->
+        
+        
+                    <div
+                        id="shikshanupakaranSearchSummary"
+                        class="shikshanupakaranSearchSummary">
+        
+        
+                        <span>
+        
+        
+                            <strong id="shikshanupakaranManagementRecordCount">
+                                  0
+                              </strong>
+        
+        
+                            villages
+        
+        
+                        </span>
+        
+        
+                    </div>
+        
+        
+        
+        
+        
+                    <!-- VIEW CONTROLS -->
+        
+        
+                    <div
+                        class="shikshanupakaranViewControls">
+        
+        
+        
+                        <!-- SORT -->
+        
+        
+                        <div
+                            class="shikshanupakaranSortWrapper">
+        
+        
+        
+                            <button
+                                type="button"
+                                id="shikshanupakaranSortButton"
+                                class="shikshanupakaranControlButton">
+        
+        
+                                <i class="fa-solid fa-arrow-down-wide-short"></i>
+        
+        
+                                <span
+                                    id="shikshanupakaranSortLabel">
+        
+                                    Recent
+        
+                                </span>
+        
+        
+                                <i class="fa-solid fa-chevron-down"></i>
+        
+        
+                            </button>
+        
+        
+        
+        
+        
+                            <div
+                                id="shikshanupakaranSortMenu"
+                                class="shikshanupakaranSortMenu">
+        
+        
+        
+                                <button
+                                    type="button"
+                                    class="shikshanupakaranSortOption active"
+                                    data-sort="recent">
+        
+        
+                                    <i class="fa-solid fa-clock"></i>
+        
+        
+                                    Recent
+        
+        
+                                </button>
+        
+        
+        
+        
+                                <button
+                                    type="button"
+                                    class="shikshanupakaranSortOption"
+                                    data-sort="oldest">
+        
+        
+                                    <i class="fa-solid fa-clock-rotate-left"></i>
+        
+        
+                                    Oldest
+        
+        
+                                </button>
+        
+        
+        
+        
+                                <button
+                                    type="button"
+                                    class="shikshanupakaranSortOption"
+                                    data-sort="az">
+        
+        
+                                    <i class="fa-solid fa-arrow-down-a-z"></i>
+        
+        
+                                    A–Z
+        
+        
+                                </button>
+        
+        
+        
+        
+                                <button
+                                    type="button"
+                                    class="shikshanupakaranSortOption"
+                                    data-sort="za">
+        
+        
+                                    <i class="fa-solid fa-arrow-down-z-a"></i>
+        
+        
+                                    Z–A
+        
+        
+                                </button>
+        
+        
+                            </div>
+        
+        
+                        </div>
+        
+        
+        
+        
+        
+                        <!-- GRID BUTTON -->
+        
+        
+                        <button
+                            type="button"
+                            id="shikshanupakaranGridViewButton"
+                            class="shikshanupakaranIconButton active">
+        
+        
+                            <i class="fa-solid fa-grip"></i>
+        
+        
+                        </button>
+        
+        
+        
+        
+        
+                        <!-- LIST BUTTON -->
+        
+        
+                        <button
+                            type="button"
+                            id="shikshanupakaranListViewButton"
+                            class="shikshanupakaranIconButton">
+        
+        
+                            <i class="fa-solid fa-list"></i>
+        
+        
+                        </button>
+        
+        
+        
+                    </div>
+        
+        
+                </div>
+        
+        
+        
+        
+        
+                <!-- EMPTY STATE -->
+        
+        
+                <div
+                    id="shikshanupakaranEmptyState"
+                    class="shikshanupakaranEmptyState">
+        
+                </div>
+        
+        
+        
+        
+        
+                <!-- VILLAGE GRID -->
+        
+        
+                <div
+                    id="shikshanupakaranVillageGrid"
+                    class="shikshanupakaranVillageGrid">
+        
+        
+                </div>
+        
+        
+        
+            </main>
+        
+        
+        </section>
+     
+           <!-- ===========================================
+                SHIKSHANUPAKARAN EDITOR VIEW
+        ================================================ -->
+        
+        <section
+            id="shikshanupakaranEditorView"
+            class="shikshanupakaranEditorView shikshanupakaranPrintArea"
+            style="display:none;">
+        
+        
+        
+            <!-- ==========================================
+                    EDITOR TOP BAR
+            =========================================== -->
+        
+        
+            <div class="shikshanupakaranEditorTopBar">
+        
+        
+        
+                <!-- BACK BUTTON -->
+        
+        
+                <button
+                    type="button"
+                    id="backToShikshanupakaranManagement"
+                    class="shikshanupakaranTopButton back">
+        
+        
+                    <i class="fa-solid fa-arrow-left"></i>
+        
+        
+                    <span>
+                        શિક્ષણ ઉપકર
+                    </span>
+        
+        
+                </button>
+        
+        
+        
+        
+        
+                <!-- TITLE -->
+        
+        
+                <div class="shikshanupakaranEditorTitle">
+        
+        
+                    <div class="shikshanupakaranEditorTitleIcon">
+        
+        
+                        <i class="fa-solid fa-folder-open"></i>
+        
+        
+                    </div>
+        
+        
+        
+                    <div class="shikshanupakaranEditorTitleText">
+        
+        
+                        <h2
+                            id="shikshanupakaranEditorVillageName">
+        
+                            New Shikshanupakaran
+        
+                        </h2>
+        
+        
+        
+                        <span
+                            id="shikshanupakaranEditorYear">
+                        </span>
+        
+        
+                    </div>
+        
+        
+                </div>
+        
+        
+        
+        
+        
+                <!-- ACTION BUTTONS -->
+        
+        
+                <div class="shikshanupakaranEditorActions">
+        
+        
+                    <button
+                        type="button"
+                        id="saveShikshanupakaranButton"
+                        class="shikshanupakaranTopButton save">
+        
+        
+                        <i class="fa-solid fa-floppy-disk"></i>
+        
+        
+                        <span>
+                            Save
+                        </span>
+        
+        
+                    </button>
+        
+        
+        
+        
+                    <button
+                        type="button"
+                        id="printShikshanupakaranButton"
+                        class="shikshanupakaranTopButton print">
+        
+        
+                        <i class="fa-solid fa-print"></i>
+        
+        
+                        <span>
+                            Print
+                        </span>
+        
+        
+                    </button>
+        
+        
+                </div>
+        
+        
+            </div>
+        
+        
+        
+        
+        
+            <!-- ==========================================
+                    EDITOR CONTENT
+            =========================================== -->
+        
+        
+            <div
+                class="shikshanupakaranEditorContent">
+        
+        
+                <div
+                    class="shikshanupakaranPage">
+
+        
+                    <!-- =====================================
+                            TABLE AREA
+                    ====================================== -->
+        
+      
+
+                  <div 
+                        class="shikshanupakaranTableWrapper">
+                  
+                                  <table
+                                      id="shikshanupakaranTable"
+                                      class="shikshanupakaranTable">
+                  
+                  
+                                      <colgroup>
+                  
+                                          <col class="colA">
+                                          <col class="colB">
+                  
+                                          <col class="colC">
+                                          <col class="colD">
+                                          <col class="colE">
+                                          <col class="colF">
+                                          <col class="colG">
+                                          <col class="colH">
+                  
+                                          <col class="colI">
+                                          <col class="colJ">
+                                          <col class="colK">
+                  
+                                          <col class="colL">
+                                          <col class="colM">
+                                          <col class="colN">
+                                          <col class="colO">
+                  
+                                          <col class="colP">
+                                          <col class="colQ">
+                                          <col class="colR printHide">
+                                          <col class="colS printHide">
+                                                                                               
+                                          <col class="colAction printHide">
+                  
+                                      </colgroup>
+                  
+                  
+                                      <thead>
+
+                                          <!-- ==================================
+                                               TOP INFORMATION ROW
+                                          ================================== -->
+                                          
+                                          <tr class="shikshanupakaranTopInfoRow">
+
+                                              <th colspan="17">
+                                          
+                                                  <div class="shikshanupakaranHeaderLayout">
+                                          
+                                          
+                                                      <div class="shikshanupakaranHeaderSide left">
+
+                                                          <div class="shikshanupakaranInfoField">
+                                                              <strong>મોજે :</strong>
+                                                              <span 
+                                                                  id="printMoje"
+                                                                  class="shikshanupakaranDottedField"
+                                                                  contenteditable="true"></span>
+                                                          </div>
+                                                      
+                                                      
+                                                          <div class="shikshanupakaranInfoField">
+                                                              <strong>તાલુકા :</strong>
+                                                              <span 
+                                                                  id="printTaluka"
+                                                                  class="shikshanupakaranDottedField"
+                                                                  contenteditable="true"></span>
+                                                          </div>
+                                                      
+                                                      
+                                                          <div class="shikshanupakaranInfoField">
+                                                              <strong>જિલ્લો :</strong>
+                                                              <span 
+                                                                  id="printJillo"
+                                                                  class="shikshanupakaranDottedField"
+                                                                  contenteditable="true"></span>
+                                                          </div>
+                                                      
+                                                      </div>
+                                          
+                                                      <div class="shikshanupakaranHeaderTitle">
+
+                                                          <strong>
+                                                              ગામના નમૂના નંબર : ૮(ક) શિક્ષણ ઉપકર
+                                                          </strong>
+                                                      
+                                                      </div>
+                                          
+                                          
+                                          
+                                                      <div class="shikshanupakaranHeaderSide right">
+                                          
+                                                          <div>
+                                                          
+                                                              <strong>વર્ષ :</strong>
+                                                          
+                                                              <span id="printYear">
+                                                              </span>
+                                                          
+                                                          </div>
+                                          
+                                                      </div>
+                                          
+                                          
+                                                  </div>
+                                          
+                                              </th>
+                                          
+                                          </tr>
+
+                          
+                                          <!-- ==============================
+                                               SUB HEADER
+                                          ================================= -->
+                  
+                                          <tr>
+
+                                            <th rowspan="3">
+                                                  ખાતા નંબર
+                                              </th>
+
+                                            <th rowspan="3">
+                                                  ખાતેદારનું નામ
+                                              </th>
+
+                                            <th colspan="5">
+                                                  સંયુક્ત એકંદરે માંગણું
+                                              </th>
+
+                                            <th colspan="6">
+                                                  વસૂલાત
+                                              </th>
+
+                                            <th rowspan="3">
+                                                  ખરેખર વસૂલ
+                                              </th>
+
+                                            <th rowspan="3">
+                                                  બિન હુકમી બાકી
+                                              </th>
+
+                                            <th rowspan="3">
+                                                 જાહેર વસૂલ
+                                              </th>
+
+                                            <th rowspan="3">
+                                                  શેરો
+                                              </th>
+
+                                            <th rowspan="3" class="printHide">
+                                                  બાકી
+                                              </th>
+
+                                            <th rowspan="3" class="printHide">
+                                                  ફાજલ
+                                              </th>
+
+                                            <th
+                                                rowspan="3"
+                                                class="printHide">
+                                                ક્રિયા
+                                            </th>
+                
+                                      </tr>
+                  
+                                          <!-- ==============================
+                                               SUB HEADER
+                                          ================================= -->
+                  
+                                       <tr>                                           
+                                            <th colspan="2">
+                                                  પાછલી બાકી
+                                              </th>
+
+                                             <th colspan="2">
+                                                  માંગણું
+                                              </th>
+
+                                             <th rowspan="2">
+                                                    કુલ એકંદરે માંગણું                 
+                                             </th>
+
+                                             <th rowspan="2">
+                                                    પહોંચ નંબર        
+                                             </th>
+
+                                             <th rowspan="2">
+                                                    તારીખ            
+                                             </th>
+
+                                             <th rowspan="2">
+                                                    પાછલી
+                                             </th>
+
+                                             <th rowspan="2">
+                                                    ચાલુ
+                                             </th>
+
+                                             <th rowspan="2">
+                                                    ગુદસ્ત ફાજલ
+                                             </th>
+
+                                             <th rowspan="2">
+                                                    કુલ વસૂલાત
+                                             </th>
+
+                                             
+                                      </tr>
+                                        
+                                          <!-- ==============================
+                                               SUB HEADER
+                                          ================================= -->
+                  
+                                          <tr>
+                  
+                                              <th>
+                                                  અધિકૃત
+                                              </th>
+                  
+                                              <th>
+                                                  બિન અધિકૃત
+                                              </th>
+                  
+                                              <th>
+                                                 સરકારી
+                                              </th>
+                  
+                                              <th>
+                                                  ઇનામી
+                                              </th>
+                  
+                                         </tr>
+                                        
+                                      </thead>
+                  
+                  
+                                      <!-- =================================
+                                           BODY
+                                      ==================================== -->
+                  
+                                      <tbody id="shikshanupakaranBody">
+                  
+                                          <!-- ROWS CREATED BY JAVASCRIPT -->
+                  
+                                      </tbody>
+                  
+                  
+                                  </table
+                  
+                 </div>
+
+
+                  
+                                <div
+                                  id="shikshanupakaranPrintContainer"
+                                  style="display:none;">
+                                </div>
+        
+                    <!-- =====================================
+                            TABLE ACTIONS
+                    ====================================== -->
+        
+        
+                    <div
+                        class="shikshanupakaranActions">
+        
+        
+                        <button
+                            type="button"
+                            id="addShikshanupakaranRow">
+        
+        
+                            <i class="fa-solid fa-plus"></i>
+        
+        
+                            Add Row
+        
+        
+                        </button>
+        
+        
+                    </div>
+        
+        
+        
+        
+                </div>
+        
+        
+            </div>
+        
+        
+        
+        </section>
+
+
+
+<style data-shikshanupakaran-print>
+
+/* ============================================================
+   SHIKSHANUPAKARAN PRINT CSS
+   ============================================================ */
+
+
+  
+
+/* ------------------------------------------------------------
+   PAGE
+------------------------------------------------------------ */
+
+@page {
+    size: A4 landscape;
+    margin: 8mm;
+}
+
+
+/* ------------------------------------------------------------
+   PRINT TABLE
+------------------------------------------------------------ */
+
+.shikshanupakaranTable {
+    /* width: 100%; */
+    table-layout: fixed;
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
+    border: 1px solid #000 !important;
+    table-layout: auto !important;
+    width: max-content !important;
+    min-width: 100% !important;
+}
+
+
+/* ------------------------------------------------------------
+   ALL TABLE BORDERS
+------------------------------------------------------------ */
+
+.shikshanupakaranTable th,
+.shikshanupakaranTable td {
+    border: 1px solid #000 !important;
+    color: #000 !important;
+    box-sizing: border-box;
+}
+
+
+/* ------------------------------------------------------------
+   HEADER
+------------------------------------------------------------ */
+
+.shikshanupakaranTable thead th {
+    border: 1px solid #000 !important;
+    color: #000 !important;
+}
+
+
+/* ------------------------------------------------------------
+   BODY
+------------------------------------------------------------ */
+
+.shikshanupakaranTable tbody td {
+    border: 1px solid #000 !important;
+    color: #000 !important;
+}
+
+.shikshanupakaranTable tbody tr {
+    border: 1px solid #000 !important;
+}
+
+
+/* ------------------------------------------------------------
+   TOP INFORMATION ROW
+------------------------------------------------------------ */
+
+.shikshanupakaranTable .shikshanupakaranTopInfoRow > th {
+    border: 1px solid #000 !important;
+    padding: 4px 6px !important;
+}
+
+
+/* ------------------------------------------------------------
+   TOP HEADER LAYOUT
+------------------------------------------------------------ */
+
+.shikshanupakaranTable .shikshanupakaranHeaderLayout {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.shikshanupakaranTable .shikshanupakaranHeaderSide {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    white-space: nowrap;
+}
+
+.shikshanupakaranTable .shikshanupakaranHeaderSide.left {
+    justify-content: flex-start;
+}
+
+.shikshanupakaranTable .shikshanupakaranHeaderSide.right {
+    justify-content: flex-end;
+}
+
+.shikshanupakaranTable .shikshanupakaranHeaderTitle {
+    text-align: center;
+    white-space: nowrap;
+}
+
+
+/* ------------------------------------------------------------
+   INFORMATION FIELDS
+------------------------------------------------------------ */
+
+.shikshanupakaranTable .shikshanupakaranInfoField {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    white-space: nowrap;
+}
+
+.shikshanupakaranTable .shikshanupakaranInfoField strong {
+    font-weight: 700 !important;
+}
+
+.shikshanupakaranTable .shikshanupakaranDottedField {
+    white-space: nowrap;
+}
+
+
+/* ------------------------------------------------------------
+   INPUTS / TEXTAREAS
+------------------------------------------------------------ */
+
+.shikshanupakaranTable input,
+.shikshanupakaranTable textarea {
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    appearance: none !important;
+    resize: none !important;
+    color: #000 !important;
+    font: inherit !important;
+}
+
+.shikshanupakaranTable tbody td input,
+.shikshanupakaranTable tbody td textarea {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+
+    box-sizing: border-box !important;
+
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+
+    white-space: pre-wrap !important;
+    overflow: visible !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+
+    color: #000 !important;
+}
+
+
+/* ------------------------------------------------------------
+   HIDE NON-PRINT COLUMNS
+------------------------------------------------------------ */
+
+.shikshanupakaranTable .printHide {
+    display: none !important;
+}
+
+.shikshanupakaranTable col.printHide {
+    display: none !important;
+}
+
+
+/* ------------------------------------------------------------
+   TABLE WRAPPER
+------------------------------------------------------------ */
+
+.shikshanupakaranTableWrapper {
+    width: 100%;
+    box-sizing: border-box;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+
+/* ------------------------------------------------------------
+   PRINT AREA
+------------------------------------------------------------ */
+
+.shikshanupakaranPrintArea {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+/* ------------------------------------------------------------
+   PRINT PAGE
+------------------------------------------------------------ */
+
+.shikshanupakaranPage {
+    width: 100%;
+    box-sizing: border-box;
+    page-break-after: always;
+}
+
+.shikshanupakaranPage:last-child {
+    page-break-after: auto;
+}
+
+  .shikshanupakaranTable tbody tr { 
+    break-inside: avoid !important; 
+    page-break-inside: avoid !important; 
+  }
+
+  
+  /* ============================================================
+   COLUMN B — ACCOUNT HOLDER NAME
+   FLEXIBLE WIDTH
+   ============================================================ */
+/* ============================================================
+   SHIKSHANUPAKARAN PRINT — COLUMN B
+   ACCOUNT HOLDER NAME
+   ============================================================ */
+
+.shikshanupakaranPrintTable {
+    table-layout: fixed !important;
+    width: 100% !important;
+}
+
+
+/* Give Column B proper room */
+
+.shikshanupakaranPrintTable col.colB {
+    width: 120px !important;
+}
+
+
+/* Column B cells */
+
+.shikshanupakaranPrintTable th:nth-child(2),
+.shikshanupakaranPrintTable td:nth-child(2) {
+    width: 120px !important;
+    min-width: 120px !important;
+    max-width: 120px !important;
+
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+}
+
+
+/* Name text */
+
+.shikshanupakaranPrintTable td:nth-child(2) input,
+.shikshanupakaranPrintTable td:nth-child(2) textarea {
+    width: 100% !important;
+
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+}
+
+
+/* ============================================================
+   SHIKSHANUPAKARAN PRINT — HEADER EMPHASIS
+   ============================================================ */
+
+.shikshanupakaranPrintTable thead th {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    color: #000 !important;
+    line-height: 1.15 !important;
+    text-align: center;
+    vertical-align: middle;
+}
+  
+/* ============================================================
+   SHIKSHANUPAKARAN PRINT — MAIN HEADER ROW
+   ============================================================ */
+
+.shikshanupakaranPrintTable .shikshanupakaranTopInfoRow > th {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    vertical-align: middle !important;
+    padding: 6px 8px !important;
+}
+
+ /* ============================================================
+   SHIKSHANUPAKARAN PRINT PAGE
+   ONE GENERATED DIV = ONE PHYSICAL PRINT PAGE
+   ============================================================ */
+
+.shikshanupakaranPrintPage {
+
+    position: relative !important;
+
+    width: 100% !important;
+
+    /*
+       A4 landscape:
+       210mm total height
+       8mm top margin
+       8mm bottom margin
+
+       We deliberately use 192mm instead of 194mm
+       to prevent browser rounding from pushing the
+       footer onto the next physical page.
+    */
+    height: 192mm !important;
+
+    box-sizing: border-box !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+
+    break-after: page !important;
+    page-break-after: always !important;
+
+    overflow: hidden !important;
+}
+
+
+/* Last generated page */
+
+.shikshanupakaranPrintPage:last-child {
+
+    break-after: auto !important;
+    page-break-after: auto !important;
+}
+
+
+/* ============================================================
+   PRINT TABLE
+   ============================================================ */
+
+.shikshanupakaranPrintPage > .shikshanupakaranPrintTable {
+
+    width: 100% !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+}
+
+
+/* ============================================================
+   NEVER SPLIT TABLE / DATA ROWS
+   ============================================================ */
+
+.shikshanupakaranPrintPage table {
+
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+}
+
+
+.shikshanupakaranPrintPage tbody tr {
+
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+}
+
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+.shikshanupakaranPrintFooter {
+
+    position: absolute !important;
+
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 1mm !important;
+
+    width: 100% !important;
+
+    height: 5mm !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+
+    display: flex !important;
+
+    align-items: flex-end !important;
+    justify-content: center !important;
+
+}
+
+
+/* ============================================================
+   PAGE NUMBER
+   ============================================================ */
+
+.shikshanupakaranPrintPageNumber {
+
+    position: static !important;
+
+    width: 100% !important;
+
+    height: 4mm !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+
+    text-align: center !important;
+
+    font-size: 11px !important;
+
+    font-weight: 600 !important;
+
+    line-height: 4mm !important;
+
+    color: #000 !important;
+
+}
+  
+</style>
+
