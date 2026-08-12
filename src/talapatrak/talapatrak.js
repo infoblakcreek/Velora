@@ -4961,6 +4961,133 @@ function createTalapatrakPrintPage(
    TALAPATRAK PRINT
    ============================================================ */
 
+// function printTalapatrak() {
+
+//     console.log(
+//         "TALAPATRAK PRINT STARTED"
+//     );
+
+
+//     /* --------------------------------------------------------
+//        GET TABLE
+//        -------------------------------------------------------- */
+
+//     const table =
+//         document.getElementById(
+//             "talapatrakTable"
+//         );
+
+
+//     if (
+//         !table
+//     ) {
+
+//         console.error(
+//             "Talapatrak table not found."
+//         );
+
+//         alert(
+//             "Talapatrak table not found."
+//         );
+
+//         return;
+
+//     }
+
+
+//     /* --------------------------------------------------------
+//        REMOVE OLD PRINT CONTAINER
+//        -------------------------------------------------------- */
+
+//     const oldContainer =
+//         document.getElementById(
+//             "talapatrakPrintContainer"
+//         );
+
+
+//     if (
+//         oldContainer
+//     ) {
+
+//         oldContainer.remove();
+
+//     }
+
+
+//     /* --------------------------------------------------------
+//        CREATE NEW PRINT CONTAINER
+//        -------------------------------------------------------- */
+
+//     const printContainer =
+//         document.createElement(
+//             "div"
+//         );
+
+
+//     printContainer.id =
+//         "talapatrakPrintContainer";
+
+
+//     /* --------------------------------------------------------
+//        HIDE DURING NORMAL EDITOR VIEW
+//        -------------------------------------------------------- */
+
+//     printContainer.style.display =
+//         "none";
+
+
+//     /* --------------------------------------------------------
+//        ADD CONTAINER TO BODY
+//        -------------------------------------------------------- */
+
+//     document.body.appendChild(
+//         printContainer
+//     );
+
+
+//     /* --------------------------------------------------------
+//        PREPARE 20-ROW PAGES
+//        -------------------------------------------------------- */
+
+//     prepareTalapatrakPrint();
+
+
+//     /* --------------------------------------------------------
+//        ACTIVATE PRINT MODE
+//        -------------------------------------------------------- */
+
+//     document.body.classList.add(
+//         "printingTalapatrak"
+//     );
+
+
+//     printContainer.style.display =
+//         "block";
+
+
+//     /* --------------------------------------------------------
+//        PRINT
+//        -------------------------------------------------------- */
+
+//     setTimeout(
+//         function() {
+
+//             window.print();
+
+//         },
+//         100
+//     );
+
+
+//     console.log(
+//         "TALAPATRAK PRINT READY"
+//     );
+
+// }
+
+
+
+
 function printTalapatrak() {
 
     console.log(
@@ -4968,9 +5095,9 @@ function printTalapatrak() {
     );
 
 
-    /* --------------------------------------------------------
+    /* ========================================================
        GET TABLE
-       -------------------------------------------------------- */
+    ======================================================== */
 
     const table =
         document.getElementById(
@@ -4978,9 +5105,7 @@ function printTalapatrak() {
         );
 
 
-    if (
-        !table
-    ) {
+    if (!table) {
 
         console.error(
             "Talapatrak table not found."
@@ -4995,9 +5120,9 @@ function printTalapatrak() {
     }
 
 
-    /* --------------------------------------------------------
-       REMOVE OLD PRINT CONTAINER
-       -------------------------------------------------------- */
+    /* ========================================================
+       REMOVE OLD CONTAINER
+    ======================================================== */
 
     const oldContainer =
         document.getElementById(
@@ -5005,18 +5130,16 @@ function printTalapatrak() {
         );
 
 
-    if (
-        oldContainer
-    ) {
+    if (oldContainer) {
 
         oldContainer.remove();
 
     }
 
 
-    /* --------------------------------------------------------
-       CREATE NEW PRINT CONTAINER
-       -------------------------------------------------------- */
+    /* ========================================================
+       CREATE TEMPORARY PRINT CONTAINER
+    ======================================================== */
 
     const printContainer =
         document.createElement(
@@ -5028,62 +5151,485 @@ function printTalapatrak() {
         "talapatrakPrintContainer";
 
 
-    /* --------------------------------------------------------
-       HIDE DURING NORMAL EDITOR VIEW
-       -------------------------------------------------------- */
-
     printContainer.style.display =
         "none";
 
-
-    /* --------------------------------------------------------
-       ADD CONTAINER TO BODY
-       -------------------------------------------------------- */
 
     document.body.appendChild(
         printContainer
     );
 
 
-    /* --------------------------------------------------------
-       PREPARE 20-ROW PAGES
-       -------------------------------------------------------- */
+    /* ========================================================
+       CREATE 20-ROW PRINT PAGES
+    ======================================================== */
 
     prepareTalapatrakPrint();
 
 
-    /* --------------------------------------------------------
-       ACTIVATE PRINT MODE
-       -------------------------------------------------------- */
+    /* ========================================================
+       GET ONLY TALAPATRAK PRINT CSS
+    ======================================================== */
 
-    document.body.classList.add(
-        "printingTalapatrak"
+    const printStyles =
+        Array.from(
+            document.querySelectorAll(
+                'style[data-talapatrak-print]'
+            )
+        )
+        .map(function(style) {
+
+            return style.outerHTML;
+
+        })
+        .join("");
+
+
+    /* ========================================================
+       GET GENERATED PRINT PAGES
+    ======================================================== */
+
+    const pages =
+        Array.from(
+            printContainer.querySelectorAll(
+                ".talapatrakPrintPage"
+            )
+        )
+        .map(function(page) {
+
+            return page.outerHTML;
+
+        })
+        .join("");
+
+
+    if (!pages) {
+
+        console.error(
+            "No Talapatrak print pages generated."
+        );
+
+        printContainer.remove();
+
+        return;
+
+    }
+
+
+    console.log(
+        "TALAPATRAK PAGES READY:",
+        printContainer.querySelectorAll(
+            ".talapatrakPrintPage"
+        ).length
     );
 
 
-    printContainer.style.display =
-        "block";
+    /* ========================================================
+       CREATE ISOLATED IFRAME
+    ======================================================== */
+
+    const iframe =
+        document.createElement(
+            "iframe"
+        );
 
 
-    /* --------------------------------------------------------
-       PRINT
-       -------------------------------------------------------- */
+    iframe.style.position =
+        "fixed";
+
+    iframe.style.right =
+        "0";
+
+    iframe.style.bottom =
+        "0";
+
+    iframe.style.width =
+        "0";
+
+    iframe.style.height =
+        "0";
+
+    iframe.style.border =
+        "0";
+
+
+    document.body.appendChild(
+        iframe
+    );
+
+
+    /* ========================================================
+       IFRAME DOCUMENT
+    ======================================================== */
+
+    const iframeDocument =
+        iframe.contentDocument ||
+        iframe.contentWindow.document;
+
+
+    /* ========================================================
+       WRITE TALAPATRAK ONLY
+    ======================================================== */
+
+    iframeDocument.open();
+
+
+    iframeDocument.write(`
+        <!DOCTYPE html>
+
+        <html>
+
+        <head>
+
+            <meta charset="UTF-8">
+
+            <title>
+                Talapatrak Print
+            </title>
+
+            ${printStyles}
+
+        </head>
+
+
+        <body>
+
+            <div
+                id="talapatrakPrintContainer"
+                style="display:block !important;"
+            >
+
+                ${pages}
+
+            </div>
+
+        </body>
+
+        </html>
+    `);
+
+
+    iframeDocument.close();
+
+
+    /* ========================================================
+       WAIT FOR IFRAME TO RENDER
+    ======================================================== */
 
     setTimeout(
         function() {
 
-            window.print();
+            console.log(
+                "TALAPATRAK IFRAME READY"
+            );
+
+
+            iframe.contentWindow.focus();
+
+
+            iframe.contentWindow.print();
+
+
+            /* =================================================
+               CLEANUP
+            ================================================= */
+
+            setTimeout(
+                function() {
+
+                    iframe.remove();
+
+                    printContainer.remove();
+
+
+                    console.log(
+                        "TALAPATRAK PRINT CLEANUP COMPLETE"
+                    );
+
+                },
+                1000
+            );
 
         },
-        100
-    );
-
-
-    console.log(
-        "TALAPATRAK PRINT READY"
+        500
     );
 
 }
+
+
+// function printTalapatrak() {
+
+//     console.log(
+//         "TALAPATRAK PRINT STARTED"
+//     );
+
+
+//     /* ========================================================
+//        GET TABLE
+//     ======================================================== */
+
+//     const table =
+//         document.getElementById(
+//             "talapatrakTable"
+//         );
+
+
+//     if (!table) {
+
+//         console.error(
+//             "Talapatrak table not found."
+//         );
+
+//         alert(
+//             "Talapatrak table not found."
+//         );
+
+//         return;
+
+//     }
+
+
+//     /* ========================================================
+//        REMOVE OLD PRINT CONTAINER
+//     ======================================================== */
+
+//     const oldContainer =
+//         document.getElementById(
+//             "talapatrakPrintContainer"
+//         );
+
+
+//     if (oldContainer) {
+
+//         oldContainer.remove();
+
+//     }
+
+
+//     /* ========================================================
+//        CREATE PRINT CONTAINER
+//     ======================================================== */
+
+//     const printContainer =
+//         document.createElement(
+//             "div"
+//         );
+
+
+//     printContainer.id =
+//         "talapatrakPrintContainer";
+
+
+//     printContainer.style.display =
+//         "none";
+
+
+//     document.body.appendChild(
+//         printContainer
+//     );
+
+
+//     /* ========================================================
+//        PREPARE PRINT PAGES
+//     ======================================================== */
+
+//     prepareTalapatrakPrint();
+
+
+//     /* ========================================================
+//        GET TALAPATRAK PRINT CSS ONLY
+//     ======================================================== */
+
+//     const printStyles =
+//         Array.from(
+//             document.querySelectorAll(
+//                 'style[data-talapatrak-print]'
+//             )
+//         )
+//         .map(function(style) {
+
+//             return style.outerHTML;
+
+//         })
+//         .join("");
+
+
+//     /* ========================================================
+//        GET GENERATED PRINT PAGES
+//     ======================================================== */
+
+//     const pages =
+//         Array.from(
+//             printContainer.querySelectorAll(
+//                 ".talapatrakPrintPage"
+//             )
+//         )
+//         .map(function(page) {
+
+//             return page.outerHTML;
+
+//         })
+//         .join("");
+
+
+//     if (!pages) {
+
+//         console.error(
+//             "No Talapatrak print pages were generated."
+//         );
+
+//         printContainer.remove();
+
+//         return;
+
+//     }
+
+
+//     console.log(
+//         "Talapatrak print pages:",
+//         printContainer.querySelectorAll(
+//             ".talapatrakPrintPage"
+//         ).length
+//     );
+
+
+//     /* ========================================================
+//        CREATE TEMPORARY IFRAME
+//     ======================================================== */
+
+//     const iframe =
+//         document.createElement(
+//             "iframe"
+//         );
+
+
+//     iframe.style.position =
+//         "fixed";
+
+//     iframe.style.right =
+//         "0";
+
+//     iframe.style.bottom =
+//         "0";
+
+//     iframe.style.width =
+//         "0";
+
+//     iframe.style.height =
+//         "0";
+
+//     iframe.style.border =
+//         "0";
+
+
+//     document.body.appendChild(
+//         iframe
+//     );
+
+
+//     /* ========================================================
+//        GET IFRAME DOCUMENT
+//     ======================================================== */
+
+//     const iframeDocument =
+//         iframe.contentDocument ||
+//         iframe.contentWindow.document;
+
+
+//     /* ========================================================
+//        WRITE ISOLATED TALAPATRAK DOCUMENT
+//     ======================================================== */
+
+//     iframeDocument.open();
+
+
+//     iframeDocument.write(`
+//         <!DOCTYPE html>
+
+//         <html>
+
+//         <head>
+
+//             <meta charset="UTF-8">
+
+//             <title>
+//                 Talapatrak Print
+//             </title>
+
+//             ${printStyles}
+
+//         </head>
+
+
+//         <body>
+
+//             ${pages}
+
+//         </body>
+
+//         </html>
+//     `);
+
+
+//     iframeDocument.close();
+
+
+//     /* ========================================================
+//        PRINT AFTER IFRAME HAS RENDERED
+//     ======================================================== */
+
+//     setTimeout(
+//         function() {
+
+//             console.log(
+//                 "TALAPATRAK IFRAME READY"
+//             );
+
+
+//             iframe.contentWindow.focus();
+
+
+//             iframe.contentWindow.print();
+
+
+//             /* =================================================
+//                REMOVE IFRAME
+//             ================================================= */
+
+//             setTimeout(
+//                 function() {
+
+//                     iframe.remove();
+
+
+//                     const currentContainer =
+//                         document.getElementById(
+//                             "talapatrakPrintContainer"
+//                         );
+
+
+//                     if (
+//                         currentContainer
+//                     ) {
+
+//                         currentContainer.remove();
+
+//                     }
+
+
+//                     console.log(
+//                         "TALAPATRAK PRINT CLEANUP COMPLETE"
+//                     );
+
+//                 },
+//                 1000
+//             );
+
+//         },
+//         500
+//     );
+
+// }
 
 
 /* ============================================================
@@ -5185,3 +5731,182 @@ if (
 
 
 
+
+
+
+
+
+
+
+
+/* ============================================================
+   TALAPATRAK KHATA UPLOAD
+============================================================ */
+
+const talapatrakKhataUploadButton =
+    document.getElementById(
+        "talapatrakKhataUploadButton"
+    );
+
+
+if (talapatrakKhataUploadButton) {
+
+    talapatrakKhataUploadButton.addEventListener(
+        "click",
+        function () {
+
+            console.log(
+                "Talapatrak Khata Upload button clicked"
+            );
+
+
+             openKhataFilePicker(async function (file) {
+
+                  console.log(
+                      "Talapatrak Khata file received:",
+                      file.name
+                  );
+              
+                  try {
+              
+                      const result =
+                          await scanKhataFile(file);
+              
+
+                        const parsedResult =
+                              parseKhataResult(result);
+                          
+                          console.log(
+                              "========== KHATA PARSER RESULT =========="
+                          );
+                          
+                          console.log(
+                              parsedResult
+                          );
+                          
+                          logKhataSummary(
+                              parsedResult
+                          );
+                          
+                          console.log(
+                              "========== KHATA PARSER RESULT END =========="
+                          );
+                    
+                      console.log(
+                          "TOTAL PAGES:",
+                          result.pageCount
+                      );
+              
+              
+                    /* ----------------------------------------------------
+                       FIND KHATA NUMBERS
+                    ---------------------------------------------------- */
+                    
+                    console.log(
+                        "========== KHATA PAGE SUMMARY =========="
+                    );
+                    
+                    result.pages.forEach(
+                        function(page) {
+                    
+                            if (
+                                !page.text ||
+                                !page.text.includes("ખાતા")
+                            ) {
+                    
+                                return;
+                    
+                            }
+                    
+                    
+                            /* ------------------------------------------------
+                               FIND ALL OCCURRENCES OF:
+                               ખાતા નંબર
+                            ------------------------------------------------ */
+                    
+                            const matches =
+                                page.text.match(
+                                    /ખાતા\s*નંબર\s*[:=]*\s*([૦-૯0-9X]+)/g
+                                );
+                    
+                    
+                            if (
+                                matches &&
+                                matches.length > 0
+                            ) {
+                    
+                                console.log(
+                                    "Page",
+                                    page.pageNumber,
+                                    "→",
+                                    matches.length,
+                                    "Khata numbers"
+                                );
+                    
+                            }
+                    
+                        }
+                    );
+                    
+                    
+                    console.log(
+                        "========== KHATA PAGE SUMMARY END =========="
+                    );
+
+                    const khataRecords =
+                        parseKhataResult(result);
+                    
+                    
+                    console.log(
+                        "========== KHATA RECORDS =========="
+                    );
+                    
+                    
+                    khataRecords.forEach(function(record) {
+                    
+                        console.log(
+                            "Page",
+                            record.pageNumber,
+                            "| Khata:",
+                            record.khataNumber,
+                            "| TEXT:",
+                            record.rawText
+                        );
+                    
+                    });
+                    
+                    
+                    console.log(
+                        "========== KHATA RECORDS END =========="
+                    );
+
+
+                    
+              
+                  }
+                  catch (error) {
+              
+                      console.error(
+                          "KHATA SCAN FAILED:",
+                          error
+                      );
+              
+                      alert(
+                          "Unable to scan the Khata file."
+                      );
+              
+                  }
+              
+              });
+
+        }
+    );
+
+}
+else {
+
+    console.error(
+        "Talapatrak Khata Upload button not found"
+    );
+
+}

@@ -6054,3 +6054,69 @@ async function downloadShikshanupakaranPDF(record){
 
 }
 
+
+
+
+
+
+
+
+
+
+
+/* ============================================================
+   SHIKSHANUPAKARAN KHATA UPLOAD
+============================================================ */
+
+const shikshanupakaranKhataUploadButton =
+    document.getElementById(
+        "shikshanupakaranKhataUploadButton"
+    );
+
+
+if (shikshanupakaranKhataUploadButton) {
+
+    shikshanupakaranKhataUploadButton.addEventListener(
+        "click",
+        function () {
+
+            console.log(
+                "Shikshanupakaran Khata Upload button clicked"
+            );
+
+
+            openKhataFilePicker(function (file) {
+
+                console.log(
+                    "Shikshanupakaran Khata file received:"
+                );
+
+                console.log(
+                    "Name:",
+                    file.name
+                );
+
+                console.log(
+                    "Type:",
+                    file.type
+                );
+
+                console.log(
+                    "Size:",
+                    file.size,
+                    "bytes"
+                );
+
+            });
+
+        }
+    );
+
+}
+else {
+
+    console.error(
+        "Shikshanupakaran Khata Upload button not found"
+    );
+
+}

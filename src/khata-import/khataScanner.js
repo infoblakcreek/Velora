@@ -174,10 +174,44 @@ async function scanKhataPDF(file) {
             );
 
 
-        const textContent =
+         const textContent =
             await page.getTextContent();
+        
+        
+        /* --------------------------------------------------------
+           DEBUG PDF.JS FONT / TEXT ITEMS
+           Only inspect page 97
+        -------------------------------------------------------- */
+
+          if (pageNumber === 97) {
+          
+              console.log(
+                  "========== PAGE 97 RAW ITEMS START =========="
+              );
+          
+              textContent.items.forEach(
+                  function(item, index) {
+          
+                      console.log(
+                          "ITEM",
+                          index,
+                          "STR:",
+                          JSON.stringify(item.str),
+                          "FONT:",
+                          item.fontName
+                      );
+          
+                  }
+              );
+          
+              console.log(
+                  "========== PAGE 97 RAW ITEMS END =========="
+              );
+          
+          }
 
 
+      
         const text =
             textContent.items
                 .map(

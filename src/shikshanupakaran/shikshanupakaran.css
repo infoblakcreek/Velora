@@ -2478,6 +2478,56 @@ body.dark-theme .shikshanupakaranEditorTopBar,
 }
 
 
+ /* ============================================================
+    UPLOAD BUTTON
+ ============================================================ */
+
+.shikshanupakaranTopButton.upload {
+
+    background: var(--shikshanupakaran-card);
+
+    color: var(--shikshanupakaran-primary);
+
+    border: 1px solid var(--shikshanupakaran-border);
+
+    box-shadow:
+        0 6px 16px rgba(22, 163, 74, .10);
+
+}
+
+
+/* ------------------------------------------------------------
+   UPLOAD HOVER
+------------------------------------------------------------ */
+
+.shikshanupakaranTopButton.upload:hover {
+
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--shikshanupakaran-primary),
+            var(--shikshanupakaran-emerald)
+        );
+
+    border-color: transparent;
+
+    box-shadow:
+        0 10px 22px rgba(22, 163, 74, .25);
+
+}
+
+
+/* ------------------------------------------------------------
+   UPLOAD ICON
+------------------------------------------------------------ */
+
+.shikshanupakaranTopButton.upload i {
+
+    font-size: 14px;
+
+}
 
 
 .shikshanupakaranTopButton.save {

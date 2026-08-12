@@ -295,40 +295,63 @@
                             </div>
                     
                     
+                          
                             <!-- ACTIONS -->
-                    
+                            
                             <div class="talapatrakEditorActions">
-                    
+                            
+                                <!-- UPLOAD KHATA DATA -->
+                            
+                                <button
+                                    type="button"
+                                    id="talapatrakKhataUploadButton"
+                                    class="talapatrakTopButton upload">
+                            
+                                    <i class="fa-solid fa-upload"></i>
+                            
+                                    <span>
+                                        Upload
+                                    </span>
+                            
+                                </button>
+                            
+                            
+                                <!-- SAVE -->
+                            
                                 <button
                                     type="button"
                                     id="saveTalapatrakButton"
                                     class="talapatrakTopButton save">
-                    
+                            
                                     <i class="fa-solid fa-floppy-disk"></i>
-                    
+                            
                                     <span>
                                         Save
                                     </span>
-                    
+                            
                                 </button>
-                    
-                    
+                            
+                            
+                                <!-- PRINT -->
+                            
                                 <button
                                     type="button"
                                     id="printTalapatrakButton"
                                     class="talapatrakTopButton print">
-                    
+                            
                                     <i class="fa-solid fa-print"></i>
-                    
+                            
                                     <span>
                                         Print
                                     </span>
-                    
+                            
                                 </button>
-                    
+                            
                             </div>
+                            
+                       </div>
                     
-                        </div>
+                        
                     
                   
                       <!-- ====================================================
@@ -786,6 +809,7 @@ body.printingTalapatrak
    SAME AS SHIKSHANUPAKARAN
    ============================================================ */
 
+
 .talapatrakPrintPage {
 
     position: relative !important;
@@ -793,6 +817,9 @@ body.printingTalapatrak
     width: 100% !important;
 
     height: 194mm !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
 
     box-sizing: border-box !important;
 
@@ -805,7 +832,6 @@ body.printingTalapatrak
     overflow: visible !important;
 }
 
-
 .talapatrakPrintPage:last-child {
 
     break-after: auto !important;
@@ -813,16 +839,20 @@ body.printingTalapatrak
 
 }
 
-
 /* ============================================================
-   PRINT TABLE
+   TALAPATRAK PRINT TABLE
    ============================================================ */
 
 .talapatrakPrintPage > .talapatrakPrintTable {
 
-    width: auto !important;
+    width: 100% !important;
 
-    max-width: none !important;
+    max-width: 100% !important;
+
+    min-width: 0 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
 
     table-layout: auto !important;
 
@@ -833,7 +863,6 @@ body.printingTalapatrak
     border: 1px solid #000 !important;
 
     box-sizing: border-box !important;
-
 }
 
 
@@ -841,21 +870,33 @@ body.printingTalapatrak
 /* ============================================================
    HEADER
    ============================================================ */
-
 .talapatrakPrintTable thead th {
 
-    white-space: normal !important;
+    border: 1px solid #000 !important;
 
-    word-break: normal !important;
+    padding: 3px 2px !important;
 
-    overflow-wrap: normal !important;
+    font-size: 13px !important;
 
-    hyphens: none !important;
+    font-weight: 700 !important;
+
+    line-height: 1.15 !important;
 
     text-align: center !important;
 
     vertical-align: middle !important;
 
+    white-space: normal !important;
+
+    word-break: normal !important;
+
+    overflow-wrap: break-word !important;
+
+    color: #000 !important;
+
+    background: #fff !important;
+
+    box-sizing: border-box !important;
 }
 
 
@@ -875,17 +916,17 @@ body.printingTalapatrak
 
 .talapatrakPrintTable tbody td {
 
-    padding: 1px 2px !important;
-
     border: 1px solid #000 !important;
 
-    color: #000 !important;
+    padding: 3px 2px !important;
 
-    font-size: 10px !important;
+    font-size: 12px !important;
 
-    line-height: 1.1 !important;
+    line-height: 1.15 !important;
 
     vertical-align: middle !important;
+
+    color: #000 !important;
 
     white-space: normal !important;
 
@@ -893,6 +934,7 @@ body.printingTalapatrak
 
     overflow-wrap: break-word !important;
 
+    box-sizing: border-box !important;
 }
 
 
@@ -902,7 +944,7 @@ body.printingTalapatrak
 .talapatrakPrintTable input,
 .talapatrakPrintTable textarea {
 
-    width: auto !important;
+    width: 100% !important;
 
     min-width: 0 !important;
 
@@ -910,13 +952,11 @@ body.printingTalapatrak
 
     height: auto !important;
 
-    min-height: 12px !important;
+    min-height: 0 !important;
 
     margin: 0 !important;
 
     padding: 0 !important;
-
-    box-sizing: border-box !important;
 
     border: none !important;
 
@@ -932,21 +972,13 @@ body.printingTalapatrak
 
     color: #000 !important;
 
-    font-size: 10px !important;
-
     font-family: inherit !important;
 
-    font-weight: 400 !important;
+    font-size: 12px !important;
 
-    line-height: 1.1 !important;
+    line-height: 1.05 !important;
 
-    white-space: pre-wrap !important;
-
-    overflow: visible !important;
-
-    word-break: break-word !important;
-
-    overflow-wrap: break-word !important;
+    box-sizing: border-box !important;
 
 }
 
@@ -998,14 +1030,15 @@ body.printingTalapatrak
 .talapatrakPrintTable th,
 .talapatrakPrintTable td {
 
-    min-width: 0 !important;
-
     width: auto !important;
+
+    min-width: 0 !important;
 
     max-width: none !important;
 
-    box-sizing: border-box !important;
+    margin: 0 !important;
 
+    box-sizing: border-box !important;
 }
 /* ============================================================
    PAGE HEADER
@@ -1190,7 +1223,7 @@ body.printingTalapatrak
    PRINT PAGE BREAK
    ============================================================ */
 
-body.printingTalapatrak
+
 #talapatrakPrintContainer
 .talapatrakPrintPage {
 
@@ -1205,7 +1238,7 @@ body.printingTalapatrak
 }
 
 
-body.printingTalapatrak
+
 #talapatrakPrintContainer
 .talapatrakPrintPage:last-child {
 
@@ -1230,16 +1263,17 @@ body.printingTalapatrak
 /* ============================================================
    TALAPATRAK PRINT — HEADER WRAPPING
    ============================================================ */
-
 .talapatrakPrintTable thead th {
 
     border: 1px solid #000 !important;
 
-    color: #000 !important;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
 
-    background: transparent !important;
+    padding-left: 2px !important;
+    padding-right: 2px !important;
 
-    font-size: 11px !important;
+    font-size: 13px !important;
 
     font-weight: 700 !important;
 
@@ -1249,17 +1283,19 @@ body.printingTalapatrak
 
     vertical-align: middle !important;
 
-    padding: 2px 2px !important;
-
     white-space: normal !important;
 
     word-break: normal !important;
 
     overflow-wrap: break-word !important;
 
-    hyphens: none !important;
+    color: #000 !important;
 
+    background: #fff !important;
+
+    box-sizing: border-box !important;
 }
+  
 /* ============================================================
    COLUMN B — ACCOUNT HOLDER NAME
    KEEP ENTIRE HEADER ON ONE LINE
@@ -1295,7 +1331,6 @@ body.printingTalapatrak
 
 
 
-    body.printingTalapatrak
     .talapatrakPrintTable {
 
         table-layout: auto !important;
@@ -1305,20 +1340,19 @@ body.printingTalapatrak
     }
 
 
-    body.printingTalapatrak
+    
     .talapatrakPrintTable th,
-    body.printingTalapatrak
     .talapatrakPrintTable td {
 
         width: auto !important;
         max-width: none !important;
-
+        border: 1px solid #000 !important;
+        box-sizing: border-box !important;
     }
 
 
-    body.printingTalapatrak
+  
     .talapatrakPrintTable input,
-    body.printingTalapatrak
     .talapatrakPrintTable textarea {
 
         width: 100% !important;

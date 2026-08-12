@@ -1,6 +1,20 @@
 
 console.log("Shikshanupakaran loader loaded");
 
+// ============================================================
+// LOAD SHIKSHANUPAKARAN CSS
+// ============================================================
+
+const css = document.createElement("link");
+
+css.rel = "stylesheet";
+css.href = "shikshanupakaran/shikshanupakaran.css";
+
+document.head.appendChild(css);
+
+console.log("Shikshanupakaran CSS loaded");
+
+
 fetch("shikshanupakaran/shikshanupakaran.html")
 
 .then(response => response.text())
