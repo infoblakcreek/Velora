@@ -6063,7 +6063,6 @@ async function downloadShikshanupakaranPDF(record){
 
 
 
-
 /* ============================================================
    SHIKSHANUPAKARAN KHATA UPLOAD
 ============================================================ */
@@ -6072,7 +6071,6 @@ const shikshanupakaranKhataUploadButton =
     document.getElementById(
         "shikshanupakaranKhataUploadButton"
     );
-
 
 if (shikshanupakaranKhataUploadButton) {
 
@@ -6085,27 +6083,151 @@ if (shikshanupakaranKhataUploadButton) {
             );
 
 
-            openKhataFilePicker(function (file) {
+            openKhataFilePicker(async function (file) {
 
                 console.log(
-                    "Shikshanupakaran Khata file received:"
-                );
-
-                console.log(
-                    "Name:",
+                    "Shikshanupakaran Khata file received:",
                     file.name
                 );
 
-                console.log(
-                    "Type:",
-                    file.type
-                );
 
-                console.log(
-                    "Size:",
-                    file.size,
-                    "bytes"
-                );
+                try {
+
+                    const result =
+                        await scanKhataFile(file);
+
+
+                    const parsedResult =
+                        parseKhataResult(result);
+
+
+                    console.log(
+                        "========== KHATA PARSER RESULT =========="
+                    );
+
+
+                    console.log(
+                        parsedResult
+                    );
+
+
+                    logKhataSummary(
+                        parsedResult
+                    );
+
+
+                    console.log(
+                        "========== KHATA PARSER RESULT END =========="
+                    );
+
+
+                    console.log(
+                        "TOTAL PAGES:",
+                        result.pageCount
+                    );
+
+
+                    /* ----------------------------------------------------
+                       FIND KHATA NUMBERS
+                    ---------------------------------------------------- */
+
+                    console.log(
+                        "========== KHATA PAGE SUMMARY =========="
+                    );
+
+
+                    result.pages.forEach(
+                        function(page) {
+
+                            if (
+                                !page.text ||
+                                !page.text.includes("ખાતા")
+                            ) {
+
+                                return;
+
+                            }
+
+
+                            /* ------------------------------------------------
+                               FIND ALL OCCURRENCES OF:
+                               ખાતા નંબર
+                            ------------------------------------------------ */
+
+                            const matches =
+                                page.text.match(
+                                    /ખાતા\s*નંબર\s*[:=]*\s*([૦-૯0-9X]+)/g
+                                );
+
+
+                            if (
+                                matches &&
+                                matches.length > 0
+                            ) {
+
+                                console.log(
+                                    "Page",
+                                    page.pageNumber,
+                                    "→",
+                                    matches.length,
+                                    "Khata numbers"
+                                );
+
+                            }
+
+                        }
+                    );
+
+
+                    console.log(
+                        "========== KHATA PAGE SUMMARY END =========="
+                    );
+
+
+                    const khataRecords =
+                        parseKhataResult(result);
+
+
+                    console.log(
+                        "========== KHATA RECORDS =========="
+                    );
+
+
+                    khataRecords.forEach(
+                        function(record) {
+
+                            console.log(
+                                "Page",
+                                record.pageNumber,
+                                "| Khata:",
+                                record.khataNumber,
+                                "| TEXT:",
+                                record.rawText
+                            );
+
+                        }
+                    );
+
+
+                    console.log(
+                        "========== KHATA RECORDS END =========="
+                    );
+
+
+                }
+                catch (error) {
+
+                    console.error(
+                        "SHIKSHANUPAKARAN KHATA SCAN FAILED:",
+                        error
+                    );
+
+
+                    alert(
+                        "Unable to scan the Khata file."
+                    );
+
+                }
 
             });
 
