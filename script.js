@@ -146,7 +146,69 @@ if (loginButton) {
 
 }
 
+/* ==================================================
+        PAGE ELEMENTS
+================================================== */
 
+      const dashboardView =
+          document.getElementById("dashboardView");
+      
+      
+      function getInvoiceView() {
+          return document.getElementById("invoiceView");
+      }
+      
+      
+      function getMainBillsView() {
+          return document.getElementById("mainBillsView");
+      }
+      
+      
+      const mainBillSystemCard =
+          document.getElementById("mainBillSystemCard");
+      
+      
+      const dashboardNav =
+          document.getElementById("dashboardNav");
+      
+      
+      const mainBillNav =
+          document.getElementById("mainBillNav");
+      
+      
+      const newMainBillButton =
+          document.getElementById("newMainBillButton");
+      
+      
+      const createBillButton =
+          document.getElementById("createBillButton");
+      
+      
+      const shikshanupakaranDashboardCountElement =
+          document.getElementById(
+              "shikshanupakaranRecordCount"
+          );
+      
+      
+      console.log(
+          "CREATE BILL:",
+          createBillButton
+      );
+      
+      console.log(
+          "INVOICE VIEW:",
+          getInvoiceView()
+      );
+      
+      console.log(
+          "DASHBOARD VIEW:",
+          dashboardView
+      );
+      
+      console.log(
+          "MAIN BILLS VIEW:",
+          getMainBillsView()
+      );
 /* ============================================================
         AUTHENTICATION STATE
 ============================================================ */
@@ -186,6 +248,8 @@ auth.onAuthStateChanged((user) => {
 
         loadTalapatrakCount(); 
 
+        loadShikshanupakaranDashboardCount();
+
     }
 
     else {
@@ -213,34 +277,98 @@ auth.onAuthStateChanged((user) => {
 
 });
 
-/* ==================================================
-        PAGE ELEMENTS
-================================================== */
+/* ============================================================
+   VIEW ALL BILLS BUTTON
+============================================================ */
 
-const dashboardView =
-    document.getElementById("dashboardView");
+const viewAllBillsButton =
+document.getElementById(
+    "viewAllBillsButton"
+);
 
-const invoiceView =
-    document.getElementById("invoiceView");
 
-const mainBillsView =
-    document.getElementById("mainBillsView");
+if(viewAllBillsButton){
 
-const mainBillSystemCard =
-    document.getElementById("mainBillSystemCard");
+    viewAllBillsButton.addEventListener(
+        "click",
+        function(){
 
-const dashboardNav =
-    document.getElementById("dashboardNav");
+            // Hide dashboard
+            const dashboard =
+            document.getElementById(
+                "dashboardView"
+            );
 
-const mainBillNav =
-    document.getElementById("mainBillNav");
 
-const newMainBillButton =
-    document.getElementById("newMainBillButton");
+            if(dashboard){
+                dashboard.style.display = "none";
+            }
 
-const createBillButton =
-    document.getElementById("createBillButton");
 
+
+            // Hide other views if needed
+
+            const invoiceView =
+            document.getElementById(
+                "invoiceView"
+            );
+
+
+            if(invoiceView){
+                invoiceView.style.display = "none";
+            }
+
+
+
+            const talapatrakView =
+            document.getElementById(
+                "talapatrakView"
+            );
+
+
+            if(talapatrakView){
+                talapatrakView.style.display = "none";
+            }
+
+
+
+            // Open Main Bills
+
+            const mainBillsView =
+            document.getElementById(
+                "mainBillsView"
+            );
+
+
+            if(mainBillsView){
+
+                mainBillsView.style.display =
+                    "block";
+
+            }
+
+
+
+            // Load bills again
+
+            if(
+                typeof loadMainBills === "function"
+            ){
+
+                loadMainBills();
+
+            }
+
+
+            console.log(
+                "Opened All Main Bills"
+            );
+
+
+        }
+    );
+
+}
 /* ============================================================
         VIEW MANAGEMENT
 ============================================================ */
@@ -252,48 +380,123 @@ function hideAllViews() {
     );
 
 
-    // Hide Dashboard
-    if (dashboardView) {
+    /* ==========================================
+       DASHBOARD
+    ========================================== */
 
-        dashboardView.style.display =
+    const dashboard =
+        document.getElementById(
+            "dashboardView"
+        );
+
+    if (dashboard) {
+
+        dashboard.style.display =
             "none";
 
     }
 
 
-    // Hide Main Bills
-    if (mainBillsView) {
+    /* ==========================================
+       MAIN BILLS
+    ========================================== */
 
-        mainBillsView.style.display =
+    const mainBills =
+        document.getElementById(
+            "mainBillsView"
+        );
+
+    if (mainBills) {
+
+        mainBills.style.display =
             "none";
 
     }
 
 
-    // Hide Bill / Invoice
-    if (invoiceView) {
+    /* ==========================================
+       INVOICE / CREATE BILL
+    ========================================== */
 
-        invoiceView.style.display =
+    const invoice =
+        document.getElementById(
+            "invoiceView"
+        );
+
+    if (invoice) {
+
+        invoice.style.display =
             "none";
 
     }
 
 
-        if (talapatrakViewElement) {
-    
-        talapatrakViewElement.style.display =
+    /* ==========================================
+       TALAPATRAK
+    ========================================== */
+
+    const talapatrak =
+        document.getElementById(
+            "talapatrakView"
+        );
+
+    if (talapatrak) {
+
+        talapatrak.style.display =
             "none";
-    
+
     }
-    
 
-    // Hide Talapatrak Editor
-    if (talapatrakEditorViewElement) {
 
-        talapatrakEditorViewElement.style.display =
+    const talapatrakEditor =
+        document.getElementById(
+            "talapatrakEditorView"
+        );
+
+    if (talapatrakEditor) {
+
+        talapatrakEditor.style.display =
             "none";
 
     }
+
+
+    /* ==========================================
+       SHIKSHANUPAKARAN
+    ========================================== */
+
+    const shikshanupakaran =
+        document.getElementById(
+            "shikshanupakaranView"
+        );
+
+    if (shikshanupakaran) {
+
+        shikshanupakaran.style.display =
+            "none";
+
+    }
+
+
+    const shikshanupakaranEditor =
+        document.getElementById(
+            "shikshanupakaranEditorView"
+        );
+
+    if (shikshanupakaranEditor) {
+
+        shikshanupakaranEditor.style.display =
+            "none";
+
+    }
+
+
+    console.log(
+        "Dashboard display after:",
+        dashboard
+            ? dashboard.style.display
+            : "not found"
+    );
 
 }
 
@@ -302,39 +505,121 @@ function showDashboard() {
 
     hideAllViews();
 
-    dashboardView.style.display =
-        "block";
+
+    if (dashboardView) {
+
+        dashboardView.style.display =
+            "block";
+
+    }
 
 
-    dashboardNav.classList.add(
-        "active"
-    );
+    if (dashboardNav) {
 
-    mainBillNav.classList.remove(
-        "active"
-    );
+        dashboardNav.classList.add(
+            "active"
+        );
+
+    }
+
+
+    if (mainBillNav) {
+
+        mainBillNav.classList.remove(
+            "active"
+        );
+
+    }
 
 }
+
+
+// function showMainBills() {
+
+//     hideAllViews();
+
+//     if (mainBillsView) {
+
+//         mainBillsView.style.display =
+//             "block";
+
+//     }
+
+//     if (dashboardNav) {
+
+//         dashboardNav.classList.remove(
+//             "active"
+//         );
+
+//     }
+
+//     if (mainBillNav) {
+
+//         mainBillNav.classList.add(
+//             "active"
+//         );
+
+//     }
+
+//     loadAllMainBills();
+
+//     window.scrollTo(
+//         0,
+//         0
+//     );
+
+// }
 
 
 function showMainBills() {
 
     hideAllViews();
 
-    mainBillsView.style.display =
-        "block";
+    const mainBillsView =
+        document.getElementById("mainBillsView");
+
+    if (mainBillsView) {
+
+        mainBillsView.style.display =
+            "block";
+
+    } else {
+
+        console.error(
+            "MAIN BILLS VIEW NOT FOUND"
+        );
+
+        return;
+
+    }
 
 
-    dashboardNav.classList.remove(
-        "active"
-    );
+    if (dashboardNav) {
 
-    mainBillNav.classList.add(
-        "active"
-    );
+        dashboardNav.classList.remove(
+            "active"
+        );
+
+    }
 
 
-    loadAllMainBills();
+    if (mainBillNav) {
+
+        mainBillNav.classList.add(
+            "active"
+        );
+
+    }
+
+
+    if (
+        typeof loadAllMainBills ===
+        "function"
+    ) {
+
+        loadAllMainBills();
+
+    }
 
 
     window.scrollTo(
@@ -363,31 +648,54 @@ function showInvoice() {
 
 }
 
-dashboardNav.addEventListener("click", function (event) {
-
-    event.preventDefault();
-
-    showMainView("dashboardView");
-
-});
-
-mainBillNav.addEventListener("click", function (event) {
-
-    event.preventDefault();
-
-    showMainBills();
-
-});
 
 
-createBillButton.addEventListener(
-    "click",
-    function() {
+if (dashboardNav) {
 
-        showInvoice();
+    dashboardNav.addEventListener(
+        "click",
+        function (event) {
 
-    }
-);
+            event.preventDefault();
+
+            showDashboard();
+
+        }
+    );
+
+}
+
+
+
+if (mainBillNav) {
+
+    mainBillNav.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            showMainBills();
+
+        }
+    );
+
+}
+
+
+
+// if (createBillButton) {
+
+//     createBillButton.addEventListener(
+//         "click",
+//         function() {
+
+//             showInvoice();
+
+//         }
+//     );
+
+// }
 
 
 /* ==================================================
@@ -1505,17 +1813,40 @@ async function editBill(billId) {
                 OPEN BILL FORM
         ============================== */
 
-        mainBillsView.style.display =
-            "none";
-
-
-        invoiceView.style.display =
-            "block";
-
-
-        mainBillNav.classList.remove(
-            "active"
-        );
+            const mainBillsView =
+                document.getElementById(
+                    "mainBillsView"
+                );
+            
+            const invoiceView =
+                document.getElementById(
+                    "invoiceView"
+                );
+            
+            
+            if (mainBillsView) {
+            
+                mainBillsView.style.display =
+                    "none";
+            
+            }
+            
+            
+            if (invoiceView) {
+            
+                invoiceView.style.display =
+                    "block";
+            
+            }
+            
+            
+            if (mainBillNav) {
+            
+                mainBillNav.classList.remove(
+                    "active"
+                );
+            
+            }
 
 
         /* ==============================
@@ -1955,52 +2286,181 @@ applyTheme(
 /* ==================================================
         PAGE NAVIGATION
 ================================================== */
+if (dashboardNav) {
+  
+  dashboardNav.addEventListener(
+      "click",
+      function(event) {
+  
+          event.preventDefault();
+  
+  
+          dashboardView.style.display =
+              "block";
+  
+  
+          invoiceView.style.display =
+              "none";
+  
+  
+          dashboardNav.classList.add(
+              "active"
+          );
+  
+  
+          window.scrollTo(
+              0,
+              0
+          );
+  
+      }
+  );
+
+}
+
+// if (createBillButton) {
+
+//     createBillButton.addEventListener(
+//         "click",
+//         function() {
+
+//             dashboardView.style.display =
+//                 "none";
+
+//             invoiceView.style.display =
+//                 "block";
+
+//             dashboardNav.classList.remove(
+//                 "active"
+//             );
+
+//             window.scrollTo(
+//                 0,
+//                 0
+//             );
+
+//         }
+//     );
+
+// }
+
+/* ============================================================
+   CREATE BILL BUTTON
+============================================================ */
+
+// if (createBillButton) {
+
+//     createBillButton.addEventListener(
+//         "click",
+//         function (event) {
+
+//             event.preventDefault();
+
+//             console.log("CREATE BILL BUTTON CLICKED");
+
+//             hideAllViews();
+
+//             if (invoiceView) {
+
+//                 invoiceView.style.display =
+//                     "block";
+
+//             }
+
+//             if (dashboardNav) {
+
+//                 dashboardNav.classList.remove(
+//                     "active"
+//                 );
+
+//             }
+
+//             if (mainBillNav) {
+
+//                 mainBillNav.classList.remove(
+//                     "active"
+//                 );
+
+//             }
+
+//             window.scrollTo(
+//                 0,
+//                 0
+//             );
+
+//         }
+//     );
+
+// }
 
 
-dashboardNav.addEventListener(
-    "click",
-    function(event) {
-
-        event.preventDefault();
-
-
-        dashboardView.style.display =
-            "block";
-
-
-        invoiceView.style.display =
-            "none";
-
-
-        dashboardNav.classList.add(
-            "active"
-        );
-
-
-        window.scrollTo(
-            0,
-            0
-        );
-
-    }
-);
-
+/* ============================================================
+   CREATE BILL BUTTON
+============================================================ */
 
 if (createBillButton) {
 
     createBillButton.addEventListener(
         "click",
-        function() {
+        function (event) {
 
-            dashboardView.style.display =
-                "none";
+            event.preventDefault();
+
+            console.log(
+                "CREATE BILL BUTTON CLICKED"
+            );
+
+
+            hideAllViews();
+
+
+            const invoiceView =
+                document.getElementById(
+                    "invoiceView"
+                );
+
+
+            console.log(
+                "INVOICE VIEW AFTER CLICK:",
+                invoiceView
+            );
+
+
+            if (!invoiceView) {
+
+                console.error(
+                    "invoiceView not found."
+                );
+
+                return;
+
+            }
+
 
             invoiceView.style.display =
                 "block";
 
-            dashboardNav.classList.remove(
-                "active"
-            );
+
+            if (dashboardNav) {
+
+                dashboardNav.classList.remove(
+                    "active"
+                );
+
+            }
+
+
+            if (mainBillNav) {
+
+                mainBillNav.classList.remove(
+                    "active"
+                );
+
+            }
+
+
+            setInitialBillNumber();
+
 
             window.scrollTo(
                 0,
@@ -2022,1503 +2482,6 @@ function autoGrow(textarea) {
 }
 
 
-
-// ==========================================================================//
-
-
-
-// ==========================================
-// GENERATE BILL NUMBER
-// ==========================================
-
-async function generateBillNumber() {
-
-    const currentYear =
-        new Date().getFullYear();
-
-
-    let billNumber;
-
-    let exists = true;
-
-
-    while (exists) {
-
-        const digitCount =
-            Math.random() < 0.5
-                ? 6
-                : 7;
-
-
-        const min =
-            digitCount === 6
-                ? 100000
-                : 1000000;
-
-
-        const max =
-            digitCount === 6
-                ? 999999
-                : 9999999;
-
-
-        const randomNumber =
-            Math.floor(
-                Math.random() *
-                (max - min + 1)
-            ) + min;
-
-
-        billNumber =
-            `${currentYear}-${randomNumber}`;
-
-
-        const existingBill =
-            await db
-                .collection("bills")
-                .doc(billNumber)
-                .get();
-
-
-        exists =
-            existingBill.exists;
-
-    }
-
-
-    return billNumber;
-
-}
-
-
-// ==========================================
-// SET INITIAL BILL NUMBER
-// ==========================================
-
-async function setInitialBillNumber() {
-
-    const billNumber =
-        await generateBillNumber();
-
-
-    const billNo =
-        document.getElementById(
-            "billNo"
-        );
-
-
-    if (billNo) {
-
-        billNo.value =
-            billNumber;
-
-    }
-
-}
-
-
-// ==========================================
-// CALCULATE ROW
-// ==========================================
-
-function calculateRow(input) {
-
-    const row =
-        input.closest("tr");
-
-
-    const pages =
-        parseFloat(
-            row.querySelector(
-                ".pages"
-            ).value
-        ) || 0;
-
-
-    const price =
-        parseFloat(
-            row.querySelector(
-                ".price"
-            ).value
-        ) || 0;
-
-
-    const total =
-        pages * price;
-
-
-    row.querySelector(
-        ".total"
-    ).value =
-        total.toFixed(2);
-
-
-    calculateGrandTotal();
-
-}
-
-
-// Make available to inline HTML
-window.calculateRow =
-    calculateRow;
-
-
-// ==========================================
-// CALCULATE GRAND TOTAL
-// ==========================================
-
-function calculateGrandTotal() {
-
-    let sum = 0;
-
-
-    document
-        .querySelectorAll(
-            "#itemBody .total"
-        )
-        .forEach(function(input) {
-
-            sum +=
-                parseFloat(
-                    input.value
-                ) || 0;
-
-        });
-
-
-    const grandTotal =
-        document.getElementById(
-            "grandTotal"
-        );
-
-
-    if (grandTotal) {
-
-        grandTotal.value =
-            sum.toFixed(2);
-
-    }
-
-}
-
-
-// ==========================================
-// ADD NEW ITEM ROW
-// ==========================================
-
-function addItemRow() {
-
-    const tbody =
-        document.getElementById(
-            "itemBody"
-        );
-
-
-    if (!tbody) return;
-
-
-    const row =
-        document.createElement(
-            "tr"
-        );
-
-
-    row.className =
-        "data-row";
-
-
-    row.innerHTML = `
-
-        <td>
-
-            <input
-                class="table-input srno"
-                type="number"
-                readonly>
-
-        </td>
-
-
-        <td>
-
-            <textarea
-                class="description"
-                rows="2"></textarea>
-
-        </td>
-
-
-        <td>
-
-            <input
-                class="table-input pages"
-                type="number"
-                oninput="calculateRow(this)">
-
-        </td>
-
-
-        <td>
-
-            <input
-                class="table-input price"
-                type="number"
-                step="0.01"
-                oninput="calculateRow(this)">
-
-        </td>
-
-
-        <td>
-
-            <input
-                class="table-input total"
-                type="number"
-                readonly>
-
-        </td>
-
-
-        <td>
-
-            <button
-                class="delete-btn"
-                type="button"
-                onclick="deleteCurrentRow(this)">
-
-                🗑
-
-            </button>
-
-        </td>
-
-    `;
-
-
-    tbody.appendChild(
-        row
-    );
-
-
-    updateSerialNumbers();
-
-
-    autoResizeDescription(
-        row.querySelector(
-            ".description"
-        )
-    );
-
-}
-
-
-// ==========================================
-// ADD ROW BUTTON
-// ==========================================
-
-const addRowBtn =
-    document.getElementById(
-        "addRow"
-    );
-
-
-if (addRowBtn) {
-
-    addRowBtn.addEventListener(
-        "click",
-        addItemRow
-    );
-
-}
-
-
-// ==========================================
-// DELETE ROW
-// ==========================================
-
-function deleteCurrentRow(button) {
-
-    const tbody =
-        document.getElementById(
-            "itemBody"
-        );
-
-
-    if (
-        tbody.rows.length === 1
-    ) {
-
-        alert(
-            "At least one row is required."
-        );
-
-        return;
-
-    }
-
-
-    button
-        .closest("tr")
-        .remove();
-
-
-    updateSerialNumbers();
-
-
-    calculateGrandTotal();
-
-}
-
-
-window.deleteCurrentRow =
-    deleteCurrentRow;
-
-
-// ==========================================
-// UPDATE SERIAL NUMBERS
-// ==========================================
-
-function updateSerialNumbers() {
-
-    const rows =
-        document.querySelectorAll(
-            "#itemBody tr"
-        );
-
-
-    rows.forEach(
-        function(row, index) {
-
-            const srno =
-                row.querySelector(
-                    ".srno"
-                );
-
-
-            if (srno) {
-
-                srno.value =
-                    index + 1;
-
-            }
-
-        }
-    );
-
-}
-
-
-// ==========================================
-// AUTO-RESIZE DESCRIPTION
-// ==========================================
-
-function autoResizeDescription(textarea) {
-
-    if (!textarea) return;
-
-
-    textarea.style.height =
-        "auto";
-
-
-    textarea.style.height =
-        textarea.scrollHeight +
-        "px";
-
-}
-
-
-// ==========================================
-// DESCRIPTION INPUT LISTENER
-// ==========================================
-
-document.addEventListener(
-    "input",
-    function(event) {
-
-        if (
-            event.target.classList
-                .contains(
-                    "description"
-                )
-        ) {
-
-            autoResizeDescription(
-                event.target
-            );
-
-        }
-
-    }
-);
-
-
-// ==========================================
-// FORM FIELD LIVE SYNC
-// ==========================================
-
-const formFields = [
-
-    "customerName",
-
-    "village",
-
-    "taluka",
-
-    "district",
-
-    "mobileNumber",
-
-    "billNo",
-
-    "billDate",
-
-    "paymentDetails",
-
-    "grandTotal",
-
-    "numberToGujaratiWords"
-
-];
-
-
-formFields.forEach(
-    function(id) {
-
-        const element =
-            document.getElementById(
-                id
-            );
-
-
-        if (element) {
-
-            element.addEventListener(
-                "input",
-                function() {
-
-                    // Reserved for
-                    // next-page syncing
-
-                    console.log(
-                        `${id} updated`
-                    );
-
-                }
-            );
-
-        }
-
-    }
-);
-
-
-// ==========================================
-// INITIALIZE FORM
-// ==========================================
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function() {
-
-        setInitialBillNumber();
-
-
-        updateSerialNumbers();
-
-
-        const firstDescription =
-            document.querySelector(
-                ".description"
-            );
-
-
-        if (
-            firstDescription
-        ) {
-
-            autoResizeDescription(
-                firstDescription
-            );
-
-        }
-
-    }
-);
-
-
-
-// ==========================================================================//
-
-// ==========================================
-// FORMAT DATE IN INDIAN FORMAT
-// ==========================================
-
-function formatIndianDate(dateValue) {
-
-    if (!dateValue) return "";
-
-    const date =
-        new Date(
-            dateValue + "T00:00:00"
-        );
-
-
-    return date.toLocaleDateString(
-        "en-IN",
-        {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric"
-        }
-    );
-
-}
-// ==========================================
-// GENERATE RECEIPT BUTTON
-// ==========================================
-
-const generateReceiptBtn =
-    document.getElementById(
-        "generateReceiptBtn"
-    );
-
-
-if (generateReceiptBtn) {
-
-    generateReceiptBtn.addEventListener(
-        "click",
-        generateReceipt
-    );
-
-}
-
-
-function generateReceipt() {
-
-    try {
-
-        /*
-        ==========================================
-            GENERATE PAVTI NUMBER
-        ==========================================
-        */
-
-        const billNo =
-            document
-                .getElementById(
-                    "billNo"
-                )
-                .value
-                .trim();
-
-
-        const billDate =
-            document
-                .getElementById(
-                    "billDate"
-                )
-                .value;
-
-
-        const customerName =
-            document
-                .getElementById(
-                    "customerName"
-                )
-                .value
-                .trim();
-
-
-        if (!billNo) {
-
-            alert(
-                "Please enter Bill Number first."
-            );
-
-            return;
-
-        }
-
-
-        if (!customerName) {
-
-            alert(
-                "Please enter Customer Name first."
-            );
-
-            return;
-
-        }
-
-
-        /*
-        ==========================================
-            CREATE RECEIPT NUMBER
-        ==========================================
-        */
-
-        const receiptNumber =
-            "P-" + billNo;
-
-
-        /*
-        ==========================================
-            SET DUPLICATE RECEIPT DETAILS
-        ==========================================
-        */
-
-        document
-            .getElementById(
-                "dPavtiNo"
-            )
-            .value =
-            receiptNumber;
-
-
-        document
-            .getElementById(
-                "dPavtiDate"
-            )
-            .value =
-            formatIndianDate(
-                billDate
-            );
-
-
-        /*
-        ==========================================
-            GENERATE MAIN + DUPLICATE BILL
-        ==========================================
-        */
-
-        generatePrintableBills();
-
-
-        /*
-        ==========================================
-            SHOW RECEIPT BELOW FORM
-        ==========================================
-        */
-
-        document.body.classList.add(
-            "receiptGeneratedMode"
-        );
-
-
-        const printableBills =
-            document.getElementById(
-                "printableBills"
-            );
-
-
-        printableBills.scrollIntoView({
-
-            behavior: "smooth",
-
-            block: "start"
-
-        });
-
-
-        console.log(
-            "Receipt generated successfully."
-        );
-
-
-    } catch(error) {
-
-        console.error(
-            "Error generating receipt:",
-            error
-        );
-
-
-        alert(
-            "Error generating receipt: " +
-            error.message
-        );
-
-    }
-
-}
-
-
-// ==========================================
-// GENERATE RECEIPT ITEMS
-// ==========================================
-
-
-function generatePrintableBills() {
-
-
-    /*
-    ==========================================
-        MAIN BILL DETAILS
-    ==========================================
-    */
-
-    document
-        .getElementById("pCustomerName")
-        .textContent =
-        document
-            .getElementById("customerName")
-            .value;
-
-
-    document
-        .getElementById("pBillNo")
-        .textContent =
-        document
-            .getElementById("billNo")
-            .value;
-
-
-    document
-        .getElementById("pVillage")
-        .textContent =
-        document
-            .getElementById("village")
-            .value;
-
-
-    document
-        .getElementById("pTaluka")
-        .textContent =
-        document
-            .getElementById("taluka")
-            .value;
-
-
-    document
-        .getElementById("pDistrict")
-        .textContent =
-        document
-            .getElementById("district")
-            .value;
-
-
-    document
-        .getElementById("pBillDate")
-        .textContent =
-        formatIndianDate(
-            document
-                .getElementById("billDate")
-                .value
-        );
-
-
-    document
-        .getElementById("pMobileNumber")
-        .textContent =
-        document
-            .getElementById("mobileNumber")
-            .value;
-
-
-    document
-        .getElementById("pAmountWords")
-        .textContent =
-        document
-            .getElementById(
-                "numberToGujaratiWords"
-            )
-            .value;
-
-
-    document
-        .getElementById("pGrandTotal")
-        .textContent =
-        document
-            .getElementById("grandTotal")
-            .value;
-
-
-    document
-        .getElementById("pPaymentDetails")
-        .textContent =
-        document
-            .getElementById("paymentDetails")
-            .value;
-
-
-    /*
-    ==========================================
-        DUPLICATE BILL DETAILS
-    ==========================================
-    */
-
-    document
-        .getElementById("dCustomerName")
-        .textContent =
-        document
-            .getElementById("customerName")
-            .value;
-
-
-    document
-        .getElementById("dVillage")
-        .textContent =
-        document
-            .getElementById("village")
-            .value;
-
-
-    document
-        .getElementById("dTaluka")
-        .textContent =
-        document
-            .getElementById("taluka")
-            .value;
-
-
-    document
-        .getElementById("dDistrict")
-        .textContent =
-        document
-            .getElementById("district")
-            .value;
-
-
-    document
-        .getElementById("dGrandTotal")
-        .textContent =
-        document
-            .getElementById("grandTotal")
-            .value;
-
-
-    document
-        .getElementById("dAmountWords")
-        .textContent =
-        document
-            .getElementById(
-                "numberToGujaratiWords"
-            )
-            .value;
-
-
-    document
-        .getElementById("dPaymentDetails")
-        .textContent =
-        document
-            .getElementById("paymentDetails")
-            .value;
-
-
-    /*
-    ==========================================
-        MAIN BILL ITEMS
-    ==========================================
-    */
-
-    const printItems =
-        document.getElementById(
-            "printMainItems"
-        );
-
-
-    printItems.innerHTML = "";
-
-
-    document
-        .querySelectorAll(
-            "#itemBody tr"
-        )
-        .forEach(function(row) {
-
-
-            const printRow =
-                document.createElement(
-                    "tr"
-                );
-
-
-            const srno =
-                row
-                    .querySelector(
-                        ".srno"
-                    )
-                    .value;
-
-
-            const description =
-                row
-                    .querySelector(
-                        ".description"
-                    )
-                    .value;
-
-
-            const pages =
-                row
-                    .querySelector(
-                        ".pages"
-                    )
-                    .value;
-
-
-            const price =
-                row
-                    .querySelector(
-                        ".price"
-                    )
-                    .value;
-
-
-            const total =
-                row
-                    .querySelector(
-                        ".total"
-                    )
-                    .value;
-
-
-            printRow.innerHTML = `
-
-                <td>
-                    ${srno}
-                </td>
-
-                <td class="printDescription">
-                    ${description}
-                </td>
-
-                <td>
-                    ${pages}
-                </td>
-
-                <td>
-                    ₹ ${price}
-                </td>
-
-                <td>
-                    ₹ ${total}
-                </td>
-
-            `;
-
-
-            printItems.appendChild(
-                printRow
-            );
-
-        });
-
-
-}
-
-
-// ==========================================
-// CREATE RECENT ACTIVITY
-// ==========================================
-
-async function createActivity(activityData) {
-
-    await db
-        .collection("activities")
-        .add({
-
-            ...activityData,
-
-            createdAt:
-                firebase.firestore.FieldValue
-                    .serverTimestamp()
-
-        });
-
-}
-// ==========================================
-// SAVE CURRENT BILL
-// ==========================================
-
-async function saveCurrentBill() {
-
-    const billNo =
-        document
-            .getElementById("billNo")
-            .value
-            .trim();
-
-
-    if (!billNo) {
-
-        throw new Error(
-            "Bill number is missing."
-        );
-
-    }
-
-
-    /*
-    ==========================================
-        COLLECT BILL ITEMS
-    ==========================================
-    */
-
-    const items = [];
-
-
-    document
-        .querySelectorAll(
-            "#itemBody tr"
-        )
-        .forEach(function(row) {
-
-            const description =
-                row
-                    .querySelector(
-                        ".description"
-                    )
-                    .value
-                    .trim();
-
-
-            const pages =
-                parseFloat(
-                    row
-                        .querySelector(
-                            ".pages"
-                        )
-                        .value
-                )
-                || 0;
-
-
-            const price =
-                parseFloat(
-                    row
-                        .querySelector(
-                            ".price"
-                        )
-                        .value
-                )
-                || 0;
-
-
-            const total =
-                parseFloat(
-                    row
-                        .querySelector(
-                            ".total"
-                        )
-                        .value
-                )
-                || 0;
-
-
-            items.push({
-
-                srno:
-                    row
-                        .querySelector(
-                            ".srno"
-                        )
-                        .value,
-
-                description,
-
-                pages,
-
-                price,
-
-                total
-
-            });
-
-        });
-
-
-    /*
-    ==========================================
-        BILL DATA
-    ==========================================
-    */
-
-    const billData = {
-
-        billNo:
-
-            billNo,
-
-
-        customerName:
-
-            document
-                .getElementById(
-                    "customerName"
-                )
-                .value
-                .trim(),
-
-
-        village:
-
-            document
-                .getElementById(
-                    "village"
-                )
-                .value
-                .trim(),
-
-
-        taluka:
-
-            document
-                .getElementById(
-                    "taluka"
-                )
-                .value
-                .trim(),
-
-
-        district:
-
-            document
-                .getElementById(
-                    "district"
-                )
-                .value
-                .trim(),
-
-
-        mobileNumber:
-
-            document
-                .getElementById(
-                    "mobileNumber"
-                )
-                .value
-                .trim(),
-
-
-        billDate:
-
-            document
-                .getElementById(
-                    "billDate"
-                )
-                .value,
-
-
-        paymentDetails:
-
-            document
-                .getElementById(
-                    "paymentDetails"
-                )
-                .value
-                .trim(),
-
-
-        numberToGujaratiWords:
-
-            document
-                .getElementById(
-                    "numberToGujaratiWords"
-                )
-                .value
-                .trim(),
-
-
-        grandTotal:
-
-            Number(
-                document
-                    .getElementById(
-                        "grandTotal"
-                    )
-                    .value
-            )
-            || 0,
-
-
-        items:
-
-            items,
-
-
-        updatedAt:
-
-            firebase.firestore.FieldValue
-                .serverTimestamp()
-
-    };
-
-
-    /*
-    ==========================================
-        CHECK IF BILL ALREADY EXISTS
-    ==========================================
-    */
-
-    const billReference =
-        db
-            .collection("bills")
-            .doc(billNo);
-
-
-    const existingBill =
-        await billReference.get();
-
-
-    /*
-    ==========================================
-        UPDATE EXISTING BILL
-    ==========================================
-    */
-
-    if (existingBill.exists) {
-
-    await billReference.update(
-
-        billData
-
-    );
-
-
-    await createActivity({
-
-        type:
-            "updated",
-
-        title:
-            "Bill updated",
-
-        message:
-            "Bill " + billNo,
-
-        billNo:
-            billNo,
-
-        amount:
-            billData.grandTotal,
-
-        customerName:
-            billData.customerName
-
-    });
-
-
-    console.log(
-        "Bill updated successfully:",
-        billNo
-    );
-
-}
-
-
-    /*
-    ==========================================
-        CREATE NEW BILL
-    ==========================================
-    */
-
-    else {
-
-    await billReference.set({
-
-        ...billData,
-
-
-        createdAt:
-
-            firebase.firestore.FieldValue
-                .serverTimestamp()
-
-    });
-
-
-    await createActivity({
-
-        type:
-            "created",
-
-        title:
-            "New bill created",
-
-        message:
-            `Main Bill • ₹${Number(
-                billData.grandTotal
-            ).toLocaleString(
-                "en-IN"
-            )}`,
-
-        billNo:
-            billNo,
-
-        amount:
-            billData.grandTotal,
-
-        customerName:
-            billData.customerName
-
-    });
-
-
-    console.log(
-        "New bill saved successfully:",
-        billNo
-    );
-
-}
-
-
-    /*
-    ==========================================
-        REFRESH DASHBOARD DATA
-    ==========================================
-    */
-
-    await loadDashboardStats();
-    
-    await loadRecentBills();
-    
-    await loadRecentActivity();
-
-}
-
-// ========================================================================//
-
-// ==========================================
-// BACK TO EDIT
-// ==========================================
-
-const backToEditBtn =
-    document.getElementById(
-        "backToEditBtn"
-    );
-
-
-if (backToEditBtn) {
-
-    backToEditBtn.addEventListener(
-        "click",
-        function () {
-
-            document.body.classList.remove(
-                "receiptGeneratedMode"
-            );
-
-            window.scrollTo({
-
-                top: 0,
-
-                behavior: "smooth"
-
-            });
-
-        }
-    );
-
-}
-
-// ==========================================
-// SAVE BILL BUTTON
-// ==========================================
-
-const saveBillBtn =
-    document.getElementById(
-        "saveBillBtn"
-    );
-
-
-if (saveBillBtn) {
-
-    saveBillBtn.addEventListener(
-        "click",
-        async function() {
-
-            try {
-
-                await saveCurrentBill();
-
-                alert(
-                    "Bill saved successfully."
-                );
-
-            }
-
-            catch(error) {
-
-                console.error(
-                    "Error saving bill:",
-                    error
-                );
-
-                alert(
-                    "Bill could not be saved: " +
-                    error.message
-                );
-
-            }
-
-        }
-    );
-
-}
-
-// ==========================================================================//
-
-
-// ==========================================
-// PRINT BILL
-// ==========================================
-
-const printBillBtn =
-    document.getElementById(
-        "printBillBtn"
-    );
-
-
-if (printBillBtn) {
-
-    printBillBtn.addEventListener(
-        "click",
-        function() {
-
-          console.log("MAIN BILL PRINT BUTTON CLICKED");
-
-            console.time("Main Bill Print Generation");
-
-            generatePrintableBills();
-            
-            console.timeEnd("Main Bill Print Generation");
-
-
-            document.body.classList.add(
-                "showCutLine"
-            );
-
-
-            window.print();
-
-        }
-
-    );
-
-}
-
-
-// ==========================================
-// AFTER PRINT - MAIN BILL ONLY
-// ==========================================
-
-window.addEventListener(
-    "afterprint",
-    function() {
-
-        document.body.classList.remove(
-            "showCutLine"
-        );
-
-        console.log(
-            "Main bill print completed."
-        );
-
-    }
-
-);
 
 /* ============================================================
         LOGOUT SYSTEM
@@ -4033,6 +2996,70 @@ async function loadRecentActivity() {
               
               }
 
+              if (
+                    activity.type === "shikshanupakaran_added"
+                ) {
+                
+                    icon =
+                        "fa-file-circle-plus";
+                
+                    iconClass =
+                        "orangeActivity";
+                
+                }
+                
+                
+                if (
+                    activity.type === "shikshanupakaran_updated"
+                ) {
+                
+                    icon =
+                        "fa-file-pen";
+                
+                    iconClass =
+                        "blueActivity";
+                
+                }
+                
+                
+                if (
+                    activity.type === "shikshanupakaran_opened"
+                ) {
+                
+                    icon =
+                        "fa-folder-open";
+                
+                    iconClass =
+                        "greenActivity";
+                
+                }
+                
+                
+                if (
+                    activity.type === "shikshanupakaran_deleted"
+                ) {
+                
+                    icon =
+                        "fa-trash";
+                
+                    iconClass =
+                        "redActivity";
+                
+                }
+                
+                
+                if (
+                    activity.type === "shikshanupakaran_printed"
+                ) {
+                
+                    icon =
+                        "fa-print";
+                
+                    iconClass =
+                        "purpleActivity";
+                
+                }
+
             const activityItem = `
 
                 <div
@@ -4473,47 +3500,100 @@ function setupActivityMenuActions() {
     -------------------------------------------------------- */
 
     const viewAllButton =
-        document.getElementById(
-            "viewAllActivityButton"
-        );
+document.querySelector(
+    ".viewAllButton"
+);
 
+
+if(viewAllButton){
 
     viewAllButton.addEventListener(
         "click",
-        function() {
+        function(){
 
-            activityMenu.classList.remove(
-                "show"
+            console.log(
+                "View All Bills clicked"
             );
 
 
-            /*
-             * If you already have an
-             * All Bills page, navigate there.
-             */
-
-            const allBillsButton =
-                document.querySelector(
-                    "#allBillsNav"
-                );
+            // Hide dashboard
+            const dashboard =
+            document.getElementById(
+                "dashboardView"
+            );
 
 
-            if (allBillsButton) {
+            if(dashboard){
 
-                allBillsButton.click();
+                dashboard.style.display =
+                    "none";
 
             }
 
-            else {
 
-                console.log(
-                    "View all activity clicked"
-                );
+
+            // Hide other modules
+            const invoiceView =
+            document.getElementById(
+                "invoiceView"
+            );
+
+
+            if(invoiceView){
+
+                invoiceView.style.display =
+                    "none";
 
             }
+
+
+
+            const talapatrakView =
+            document.getElementById(
+                "talapatrakView"
+            );
+
+
+            if(talapatrakView){
+
+                talapatrakView.style.display =
+                    "none";
+
+            }
+
+
+
+            // Show all bills
+            const mainBillsView =
+            document.getElementById(
+                "mainBillsView"
+            );
+
+
+            if(mainBillsView){
+
+                mainBillsView.style.display =
+                    "block";
+
+            }
+
+
+
+            // Load bills
+
+            if(
+                typeof loadMainBills === "function"
+            ){
+
+                loadMainBills();
+
+            }
+
 
         }
     );
+
+}
 
 
     /* --------------------------------------------------------
@@ -4649,3349 +3729,6 @@ function showActivityAgain() {
 
 }
 
-
-/* ===========================================================================
-
-
-/* ============================================================
-        TALAPATRAK SYSTEM
-        STEP 1: NAVIGATION + MANAGEMENT + EDITOR
-============================================================ */
-
-
-/* ============================================================
-        ELEMENT REFERENCES
-============================================================ */
-
-const talapatrakNavElement =
-    document.getElementById(
-        "talapatrakNav"
-    );
-
-
-const dashboardViewElement =
-    document.getElementById(
-        "dashboardView"
-    );
-
-
-const talapatrakViewElement =
-    document.getElementById(
-        "talapatrakView"
-    );
-
-
-const talapatrakEditorViewElement =
-    document.getElementById(
-        "talapatrakEditorView"
-    );
-
-
-const backToDashboardButtonElement =
-    document.getElementById(
-        "backToDashboardFromTalapatrak"
-    );
-
-
-const backToTalapatrakManagementButton =
-    document.getElementById(
-        "backToTalapatrakManagement"
-    );
-
-
-const addTalapatrakButton =
-    document.getElementById(
-        "addTalapatrakButton"
-    );
-
-
-const emptyAddTalapatrakButton =
-    document.getElementById(
-        "emptyAddTalapatrakButton"
-    );
-
-
-
-if (talapatrakNavElement) {
-
-    talapatrakNavElement.addEventListener(
-        "click",
-        function(event) {
-
-            event.preventDefault();
-
-            hideAllViews();
-
-            talapatrakViewElement.style.display =
-                "block";
-
-            clearNavigationActiveState();
-
-            talapatrakNavElement.classList.add(
-                "active"
-            );
-
-            loadTalapatrakRecords();
-
-            window.scrollTo(
-                0,
-                0
-            );
-
-        }
-    );
-
-}
-
-let talapatrakRecords = [];
-
-/* ============================================================
-        BACK TO TALAPATRAK MANAGEMENT
-============================================================ */
-
-if (backToTalapatrakManagementButton) {
-
-    backToTalapatrakManagementButton.addEventListener(
-        "click",
-        async function() {
-
-            console.log(
-                "Back to Talapatrak Management clicked"
-            );
-
-            await openTalapatrakManagement();
-
-        }
-    );
-
-}
-/* ============================================================
-        CLEAR ACTIVE NAVIGATION
-============================================================ */
-
-function clearNavigationActiveState() {
-
-    document
-        .querySelectorAll(
-            ".navItem"
-        )
-        .forEach(
-            function(item) {
-
-                item.classList.remove(
-                    "active"
-                );
-
-            }
-        );
-
-}
-
-
-/* ============================================================
-        SET DEFAULT TALAPATRAK VIEW
-============================================================ */
-
-function initializeTalapatrakViews() {
-
-    /*
-        Make sure Talapatrak pages
-        are hidden when app loads
-    */
-
-    if (talapatrakViewElement) {
-
-        talapatrakViewElement.style.display =
-            "none";
-
-    }
-
-
-    if (talapatrakEditorViewElement) {
-
-        talapatrakEditorViewElement.style.display =
-            "none";
-
-    }
-
-}
-
-
-initializeTalapatrakViews();
-
-
-console.log(
-    "Talapatrak navigation initialized successfully."
-);
-
-
-
- /* ==========================================================================*/
-
-/* ============================================================
-        TALAPATRAK MANAGEMENT CONTROLS
-============================================================ */
-
-
-/* ============================================================
-        ELEMENT REFERENCES
-============================================================ */
-
-const talapatrakSearchInputElement =
-    document.getElementById(
-        "talapatrakSearchInput"
-    );
-
-
-const talapatrakSortButtonElement =
-    document.getElementById(
-        "talapatrakSortButton"
-    );
-
-
-const talapatrakSortMenuElement =
-    document.getElementById(
-        "talapatrakSortMenu"
-    );
-
-
-const talapatrakSortLabelElement =
-    document.getElementById(
-        "talapatrakSortLabel"
-    );
-
-
-const talapatrakGridViewButtonElement =
-    document.getElementById(
-        "talapatrakGridViewButton"
-    );
-
-
-const talapatrakListViewButtonElement =
-    document.getElementById(
-        "talapatrakListViewButton"
-    );
-
-
-const talapatrakRecordCountElement =
-    document.getElementById(
-        "talapatrakRecordCount"
-    );
-
-
-const talapatrakVillageGridElement =
-    document.getElementById(
-        "talapatrakVillageGrid"
-    );
-
-
-const talapatrakEmptyStateElement =
-    document.getElementById(
-        "talapatrakEmptyState"
-    );
-
-
-/* ============================================================
-        STATE
-============================================================ */
-
-let talapatrakSearchTerm =
-    "";
-
-
-let talapatrakSortMode =
-    "recent";
-
-
-let talapatrakViewMode =
-    "grid";
-
-
-
-/* ============================================================
-        LOAD TALAPATRAK RECORDS FROM FIREBASE
-============================================================ */
-
-async function loadTalapatrakRecords() {
-
-    try {
-
-        /*
-            Make sure a user is logged in
-        */
-
-        if (
-            !auth ||
-            !auth.currentUser
-        ) {
-
-            console.warn(
-                "No user logged in. Cannot load Talapatrak records."
-            );
-
-            talapatrakRecords =
-                [];
-
-            renderTalapatrakManagement();
-
-            return;
-
-        }
-
-
-        /*
-            Show loading message
-        */
-
-        if (
-            talapatrakVillageGridElement
-        ) {
-
-            talapatrakVillageGridElement.innerHTML = `
-
-                <div
-                    class="talapatrakLoadingState">
-
-                    <i
-                        class="fa-solid fa-spinner fa-spin">
-                    </i>
-
-                    <p>
-                        Loading Talapatrak records...
-                    </p>
-
-                </div>
-
-            `;
-
-        }
-
-
-        /*
-            Get records belonging
-            to current user
-        */
-
-        const snapshot =
-            await db
-                .collection(
-                    "talapatraks"
-                )
-                .where(
-                    "userId",
-                    "==",
-                    auth.currentUser.uid
-                )
-                .get();
-
-
-        /*
-            Clear old records
-        */
-
-        talapatrakRecords =
-            [];
-
-
-        /*
-            Convert Firestore documents
-            into JavaScript objects
-        */
-
-        snapshot.forEach(
-
-            function(doc) {
-
-                talapatrakRecords.push({
-
-                    id:
-                        doc.id,
-
-                    ...doc.data()
-
-                });
-
-            }
-
-        );
-
-      await loadTalapatrakCount();
-
-      console.log(
-          "LOADED TALAPATRAK RECORDS:",
-          talapatrakRecords
-      );
-
-
-        console.log(
-            "Talapatrak records loaded:",
-            talapatrakRecords
-        );
-
-
-        /*
-            Render management page
-        */
-
-        renderTalapatrakManagement();
-
-    }
-
-    catch(error) {
-
-        console.error(
-            "Error loading Talapatrak records:",
-            error
-        );
-
-
-        if (
-            talapatrakVillageGridElement
-        ) {
-
-            talapatrakVillageGridElement.innerHTML = `
-
-                <div
-                    class="talapatrakLoadingState">
-
-                    <i
-                        class="fa-solid fa-triangle-exclamation">
-                    </i>
-
-                    <p>
-                        Unable to load Talapatrak records.
-                    </p>
-
-                </div>
-
-            `;
-
-        }
-
-    }
-
-}
-
-
-/* ============================================================
-        TALAPATRAK SORT DROPDOWN
-============================================================ */
-
-
-/* ============================================================
-        ELEMENT REFERENCES
-============================================================ */
-
-const talapatrakSortWrapperElement =
-    document.querySelector(
-        ".talapatrakSortWrapper"
-    );
-
-
-const talapatrakSortOptions =
-    document.querySelectorAll(
-        ".talapatrakSortOption"
-    );
-
-/* ============================================================
-        SORT DROPDOWN OPEN / CLOSE
-============================================================ */
-
-if (
-    talapatrakSortButtonElement &&
-    talapatrakSortMenuElement
-) {
-
-    talapatrakSortButtonElement.addEventListener(
-        "click",
-        function(event) {
-
-            event.stopPropagation();
-
-            talapatrakSortMenuElement.classList.toggle(
-                "open"
-            );
-
-        }
-    );
-
-}
-
-console.log(
-    "SORT OPTIONS FOUND:",
-    talapatrakSortOptions.length
-);
-
-talapatrakSortOptions.forEach(function(option) {
-
-    option.addEventListener(
-        "click",
-        function() {
-
-            talapatrakSortMode =
-                this.dataset.sort;
-
-
-            talapatrakSortOptions.forEach(function(btn){
-
-                btn.classList.remove(
-                    "active"
-                );
-
-            });
-
-
-            this.classList.add(
-                "active"
-            );
-
-
-            renderTalapatrakManagement();
-
-        }
-    );
-
-});
-
-function sortTalapatrakRecords(records) {
-
-    const sortedRecords = [
-        ...records
-    ];
-
-    switch (talapatrakSortMode) {
-
-        case "recent":
-
-            sortedRecords.sort(function(a, b) {
-
-                return getTimestamp(b.updatedAt)
-                    -
-                    getTimestamp(a.updatedAt);
-
-            });
-
-            break;
-
-
-        case "oldest":
-
-            sortedRecords.sort(function(a, b) {
-
-                return getTimestamp(a.updatedAt)
-                    -
-                    getTimestamp(b.updatedAt);
-
-            });
-
-            break;
-
-
-        case "az":
-
-            sortedRecords.sort(function(a, b) {
-
-                return String(a.moje || "")
-                    .localeCompare(
-                        String(b.moje || ""),
-                        "gu"
-                    );
-
-            });
-
-            break;
-
-
-        case "za":
-
-            sortedRecords.sort(function(a, b) {
-
-                return String(b.moje || "")
-                    .localeCompare(
-                        String(a.moje || ""),
-                        "gu"
-                    );
-
-            });
-
-            break;
-
-    }
-
-    return sortedRecords;
-
-}
-
-
-/* ============================================================
-        LIST VIEW
-============================================================ */
-
-if (
-    talapatrakListViewButtonElement
-) {
-
-    talapatrakListViewButtonElement.addEventListener(
-
-        "click",
-
-        function() {
-
-            talapatrakViewMode =
-                "list";
-
-
-            this.classList.add(
-                "active"
-            );
-
-
-            if (
-                talapatrakGridViewButtonElement
-            ) {
-
-                talapatrakGridViewButtonElement.classList.remove(
-                    "active"
-                );
-
-            }
-
-
-            if (
-                talapatrakVillageGridElement
-            ) {
-
-                talapatrakVillageGridElement.classList.add(
-                    "listView"
-                );
-
-            }
-
-        }
-
-    );
-
-}
-
-/* ============================================================
-        GRID VIEW
-============================================================ */
-
-if (
-    talapatrakGridViewButtonElement
-) {
-
-    talapatrakGridViewButtonElement.addEventListener(
-
-        "click",
-
-        function() {
-
-            talapatrakViewMode =
-                "grid";
-
-
-            this.classList.add(
-                "active"
-            );
-
-
-            if (
-                talapatrakListViewButtonElement
-            ) {
-
-                talapatrakListViewButtonElement.classList.remove(
-                    "active"
-                );
-
-            }
-
-
-            if (
-                talapatrakVillageGridElement
-            ) {
-
-                talapatrakVillageGridElement.classList.remove(
-                    "listView"
-                );
-
-            }
-
-        }
-
-    );
-
-}
-/* ============================================================
-        RENDER MANAGEMENT VIEW
-============================================================ */
-
-/* ============================================================
-        RENDER TALAPATRAK VILLAGE CARDS
-============================================================ */
-
-function renderTalapatrakManagement() {
-
-    console.log(
-        "RENDER MANAGEMENT CALLED:",
-        talapatrakRecords.length
-    );
-    /*
-        Get filtered records
-    */
-
-    const filteredRecords =
-        getFilteredTalapatrakRecords();
-
-
-    /*
-        Sort records
-    */
-
-    const sortedRecords =
-        sortTalapatrakRecords(
-            filteredRecords
-        );
-
-      console.log(
-    "RECORDS TO CREATE CARDS:",
-    sortedRecords.length
-);
-
-console.log(
-    "GRID ELEMENT:",
-    talapatrakVillageGridElement
-);
-
-    /*
-        Update village count
-    */
-
-    if (
-        talapatrakRecordCountElement
-    ) {
-
-        talapatrakRecordCountElement.textContent =
-            sortedRecords.length;
-
-    }
-
-
-    /*
-        Empty state
-    */
-
-    if (
-        talapatrakEmptyStateElement
-    ) {
-
-        talapatrakEmptyStateElement.style.display =
-            sortedRecords.length === 0
-                ? "flex"
-                : "none";
-
-    }
-
-
-    /*
-        Stop if there are no records
-    */
-
-    if (
-        !talapatrakVillageGridElement
-    ) {
-
-        return;
-
-    }
-
-
-    /*
-        Remove old cards
-        but keep empty state
-    */
-
-    const existingCards =
-        talapatrakVillageGridElement.querySelectorAll(
-            ".talapatrakVillageCard"
-        );
-
-
-    existingCards.forEach(
-
-        function(card) {
-
-            card.remove();
-
-        }
-
-    );
-
-
-    console.log(
-        "RECORDS BEING USED TO CREATE CARDS:",
-        sortedRecords
-    );
-
-    console.log(
-        "RECORDS TO CREATE CARDS:",
-        sortedRecords
-    );
-    
-    console.log(
-        "GRID ELEMENT:",
-        talapatrakVillageGridElement
-    );
-    /*
-        Create a card for every village
-    */
-
-    sortedRecords.forEach(
-
-        function(record) {
-
-
-            const card =
-                createTalapatrakVillageCard(
-                    record
-                );
-
-
-            talapatrakVillageGridElement.appendChild(
-                card
-            );
-
-        }
-
-    );
-
-
-    console.log(
-        "Talapatrak cards rendered:",
-        sortedRecords.length
-    );
-
-}
-/* ============================================================
-        CREATE TALAPATRAK VILLAGE CARD
-============================================================ */
-
-function createTalapatrakVillageCard(
-    record
-) {
-
-
-    /*
-        Create card
-    */
-
-    const card =
-        document.createElement(
-            "article"
-        );
-
-
-    card.className =
-        "talapatrakVillageCard";
-
-      card.dataset.id =
-          record.id;
-
-
-    /*
-        Safely get values
-    */
-
-    const villageName =
-        record.moje ||
-        "Unnamed Village";
-
-
-    const taluka =
-        record.taluka ||
-        "—";
-
-
-    const jillo =
-        record.jillo ||
-        "—";
-
-
-    const year =
-        record.year ||
-        "2025-2026";
-
-
-    const rowCount =
-        Array.isArray(
-            record.rows
-        )
-            ? record.rows.length
-            : 0;
-
-
-    /*
-        Format updated date
-    */
-
-    let updatedText =
-        "Not updated yet";
-
-
-    if (
-        record.updatedAt
-    ) {
-
-        const updatedDate =
-            record.updatedAt?.toDate
-                ? record.updatedAt.toDate()
-                : new Date(
-                    record.updatedAt
-                );
-
-
-        if (
-            !isNaN(
-                updatedDate
-            )
-        ) {
-
-            updatedText =
-                updatedDate.toLocaleDateString(
-                    "en-IN",
-                    {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric"
-                    }
-                );
-
-        }
-
-    }
-
-
-    /*
-        Card HTML
-    */
-
-    card.innerHTML = `
-
-        <!-- CARD HEADER -->
-
-        <div
-            class="talapatrakVillageCardHeader">
-
-
-            <div
-                class="talapatrakVillageIcon">
-
-                <i
-                    class="fa-solid fa-location-dot">
-                </i>
-
-            </div>
-
-
-            <div
-                class="talapatrakVillageTitle">
-
-                <h3>
-                    ${escapeTalapatrakHTML(
-                        villageName
-                    )}
-                </h3>
-
-                <span>
-                    Talapatrak
-                </span>
-
-            </div>
-
-
-            <!-- CARD MENU -->
-
-            <div
-                class="talapatrakCardMenuWrapper">
-            
-            
-                <button
-                    type="button"
-                    class="talapatrakCardMenuButton"
-                    title="More options">
-            
-                    <i
-                        class="fa-solid fa-ellipsis-vertical">
-                    </i>
-            
-                </button>
-
-                
-                <!-- DROPDOWN MENU -->
-            
-                <div
-                    class="talapatrakCardMenu">
-            
-            
-                    <button
-                        type="button"
-                        class="talapatrakCardMenuItem delete"
-                        data-action="delete">
-            
-                        <i
-                            class="fa-solid fa-trash">
-                        </i>
-            
-                        Delete
-            
-                    </button>
-            
-            
-                </div>
-
-        </div>
-
-
-        <!-- CARD DETAILS -->
-
-        <div
-            class="talapatrakVillageDetails">
-
-
-            <div
-                class="talapatrakVillageDetail">
-
-
-                <strong>
-                    ${escapeTalapatrakHTML(
-                        year
-                    )}
-                </strong>
-
-
-            </div>
-
-
-            <div
-                class="talapatrakVillageDetail">
-
-
-                <span>
-                    Records
-                </span>
-
-
-                <strong>
-                    ${rowCount}
-                </strong>
-
-
-            </div>
-
-
-        </div>
-
-
-        <!-- CARD FOOTER -->
-
-        <div
-            class="talapatrakVillageCardFooter">
-
-
-            <span
-                class="talapatrakLastUpdated">
-
-
-                <i
-                    class="fa-regular fa-clock">
-                </i>
-
-
-                Updated ${updatedText}
-
-
-            </span>
-
-
-
-        </div>
-
-    `;
-
-
-    /*
-        Open card when clicking
-    */
-
-      card.addEventListener(
-
-    "click",
-
-    function(event) {
-
-
-        /*
-            Do not open card when
-            clicking menu area
-        */
-
-        if (
-
-            event.target.closest(
-                ".talapatrakCardMenuWrapper"
-            )
-
-        ) {
-
-            return;
-
-        }
-
-
-          openTalapatrakRecord(
-            record.id
-          );
-
-    }
-
-);
-
-
-      /* ============================================================
-        CARD MENU
-============================================================ */
-
-const menuButton =
-    card.querySelector(
-        ".talapatrakCardMenuButton"
-    );
-
-
-const cardMenu =
-    card.querySelector(
-        ".talapatrakCardMenu"
-    );
-
-
-const deleteButton =
-    card.querySelector(
-        '[data-action="delete"]'
-    );
-
-
-/* ============================================================
-        OPEN / CLOSE THREE-DOT MENU
-============================================================ */
-
-if (
-    menuButton &&
-    cardMenu
-) {
-
-    menuButton.addEventListener(
-
-        "click",
-
-        function(event) {
-
-            /*
-                VERY IMPORTANT
-                Prevent card click
-                and document click
-            */
-
-            event.preventDefault();
-
-            event.stopPropagation();
-
-
-            /*
-                Close every other menu
-            */
-
-            document
-                .querySelectorAll(
-                    ".talapatrakCardMenu.open"
-                )
-                .forEach(
-
-                    function(menu) {
-
-                        if (
-                            menu !== cardMenu
-                        ) {
-
-                            menu.classList.remove(
-                                "open"
-                            );
-
-                        }
-
-                    }
-
-                );
-
-
-            /*
-                Toggle this menu
-            */
-
-            cardMenu.classList.toggle(
-                "open"
-            );
-
-
-            console.log(
-                "Talapatrak menu clicked"
-            );
-
-        }
-
-    );
-
-}
-
-
-/* ============================================================
-        DELETE BUTTON
-============================================================ */
-
-if (
-    deleteButton
-) {
-
-    deleteButton.addEventListener(
-
-        "click",
-
-        async function(event) {
-
-            event.preventDefault();
-
-            event.stopPropagation();
-
-
-            /*
-                Close menu immediately
-            */
-
-            if (
-                cardMenu
-            ) {
-
-                cardMenu.classList.remove(
-                    "open"
-                );
-
-            }
-
-
-            /*
-                Delete record
-            */
-
-            await deleteTalapatrakRecord(
-                record
-            );
-
-        }
-
-    );
-
-}
-
-
-    return card;
-
-}
-
-/* ============================================================
-        DELETE TALAPATRAK RECORD
-============================================================ */
-
-async function deleteTalapatrakRecord(record) {
-
-    if (!record || !record.id) {
-
-        console.error(
-            "Talapatrak document ID missing."
-        );
-
-        alert(
-            "Unable to delete this Talapatrak."
-        );
-
-        return;
-
-    }
-
-    const villageName =
-        record.moje ||
-        "this village";
-
-
-    const confirmed =
-        confirm(
-            `Are you sure you want to delete "${villageName}"?`
-        );
-
-
-    if (!confirmed) {
-
-        return;
-
-    }
-
-
-    try {
-
-        await db
-            .collection(
-                "talapatraks"
-            )
-            .doc(
-                record.id
-            )
-            .delete();
-
-
-        talapatrakRecords =
-            talapatrakRecords.filter(
-
-                function(item) {
-
-                    return item.id !==
-                        record.id;
-
-                }
-
-            );
-
-
-        renderTalapatrakManagement();
-
-          await loadTalapatrakCount();
-
-        await addTalapatrakActivity(
-              "talapatrak_deleted",
-              "Talapatrak deleted",
-              `${villageName} Talapatrak deleted`,
-              villageName
-          );
-      
-        console.log(
-            "Talapatrak deleted:",
-            record.id
-        );
-
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Error deleting Talapatrak:",
-            error
-        );
-
-
-        alert(
-            "Error deleting Talapatrak. Please try again."
-        );
-
-    }
-
-}
-
-/* ============================================================
-        CLOSE CARD MENUS WHEN CLICKING OUTSIDE
-============================================================ */
-
-document.addEventListener(
-
-    "click",
-
-    function(event) {
-
-
-        /*
-            If click happened inside
-            a card menu wrapper,
-            do nothing
-        */
-
-        if (
-
-            event.target.closest(
-                ".talapatrakCardMenuWrapper"
-            )
-
-        ) {
-
-            return;
-
-        }
-
-
-        /*
-            Otherwise close all menus
-        */
-
-        document
-            .querySelectorAll(
-                ".talapatrakCardMenu.open"
-            )
-            .forEach(
-
-                function(menu) {
-
-                    menu.classList.remove(
-                        "open"
-                    );
-
-                }
-
-            );
-
-    }
-
-);
-
-/* ============================================================
-        ESCAPE HTML
-============================================================ */
-
-function escapeTalapatrakHTML(
-    value
-) {
-
-    return String(
-        value
-    )
-    .replace(
-        /&/g,
-        "&amp;"
-    )
-    .replace(
-        /</g,
-        "&lt;"
-    )
-    .replace(
-        />/g,
-        "&gt;"
-    )
-    .replace(
-        /"/g,
-        "&quot;"
-    )
-    .replace(
-        /'/g,
-        "&#039;"
-    );
-
-}
-
-
-/* ============================================================
-        INITIAL RENDER
-============================================================ */
-
-renderTalapatrakManagement();
-
-
-
-/*============================================================================*/
-
-/* ============================================================
-        TALAPATRAK SYSTEM
-        DYNAMIC FINANCIAL YEAR + MANAGEMENT + EDITOR
-============================================================ */
-
-
-/* ============================================================
-        GLOBAL STATE
-============================================================ */
-
-let currentTalapatrakRecord = null;
-
-let currentTalapatrakDocumentId = null;
-
-/* ============================================================
-        DYNAMIC FINANCIAL YEAR
-        YEAR CHANGES EVERY 1 AUGUST
-============================================================ */
-
-function getCurrentTalapatrakYear() {
-
-    const today =
-        new Date();
-
-    const year =
-        today.getFullYear();
-
-    const month =
-        today.getMonth();
-
-    /*
-        August = 7
-
-        1 August 2026
-        =
-        2026-2027
-
-        31 July 2026
-        =
-        2025-2026
-    */
-
-    if (month >= 7) {
-
-        return `${year}-${year + 1}`;
-
-    }
-
-    return `${year - 1}-${year}`;
-
-}
-
-
-/* ============================================================
-        GET PREVIOUS YEAR
-============================================================ */
-
-function getPreviousTalapatrakYear(year) {
-
-    const startYear =
-        Number(
-            String(year)
-                .split("-")[0]
-        );
-
-    return `${startYear - 1}-${startYear}`;
-
-}
-
-
-/* ============================================================
-        FIREBASE DOCUMENT ID
-============================================================ */
-
-function getTalapatrakDocumentId(
-    moje,
-    year
-) {
-
-    return `${moje}_${year}`;
-
-}
-
-
-/* ============================================================
-        ELEMENT REFERENCES
-============================================================ */
-
-
-const addTalapatrakRowButton =
-    document.getElementById(
-        "addTalapatrakRow"
-    );
-
-
-const saveTalapatrakButton =
-    document.getElementById(
-        "saveTalapatrakButton"
-    );
-
-
-const printTalapatrakButton =
-    document.getElementById(
-        "printTalapatrakButton"
-    );
-
-
-const talapatrakBody =
-    document.getElementById(
-        "talapatrakBody"
-    );
-
-/* ============================================================
-        HIDE ALL VIEWS
-============================================================ */
-
-function hideAllTalapatrakViews() {
-
-    if (dashboardViewElement) {
-
-        dashboardViewElement.style.display =
-            "none";
-
-    }
-
-    if (talapatrakViewElement) {
-
-        talapatrakViewElement.style.display =
-            "none";
-
-    }
-
-    if (talapatrakEditorViewElement) {
-
-        talapatrakEditorViewElement.style.display =
-            "none";
-
-    }
-
-}
-
-
-/* ============================================================
-        START NEW TALAPATRAK
-============================================================ */
-
-function startNewTalapatrak() {
-
-    currentTalapatrakRecord =
-        null;
-
-    currentTalapatrakDocumentId =
-        null;
-
-
-    const editorVillageName =
-      document.getElementById(
-          "talapatrakEditorVillageName"
-      );
-  
-      if (editorVillageName) {
-      
-          editorVillageName.textContent =
-              "New Talapatrak";
-      
-      }
-  
-    openTalapatrakEditor();
-
-    const mojeInput =
-        document.getElementById(
-            "talapatrakMoje"
-        );
-
-    if (mojeInput) {
-
-        mojeInput.value =
-            "";
-
-    }
-
-    const talukaInput =
-        document.getElementById(
-            "talapatrakTaluka"
-        );
-
-    if (talukaInput) {
-
-        talukaInput.value =
-            "";
-
-    }
-
-    const jilloInput =
-        document.getElementById(
-            "talapatrakJillo"
-        );
-
-    if (jilloInput) {
-
-        jilloInput.value =
-            "";
-
-    }
-
-    updateTalapatrakYearDisplay();
-
-    clearTalapatrakRows();
-
-    addInitialTalapatrakRow();
-
-}
-
-
-/* ============================================================
-        UPDATE YEAR DISPLAY
-============================================================ */
-
-function updateTalapatrakYearDisplay(
-    year = getCurrentTalapatrakYear()
-) {
-
-    const yearElements =
-        document.querySelectorAll(
-            "#talapatrakYear, #talapatrakEditorYear"
-        );
-
-    yearElements.forEach(function(element) {
-
-        element.textContent =
-            year;
-
-    });
-
-}
-
-
-/* ============================================================
-        ADD NEW TALAPATRAK BUTTONS
-============================================================ */
-
-if (addTalapatrakButton) {
-
-    addTalapatrakButton.addEventListener(
-
-        "click",
-
-        function() {
-
-            startNewTalapatrak();
-
-        }
-
-    );
-
-}
-
-
-if (emptyAddTalapatrakButton) {
-
-    emptyAddTalapatrakButton.addEventListener(
-
-        "click",
-
-        function() {
-
-            startNewTalapatrak();
-
-        }
-
-    );
-
-}
-
-
-/* ============================================================
-        OPEN TALAPATRAK MANAGEMENT
-============================================================ */
-
-async function openTalapatrakManagement() {
-
-    hideAllTalapatrakViews();
-
-    if (talapatrakViewElement) {
-
-        talapatrakViewElement.style.display =
-            "block";
-
-    }
-
-    document.body.classList.remove(
-        "talapatrakFullscreen"
-    );
-
-    clearNavigationActiveState();
-
-    if (talapatrakNavElement) {
-
-        talapatrakNavElement.classList.add(
-            "active"
-        );
-
-    }
-
-    await loadTalapatrakRecords();
-
-}
-
-
-/* ============================================================
-        CLEAR ROWS
-============================================================ */
-
-function clearTalapatrakRows() {
-
-    if (!talapatrakBody) return;
-
-    talapatrakBody.innerHTML =
-        "";
-
-}
-
-
-function formatTalapatrakInputDate(date) {
-
-    if (!date) {
-
-        return "";
-
-    }
-
-
-    const parsedDate =
-        new Date(date);
-
-
-    if (isNaN(parsedDate)) {
-
-        console.warn(
-            "Invalid Talapatrak date:",
-            date
-        );
-
-        return "";
-
-    }
-
-
-    const day =
-        String(
-            parsedDate.getDate()
-        ).padStart(2,"0");
-
-
-    const month =
-        String(
-            parsedDate.getMonth() + 1
-        ).padStart(2,"0");
-
-
-    const year =
-        parsedDate.getFullYear();
-
-
-    return `${day}/${month}/${year}`;
-
-}
-
-function setupIndianDatePicker() {
-
-    flatpickr(
-        ".indianDatePicker",
-        {
-            dateFormat: "d/m/Y",
-            allowInput: true
-        }
-    );
-
-}
-
-
-/* ============================================================
-        CREATE ROW
-============================================================ */
-
-function createTalapatrakRow(
-    rowData = {}
-) {
-
-    if (!talapatrakBody) {
-
-        return null;
-
-    }
-
-    const row =
-        document.createElement(
-            "tr"
-        );
-
-    row.className =
-        "talapatrakRow";
-
-    const rowNumber =
-        talapatrakBody
-            .querySelectorAll(
-                ".talapatrakRow"
-            )
-            .length + 1;
-
-    row.innerHTML = `
-
-        <td>
-            <input
-                type="number"
-                class="columnA"
-                value="${rowData.A || rowNumber}"
-                readonly>
-        </td>
-
-        <td>
-            <input
-                type="text"
-                class="columnB"
-                value="${escapeTalapatrakHTML(rowData.B || "")}">
-        </td>
-
-        <td>
-            <input
-                type="number"
-                class="columnC"
-                value="${rowData.C || ""}">
-        </td>
-
-        <td>
-            <input
-                type="number"
-                class="columnD"
-                value="${rowData.D || ""}">
-        </td>
-
-        <td>
-            <input
-                type="number"
-                class="columnE"
-                value="${rowData.E || ""}">
-        </td>
-
-        <td>
-            <input
-                type="number"
-                class="columnF"
-                value="${rowData.F || ""}">
-        </td>
-
-        <td>
-            <input
-                type="number"
-                class="columnG"
-                value="${rowData.G || ""}">
-        </td>
-
-        <td>
-            <input
-                type="number"
-                class="columnH"
-                value="${rowData.H || ""}"
-                readonly>
-        </td>
-
-        <td>
-            <input
-                type="number"
-                class="columnI"
-                value="${rowData.I || ""}"
-                readonly>
-        </td>
-
-        <td>
-            <input
-                type="number"
-                class="columnJ"
-                value="${rowData.J || ""}"
-                readonly>
-        </td>
-
-        <td>
-            <input
-                type="number"
-                class="columnK"
-                value="${rowData.K || ""}">
-        </td>
-
-        <td>
-            <input
-                type="number"
-                class="columnL"
-                value="${rowData.L || ""}">
-        </td>
-
-        <td>
-            <input
-                type="text"
-                class="columnM indianDatePicker"
-                placeholder="DD/MM/YYYY"
-                value="${formatTalapatrakInputDate(rowData.M)}">
-        </td>
-
-        <td>
-            <input
-                type="number"
-                class="columnN"
-                value="${rowData.N || ""}">
-        </td>
-
-        <td>
-            <input
-                type="number"
-                class="columnO"
-                value="${rowData.O || ""}"
-                readonly>
-        </td>
-
-        <td>
-            <input
-                type="number"
-                class="columnP"
-                value="${rowData.P || ""}"
-                readonly>
-        </td>
-
-        <td>
-            <input
-                type="number"
-                class="columnQ"
-                value="${rowData.Q || ""}"
-                readonly>
-        </td>
-
-        <td>
-            <input
-                type="number"
-                class="columnR"
-                value="${rowData.R || ""}"
-                readonly>
-        </td>
-
-        <td>
-            <input
-                type="number"
-                class="columnS"
-                value="${rowData.S || ""}">
-        </td>
-
-        <td>
-            <input
-                type="number"
-                class="columnT"
-                value="${rowData.T || ""}"
-                readonly>
-        </td>
-
-        <td>
-            <input
-                type="number"
-                class="columnU"
-                value="${rowData.U || ""}"
-                readonly>
-        </td>
-
-        <td class="talapatrakDeleteCell">
-
-            <button
-                type="button"
-                class="deleteTalapatrakRowButton"
-                onclick="deleteTalapatrakRow(this)">
-
-                <i class="fa-solid fa-trash"></i>
-
-            </button>
-
-        </td>
-
-    `;
-
-    talapatrakBody.appendChild(
-        row
-    );
-
-    setupIndianDatePicker();
-  
-    return row;
-
-}
-
-
-/* ============================================================
-        INITIAL ROW
-============================================================ */
-
-function addInitialTalapatrakRow() {
-
-    createTalapatrakRow();
-
-}
-
-
-/* ============================================================
-        ADD ROW
-============================================================ */
-
-if (addTalapatrakRowButton) {
-
-    addTalapatrakRowButton.addEventListener(
-
-        "click",
-
-        function() {
-
-            addTalapatrakRow();
-
-        }
-
-    );
-
-}
-
-
-function addTalapatrakRow() {
-
-    if (!talapatrakBody) {
-
-        return null;
-
-    }
-
-    const newRow =
-        createTalapatrakRow();
-
-    renumberTalapatrakRows();
-
-    calculateAllTalapatrakRows();
-
-    formatTalapatrakNumberInputs();
-
-    setupTalapatrakExcelNavigation();
-
-    const firstInput =
-        newRow.querySelector(
-            "input:not([readonly])"
-        );
-
-    if (firstInput) {
-
-        firstInput.focus();
-
-    }
-
-    return newRow;
-
-}
-
-
-/* ============================================================
-        DELETE ROW
-============================================================ */
-
-function deleteTalapatrakRow(button) {
-
-    if (!talapatrakBody) return;
-
-    const rows =
-        talapatrakBody.querySelectorAll(
-            ".talapatrakRow"
-        );
-
-    if (rows.length <= 1) {
-
-        alert(
-            "At least one row is required."
-        );
-
-        return;
-
-    }
-
-    const row =
-        button.closest(
-            ".talapatrakRow"
-        );
-
-    if (row) {
-
-        row.remove();
-
-    }
-
-    renumberTalapatrakRows();
-
-    calculateAllTalapatrakRows();
-
-}
-
-
-/* ============================================================
-        RENUMBER ROWS
-============================================================ */
-
-function renumberTalapatrakRows() {
-
-    if (!talapatrakBody) return;
-
-    talapatrakBody
-        .querySelectorAll(
-            ".talapatrakRow"
-        )
-        .forEach(function(row, index) {
-
-            const input =
-                row.querySelector(
-                    ".columnA"
-                );
-
-            if (input) {
-
-                input.value =
-                    index + 1;
-
-            }
-
-        });
-
-}
-
-
-/* ============================================================
-        CALCULATE ROW
-============================================================ */
-
-function calculateTalapatrakRow(input) {
-
-    const row =
-        input.closest(
-            ".talapatrakRow"
-        );
-
-    if (!row) return;
-
-    function getValue(column) {
-
-        return Number(
-            row.querySelector(
-                "." + column
-            )?.value
-        ) || 0;
-
-    }
-
-    function setValue(
-        column,
-        value
-    ) {
-
-        const element =
-            row.querySelector(
-                "." + column
-            );
-
-        if (element) {
-
-            element.value =
-                Number(
-                    value
-                ).toFixed(2);
-
-        }
-
-    }
-
-    const C =
-        getValue(
-            "columnC"
-        );
-
-    const D =
-        getValue(
-            "columnD"
-        );
-
-    const E =
-        getValue(
-            "columnE"
-        );
-
-    const F =
-            (D + E) * 3;
-        
-        setValue(
-            "columnF",
-            F
-        );
-
-    const G =
-        getValue(
-            "columnG"
-        );
-
-    const H =
-        C + D + E + F + G;
-
-    setValue(
-        "columnH",
-        H
-    );
-
-    const I =
-        D;
-
-    setValue(
-        "columnI",
-        I
-    );
-
-    const J =
-        H - I;
-
-    setValue(
-        "columnJ",
-        J
-    );
-
-    const K =
-        getValue(
-            "columnK"
-        );
-
-    const N =
-        getValue(
-            "columnN"
-        );
-
-    const O =
-        K + N;
-
-    setValue(
-        "columnO",
-        O
-    );
-
-    const T =
-        H - I - O;
-
-    setValue(
-        "columnT",
-        T
-    );
-
-    const U =
-        T < O
-            ? T
-            : O;
-
-    setValue(
-        "columnU",
-        U
-    );
-
-    const R =
-        -U;
-
-    setValue(
-        "columnR",
-        R
-    );
-
-    const P =
-        O - R;
-
-    setValue(
-        "columnP",
-        P
-    );
-
-    const Q =
-        T > O
-            ? T
-            : O;
-
-    setValue(
-        "columnQ",
-        Q
-    );
-
-}
-
-
-/* ============================================================
-        CALCULATE ALL ROWS
-============================================================ */
-
-function calculateAllTalapatrakRows() {
-
-    if (!talapatrakBody) return;
-
-    talapatrakBody
-        .querySelectorAll(
-            ".talapatrakRow"
-        )
-        .forEach(function(row) {
-
-            const input =
-                row.querySelector(
-                    ".columnC"
-                );
-
-            if (input) {
-
-                calculateTalapatrakRow(
-                    input
-                );
-
-            }
-
-        });
-
-}
-
-
-/* ============================================================
-        NUMBER FORMAT + LIVE CALCULATION
-============================================================ */
-
-function formatTalapatrakNumberInputs() {
-
-    if (!talapatrakBody) return;
-
-    talapatrakBody
-        .querySelectorAll(
-            "input[type='number']"
-        )
-        .forEach(function(input) {
-
-            if (
-                !input.dataset
-                    .decimalFormatterAttached
-            ) {
-
-                input.dataset
-                    .decimalFormatterAttached =
-                    "true";
-
-                input.addEventListener(
-                      "blur",
-                      function() {
-                  
-                          if (
-                              this.value !== ""
-                          ) {
-                  
-                              // પાવતી નંબર (L) should be normal number
-                              if (
-                                  this.classList.contains(
-                                      "columnL"
-                                  )
-                              ) {
-                  
-                                  this.value =
-                                      Number(
-                                          this.value
-                                      ).toString();
-                  
-                              }
-                  
-                              else {
-                  
-                                  this.value =
-                                      Number(
-                                          this.value
-                                      ).toFixed(2);
-                  
-                              }
-                  
-                          }
-                  
-                      }
-                  );
-
-            }
-
-            if (
-                !input.dataset
-                    .calculationAttached
-            ) {
-
-                input.dataset
-                    .calculationAttached =
-                    "true";
-
-                input.addEventListener(
-
-                    "input",
-
-                    function() {
-
-                        calculateTalapatrakRow(
-                            this
-                        );
-
-                    }
-
-                );
-
-            }
-
-        });
-
-}
-
-
-/* ============================================================
-        EXCEL STYLE ENTER NAVIGATION
-============================================================ */
-
-function setupTalapatrakExcelNavigation() {
-
-    if (!talapatrakBody) return;
-
-    talapatrakBody
-        .querySelectorAll(
-            "input:not([readonly])"
-        )
-        .forEach(function(input) {
-
-            if (
-                input.dataset
-                    .enterNavigationAttached
-            ) {
-
-                return;
-
-            }
-
-            input.dataset
-                .enterNavigationAttached =
-                "true";
-
-            input.addEventListener(
-
-                "keydown",
-
-                function(event) {
-
-                    if (
-                        event.key !==
-                        "Enter"
-                    ) {
-
-                        return;
-
-                    }
-
-                    event.preventDefault();
-
-                    const row =
-                        this.closest(
-                            ".talapatrakRow"
-                        );
-
-                    const editableInputs =
-                        Array.from(
-                            row.querySelectorAll(
-                                "input:not([readonly])"
-                            )
-                        );
-
-                    const currentIndex =
-                        editableInputs.indexOf(
-                            this
-                        );
-
-                    const nextInput =
-                        editableInputs[
-                            currentIndex + 1
-                        ];
-
-                    if (nextInput) {
-
-                        nextInput.focus();
-
-                        nextInput.select();
-
-                        return;
-
-                    }
-
-                    const newRow =
-                        addTalapatrakRow();
-
-                    if (newRow) {
-
-                        const firstInput =
-                            newRow.querySelector(
-                                "input:not([readonly])"
-                            );
-
-                        if (firstInput) {
-
-                            firstInput.focus();
-
-                        }
-
-                    }
-
-                }
-
-            );
-
-        });
-
-}
-
-
-/* ============================================================
-        COLLECT ROW DATA
-============================================================ */
-
-function collectTalapatrakRows() {
-
-    const rows =
-        [];
-
-    if (!talapatrakBody) {
-
-        return rows;
-
-    }
-
-    talapatrakBody
-        .querySelectorAll(
-            ".talapatrakRow"
-        )
-        .forEach(function(row) {
-
-            const rowData = {
-
-                A: row.querySelector(".columnA")?.value || "",
-
-                B: row.querySelector(".columnB")?.value || "",
-
-                C: row.querySelector(".columnC")?.value || "",
-
-                D: row.querySelector(".columnD")?.value || "",
-
-                E: row.querySelector(".columnE")?.value || "",
-
-                F: row.querySelector(".columnF")?.value || "",
-
-                G: row.querySelector(".columnG")?.value || "",
-
-                H: row.querySelector(".columnH")?.value || "",
-
-                I: row.querySelector(".columnI")?.value || "",
-
-                J: row.querySelector(".columnJ")?.value || "",
-
-                K: row.querySelector(".columnK")?.value || "",
-
-                L: row.querySelector(".columnL")?.value || "",
-
-                M: row.querySelector(".columnM")?.value || "",
-
-                N: row.querySelector(".columnN")?.value || "",
-
-                O: row.querySelector(".columnO")?.value || "",
-
-                P: row.querySelector(".columnP")?.value || "",
-
-                Q: row.querySelector(".columnQ")?.value || "",
-
-                R: row.querySelector(".columnR")?.value || "",
-
-                S: row.querySelector(".columnS")?.value || "",
-
-                T: row.querySelector(".columnT")?.value || "",
-
-                U: row.querySelector(".columnU")?.value || ""
-
-            };
-
-            rows.push(
-                rowData
-            );
-
-        });
-
-    return rows;
-
-}
-
-
-/* ============================================================
-        SAVE TALAPATRAK
-============================================================ */
-
-async function saveTalapatrak(
-    showSuccessMessage = true
-) {
-
-    try {
-
-        if (!auth.currentUser) {
-
-            alert(
-                "Please login before saving the Talapatrak."
-            );
-
-            return false;
-
-        }
-
-
-        const mojeInput =
-            document.getElementById(
-                "talapatrakMoje"
-            );
-
-
-        const talukaInput =
-            document.getElementById(
-                "talapatrakTaluka"
-            );
-
-
-        const jilloInput =
-            document.getElementById(
-                "talapatrakJillo"
-            );
-
-
-        const moje =
-            mojeInput
-                ? mojeInput.value.trim()
-                : "";
-
-
-        const taluka =
-            talukaInput
-                ? talukaInput.value.trim()
-                : "";
-
-
-        const jillo =
-            jilloInput
-                ? jilloInput.value.trim()
-                : "";
-
-
-        if (!moje) {
-
-            alert(
-                "Please enter મોજે before saving."
-            );
-
-            if (mojeInput) {
-
-                mojeInput.focus();
-
-            }
-
-            return false;
-
-        }
-
-
-        const currentYear =
-            getCurrentTalapatrakYear();
-
-
-        updateTalapatrakYearDisplay(
-            currentYear
-        );
-
-
-        const rows =
-            collectTalapatrakRows();
-
-
-        if (!rows.length) {
-
-            alert(
-                "At least one row is required."
-            );
-
-            return false;
-
-        }
-
-
-        /*
-        ========================================================
-            DOCUMENT ID
-        ========================================================
-        */
-
-        const documentId =
-            getTalapatrakDocumentId(
-                moje,
-                currentYear
-            );
-
-
-        console.log(
-            "Saving Talapatrak with document ID:",
-            documentId
-        );
-
-
-        const documentReference =
-            db
-                .collection(
-                    "talapatraks"
-                )
-                .doc(
-                    documentId
-                );
-
-
-        const talapatrakData = {
-
-            type:
-                "talapatrak",
-
-            moje:
-                moje,
-
-            taluka:
-                taluka,
-
-            jillo:
-                jillo,
-
-            year:
-                currentYear,
-
-            rows:
-                rows,
-
-            rowCount:
-                rows.length,
-
-            userId:
-                auth.currentUser.uid,
-
-            userEmail:
-                auth.currentUser.email,
-
-            updatedAt:
-                firebase.firestore.FieldValue
-                    .serverTimestamp()
-
-        };
-
-
-        /*
-        ========================================================
-            MERGE SAVE
-            This updates the document without accidentally
-            deleting other fields.
-        ========================================================
-        */
-
-        await documentReference.set(
-
-            talapatrakData,
-
-            {
-                merge:
-                    true
-            }
-
-        );
-
-
-      await loadTalapatrakCount();
-      
-        // ========================================================
-          // ADD TALAPATRAK ACTIVITY
-          // ========================================================
-          
-          await addTalapatrakActivity(
-              currentTalapatrakRecord
-                  ? "talapatrak_updated"
-                  : "talapatrak_added",
-          
-              currentTalapatrakRecord
-                  ? "Talapatrak updated"
-                  : "New Talapatrak added",
-          
-              currentTalapatrakRecord
-                  ? `${moje} Talapatrak details updated`
-                  : `${moje} Talapatrak created successfully`,
-          
-              moje
-          );
-
-
-        /*
-        ========================================================
-            UPDATE CURRENT STATE
-        ========================================================
-        */
-
-        currentTalapatrakDocumentId =
-            documentId;
-
-
-        currentTalapatrakRecord = {
-
-            id:
-                documentId,
-
-            ...talapatrakData
-
-        };
-
-
-        console.log(
-            "Talapatrak saved successfully:",
-            documentId
-        );
-
-
-        if (
-            showSuccessMessage
-        ) {
-
-            alert(
-                `Talapatrak for "${moje}" (${currentYear}) saved successfully.`
-            );
-
-        }
-
-
-        return true;
-
-    }
-
-    catch(error) {
-
-        console.error(
-            "Error saving Talapatrak:",
-            error
-        );
-
-
-        if (
-            showSuccessMessage
-        ) {
-
-            alert(
-                "Talapatrak could not be saved: " +
-                error.message
-            );
-
-        }
-
-
-        return false;
-
-    }
-
-}
-
-/* ============================================================
-        SAVE BUTTON
-============================================================ */
-
-if (saveTalapatrakButton) {
-
-    saveTalapatrakButton.onclick =
-        async function() {
-
-            if (
-                saveTalapatrakButton.disabled
-            ) {
-
-                return;
-
-            }
-
-
-            saveTalapatrakButton.disabled =
-                true;
-
-
-            saveTalapatrakButton.innerHTML = `
-
-                <i class="fa-solid fa-spinner fa-spin"></i>
-
-                Saving...
-
-            `;
-
-
-            try {
-
-                await saveTalapatrak(
-                    true
-                );
-
-            }
-
-            finally {
-
-                saveTalapatrakButton.disabled =
-                    false;
-
-
-                saveTalapatrakButton.innerHTML = `
-
-                    <i class="fa-solid fa-floppy-disk"></i>
-
-                    Save
-
-                `;
-
-            }
-
-        };
-
-}
-
-/* ============================================================
-        OPEN TALAPATRAK EDITOR VIEW
-============================================================ */
-
-function openTalapatrakEditor() {
-
-    hideAllTalapatrakViews();
-
-    if (talapatrakEditorViewElement) {
-
-        talapatrakEditorViewElement.style.display =
-            "block";
-
-    }
-
-    document.body.classList.add(
-        "talapatrakFullscreen"
-    );
-
-    window.scrollTo(
-        0,
-        0
-    );
-
-    console.log(
-        "Talapatrak editor opened"
-    );
-
-}
-/* ============================================================
-        OPEN EXISTING RECORD
-============================================================ */
-
-async function openTalapatrakRecord(documentId) {
-
-    try {
-
-        const snapshot =
-            await db
-                .collection("talapatraks")
-                .doc(documentId)
-                .get();
-
-        if (!snapshot.exists) {
-
-            alert("Talapatrak record not found.");
-
-            return;
-
-        }
-
-        const data =
-            snapshot.data();
-
-        const editorVillageName =
-                document.getElementById(
-                    "talapatrakEditorVillageName"
-                );
-            
-            if (editorVillageName) {
-            
-                editorVillageName.textContent =
-                    data.moje || "Talapatrak";
-            
-            }
-
-        currentTalapatrakRecord = {
-
-            id: documentId,
-
-            ...data
-
-        };
-
-        currentTalapatrakDocumentId =
-            documentId;
-
-        openTalapatrakEditor();
-
-        document.getElementById(
-            "talapatrakMoje"
-        ).value =
-            data.moje || "";
-
-        document.getElementById(
-            "talapatrakTaluka"
-        ).value =
-            data.taluka || "";
-
-        document.getElementById(
-            "talapatrakJillo"
-        ).value =
-            data.jillo || "";
-
-        updateTalapatrakYearDisplay(
-            data.year ||
-            getCurrentTalapatrakYear()
-        );
-
-        clearTalapatrakRows();
-
-        const rows =
-            data.rows || [];
-
-        if (rows.length) {
-
-            rows.forEach(function(rowData) {
-
-                createTalapatrakRow(
-                    rowData
-                );
-
-            });
-
-        }
-
-        else {
-
-            addInitialTalapatrakRow();
-
-        }
-
-        formatTalapatrakNumberInputs();
-
-        setupTalapatrakExcelNavigation();
-
-        calculateAllTalapatrakRows();
-
-    }
-
-    catch(error) {
-
-        console.error(
-            "Error opening Talapatrak:",
-            error
-        );
-
-        alert(
-            "Could not open Talapatrak."
-        );
-
-    }
-
-}
-
-
-/* ============================================================
-        PRINT TALAPATRAK
-============================================================ */
-if (printTalapatrakButton) {
-
-    printTalapatrakButton.onclick =
-    async function() {
-
-
-        await addTalapatrakActivity(
-            "talapatrak_printed",
-            "Talapatrak printed",
-            `${currentTalapatrakRecord?.moje || "Talapatrak"} printed`,
-            currentTalapatrakRecord?.moje || ""
-        );
-
-
-        document.body.classList.add(
-            "printingTalapatrak"
-        );
-
-
-        setTimeout(function(){
-
-            window.print();
-
-        },100);
-
-};
-
-}
-
-/* ============================================================
-        PRINT CLEANUP
-============================================================ */
-
-window.addEventListener(
-    "afterprint",
-    function() {
-
-        document.body.classList.remove(
-            "printingTalapatrak"
-        );
-
-        console.log(
-            "Talapatrak print completed."
-        );
-
-    }
-);
-
-/* ============================================================
-        SEARCH
-============================================================ */
-
-if (
-    talapatrakSearchInputElement
-) {
-
-    talapatrakSearchInputElement.addEventListener(
-
-        "input",
-
-        function() {
-
-            talapatrakSearchTerm =
-                this.value
-                    .trim()
-                    .toLowerCase();
-
-
-            renderTalapatrakManagement();
-
-        }
-
-    );
-
-}
-
-
-/* ============================================================
-        FILTER
-============================================================ */
-
-function getFilteredTalapatrakRecords() {
-
-    if (!talapatrakSearchTerm) {
-
-        return [
-            ...talapatrakRecords
-        ];
-
-    }
-
-    return talapatrakRecords.filter(
-
-        function(record) {
-
-            const searchableText = `
-
-                ${record.moje || ""}
-
-                ${record.year || ""}
-
-                ${record.taluka || ""}
-
-                ${record.jillo || ""}
-
-            `
-            .toLowerCase();
-
-            return searchableText.includes(
-                talapatrakSearchTerm
-            );
-
-        }
-
-    );
-
-}
-
-
-/* ============================================================
-        TIMESTAMP
-============================================================ */
-
-function getTimestamp(timestamp) {
-
-    if (!timestamp) {
-
-        return 0;
-
-    }
-
-    if (timestamp.toDate) {
-
-        return timestamp
-            .toDate()
-            .getTime();
-
-    }
-
-    if (timestamp instanceof Date) {
-
-        return timestamp.getTime();
-
-    }
-
-    return new Date(
-        timestamp
-    ).getTime() || 0;
-
-}
-
-
-/* ============================================================
-        FORMAT DATE
-============================================================ */
-
-function formatTalapatrakDate(timestamp) {
-
-    if (!timestamp) {
-
-        return "—";
-
-    }
-
-    const date =
-        timestamp.toDate
-            ? timestamp.toDate()
-            : new Date(
-                timestamp
-            );
-
-    return date.toLocaleDateString(
-
-        "en-IN",
-
-        {
-
-            day:
-                "2-digit",
-
-            month:
-                "short",
-
-            year:
-                "numeric"
-
-        }
-
-    );
-
-}
-
-
-/* ============================================================
-        INITIALIZATION
-============================================================ */
-
-updateTalapatrakYearDisplay();
-
-formatTalapatrakNumberInputs();
-
-setupTalapatrakExcelNavigation();
-
-
-
-console.log(
-    "Dynamic Talapatrak system initialized."
-);
-
 function hideAllMainViews() {
 
     const views = [
@@ -8050,34 +3787,3 @@ function showMainView(viewId) {
     }
 
 }
-
-
-const talapatrakSystemCard =
-    document.getElementById(
-        "talapatrakSystemCard"
-    );
-
-
-if (talapatrakSystemCard) {
-
-    talapatrakSystemCard.addEventListener(
-
-        "click",
-
-        async function() {
-
-            await openTalapatrakManagement();
-
-        }
-
-    );
-
-}
-
-document
-    .getElementById("mainBillSystemCard")
-    .addEventListener("click", function () {
-
-        showMainView("mainBillsView");
-
-    });
