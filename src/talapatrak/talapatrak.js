@@ -2273,9 +2273,14 @@ function createTalapatrakRow(
 
     if (!talapatrakBody) {
 
+        console.error(
+            "Talapatrak body not found."
+        );
+
         return null;
 
     }
+
 
     const row =
         document.createElement(
@@ -2285,6 +2290,16 @@ function createTalapatrakRow(
     row.className =
         "talapatrakRow";
 
+
+    /* --------------------------------------------------------
+       ROW NUMBER
+
+       Used only when the row is created manually.
+
+       Imported Khata data can provide its own
+       Khata number through rowData.A.
+    -------------------------------------------------------- */
+
     const rowNumber =
         talapatrakBody
             .querySelectorAll(
@@ -2292,13 +2307,48 @@ function createTalapatrakRow(
             )
             .length + 1;
 
+
+    /* --------------------------------------------------------
+       KHATA NUMBER
+
+       IMPORTED:
+           rowData.A → use imported Khata number
+
+       MANUAL:
+           no rowData.A → use sequential row number
+    -------------------------------------------------------- */
+
+    const khataNumber =
+        rowData.A !== undefined &&
+        rowData.A !== null &&
+        String(rowData.A).trim() !== ""
+            ? String(rowData.A).trim()
+            : String(rowNumber);
+
+
+    /* --------------------------------------------------------
+       HOLDER NAME
+
+       IMPORTED:
+           rowData.B → use imported name
+
+       MANUAL:
+           no rowData.B → blank
+    -------------------------------------------------------- */
+
+    const holderName =
+        rowData.B !== undefined &&
+        rowData.B !== null
+            ? String(rowData.B).trim()
+            : "";
+
     row.innerHTML = `
 
         <td>
             <input
                 type="number"
                 class="columnA"
-                value="${rowData.A || rowNumber}"
+                value="${escapeTalapatrakHTML(khataNumber)}"
                 readonly>
         </td>
 
@@ -2306,7 +2356,7 @@ function createTalapatrakRow(
             <input
                 type="text"
                 class="columnB"
-                value="${escapeTalapatrakHTML(rowData.B || "")}">
+                value="${escapeTalapatrakHTML(holderName)}">
         </td>
 
         <td>
@@ -5739,174 +5789,3 @@ if (
 
 
 
-/* ============================================================
-   TALAPATRAK KHATA UPLOAD
-============================================================ */
-
-const talapatrakKhataUploadButton =
-    document.getElementById(
-        "talapatrakKhataUploadButton"
-    );
-
-
-if (talapatrakKhataUploadButton) {
-
-    talapatrakKhataUploadButton.addEventListener(
-        "click",
-        function () {
-
-            console.log(
-                "Talapatrak Khata Upload button clicked"
-            );
-
-
-             openKhataFilePicker(async function (file) {
-
-                  console.log(
-                      "Talapatrak Khata file received:",
-                      file.name
-                  );
-              
-                  try {
-              
-                      const result =
-                          await scanKhataFile(file);
-              
-
-                        const parsedResult =
-                              parseKhataResult(result);
-                          
-                          console.log(
-                              "========== KHATA PARSER RESULT =========="
-                          );
-                          
-                          console.log(
-                              parsedResult
-                          );
-                          
-                          logKhataSummary(
-                              parsedResult
-                          );
-                          
-                          console.log(
-                              "========== KHATA PARSER RESULT END =========="
-                          );
-                    
-                      console.log(
-                          "TOTAL PAGES:",
-                          result.pageCount
-                      );
-              
-              
-                    /* ----------------------------------------------------
-                       FIND KHATA NUMBERS
-                    ---------------------------------------------------- */
-                    
-                    console.log(
-                        "========== KHATA PAGE SUMMARY =========="
-                    );
-                    
-                    result.pages.forEach(
-                        function(page) {
-                    
-                            if (
-                                !page.text ||
-                                !page.text.includes("ખાતા")
-                            ) {
-                    
-                                return;
-                    
-                            }
-                    
-                    
-                            /* ------------------------------------------------
-                               FIND ALL OCCURRENCES OF:
-                               ખાતા નંબર
-                            ------------------------------------------------ */
-                    
-                            const matches =
-                                page.text.match(
-                                    /ખાતા\s*નંબર\s*[:=]*\s*([૦-૯0-9X]+)/g
-                                );
-                    
-                    
-                            if (
-                                matches &&
-                                matches.length > 0
-                            ) {
-                    
-                                console.log(
-                                    "Page",
-                                    page.pageNumber,
-                                    "→",
-                                    matches.length,
-                                    "Khata numbers"
-                                );
-                    
-                            }
-                    
-                        }
-                    );
-                    
-                    
-                    console.log(
-                        "========== KHATA PAGE SUMMARY END =========="
-                    );
-
-                    const khataRecords =
-                        parseKhataResult(result);
-                    
-                    
-                    console.log(
-                        "========== KHATA RECORDS =========="
-                    );
-                    
-                    
-                    khataRecords.forEach(function(record) {
-                    
-                        console.log(
-                            "Page",
-                            record.pageNumber,
-                            "| Khata:",
-                            record.khataNumber,
-                            "| TEXT:",
-                            record.rawText
-                        );
-                    
-                    });
-                    
-                    
-                    console.log(
-                        "========== KHATA RECORDS END =========="
-                    );
-
-
-                    
-              
-                  }
-                  catch (error) {
-              
-                      console.error(
-                          "KHATA SCAN FAILED:",
-                          error
-                      );
-              
-                      alert(
-                          "Unable to scan the Khata file."
-                      );
-              
-                  }
-              
-              });
-
-        }
-    );
-
-}
-else {
-
-    console.error(
-        "Talapatrak Khata Upload button not found"
-    );
-
-}

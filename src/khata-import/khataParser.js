@@ -674,11 +674,373 @@ async function testGujaratiOCR(canvas) {
    4. Return all names as one string
 ============================================================ */
 
+// function extractKhataName(text, khataNumber) {
+
+//     if (!text || !khataNumber) {
+//         return "";
+//     }
+
+//     /*
+//        --------------------------------------------------------
+//        NORMALIZE TEXT
+//        --------------------------------------------------------
+//     */
+
+//     const normalizedText =
+//         text.replace(/\r\n/g, "\n");
+
+
+//     /*
+//        --------------------------------------------------------
+//        FIND THIS KHATA SECTION
+//        --------------------------------------------------------
+//     */
+
+//     const khataRegex =
+//         new RegExp(
+//             "ખાતા\\s*નંબર\\s*[:：]?\\s*" +
+//             khataNumber
+//         );
+
+
+//     const khataMatch =
+//         normalizedText.match(
+//             khataRegex
+//         );
+
+
+//     if (!khataMatch) {
+
+//         console.warn(
+//             "Khata section not found:",
+//             khataNumber
+//         );
+
+//         return "";
+//     }
+
+
+//     /*
+//        Start immediately after:
+
+//        ખાતા નંબર : ૧૭૯
+//     */
+
+//     const startIndex =
+//         khataMatch.index +
+//         khataMatch[0].length;
+
+
+//     let section =
+//         normalizedText.substring(
+//             startIndex
+//         );
+
+
+//     /*
+//        --------------------------------------------------------
+//        STOP AT NEXT KHATA
+//        --------------------------------------------------------
+//     */
+
+//     const nextKhataMatch =
+//         section.match(
+//             /ખાતા\s*નંબર\s*[:：]?/i
+//         );
+
+
+//     if (nextKhataMatch) {
+
+//         section =
+//             section.substring(
+//                 0,
+//                 nextKhataMatch.index
+//             );
+
+//     }
+
+
+//     /*
+//        --------------------------------------------------------
+//        SPLIT INTO OCR LINES
+//        --------------------------------------------------------
+//     */
+
+//     const lines =
+//         section
+//             .split("\n")
+//             .map(function(line) {
+
+//                 return line.trim();
+
+//             })
+//             .filter(function(line) {
+
+//                 return line.length > 0;
+
+//             });
+
+
+
+
+//     /*
+//        --------------------------------------------------------
+//        FIND HOLDER ROWS
+       
+//        Example:
+
+//        ૩. હજામ મુકેશભાઈ અમથાભાઈ (૬૪૬) ૭૫ ૧-૩૩-૧૯ ૩.૦૦
+
+//        ૪. હજામ શારદાબેન અમથાભાઈ (૬૪૬) કુલ સરવે નંબરો...
+//        --------------------------------------------------------
+//     */
+
+//     const holderLines = [];
+
+
+//     const holderRegex =
+//           /^[^\s.]+\.\s*(.+?\([૦-૯0-9]+\))/;
+
+
+         
+//       lines.forEach(function(line) {
+      
+//           /*
+//              ----------------------------------------------------
+//              FIND HOLDER ROW
+             
+//              Example:
+             
+//              ૩. હજામ મુકેશભાઈ અમથાભાઈ (૬૪૬) ૭૫ ૧-૩૩-૧૯ ૩.૦૦
+             
+//              ૪. હજામ શારદાબેન અમથાભાઈ (૬૪૬) કુલ સરવે નંબરો...
+//              ----------------------------------------------------
+//           */
+      
+//           const match =
+//               line.match(
+//                   holderRegex
+//               );
+      
+      
+//           if (!match) {
+//               return;
+//           }
+      
+      
+//           let holderText =
+//               match[1].trim();
+      
+      
+//           if (!holderText) {
+//               return;
+//           }
+      
+      
+//           /*
+//              ----------------------------------------------------
+//              REMOVE PROPERTY / SURVEY INFORMATION
+             
+//              The reliable boundary is the numeric holder ID
+//              inside parentheses.
+             
+//              Example:
+             
+//              સુથાર ધના હીરા (૩૭૮૨) ૫૫૭/૫૨ પૈકી ૨ ૦-૦૦૨-૦૨ ૦.૦૯
+             
+//              becomes:
+             
+//              સુથાર ધના હીરા (૩૭૮૨)
+             
+//              This is safer than trying to understand every
+//              possible survey-number format.
+//              ----------------------------------------------------
+//           */
+      
+//           const nameMatch =
+//               holderText.match(
+//                   /^(.+?\([૦-૯0-9]+\))/
+//               );
+      
+      
+//           if (nameMatch) {
+      
+//               holderText =
+//                   nameMatch[1].trim();
+      
+//           }
+      
+      
+//           /*
+//              ----------------------------------------------------
+//              FALLBACK:
+             
+//              If OCR did not give us a numeric ID in
+//              parentheses, handle "કુલ સરવે નંબરો".
+//              ----------------------------------------------------
+//           */
+      
+//           if (
+//               holderText.includes(
+//                   "કુલ સરવે નંબરો"
+//               )
+//           ) {
+      
+//               holderText =
+//                   holderText
+//                       .split(
+//                           "કુલ સરવે નંબરો"
+//                       )[0]
+//                       .trim();
+      
+//           }
+      
+      
+//           /*
+//              ----------------------------------------------------
+//              CLEAN WHITESPACE
+//              ----------------------------------------------------
+//           */
+      
+//           holderText =
+//               holderText
+//                   .replace(
+//                       /\s+/g,
+//                       " "
+//                   )
+//                   .trim();
+      
+      
+//           /*
+//              ----------------------------------------------------
+//              REMOVE ACCIDENTAL PUNCTUATION
+//              ----------------------------------------------------
+//           */
+      
+//           holderText =
+//               holderText.replace(
+//                   /^[,;:|]+|[,;:|]+$/g,
+//                   ""
+//               );
+      
+      
+//           if (!holderText) {
+//               return;
+//           }
+      
+      
+//           /*
+//              ----------------------------------------------------
+//              STORE CLEAN HOLDER NAME
+//              ----------------------------------------------------
+//           */
+      
+//           holderLines.push(
+//               holderText
+//           );
+      
+//       });
+
+
+
+//           if (holderLines.length === 0) {
+
+//             console.log(
+//                 "========== KHATA NAME EXTRACTION FAILED =========="
+//             );
+        
+//             console.log(
+//                 "Khata:",
+//                 khataNumber
+//             );
+        
+//             console.log(
+//                 "Raw section:",
+//                 JSON.stringify(section, null, 2)
+//             );
+        
+//             console.log(
+//                 "OCR lines:",
+//                 JSON.stringify(lines, null, 2)
+//             );
+        
+//             console.log(
+//                 "========== KHATA NAME EXTRACTION FAILED END =========="
+//             );
+        
+//         }
+
+//     /*
+//        --------------------------------------------------------
+//        REMOVE DUPLICATES
+//        --------------------------------------------------------
+//     */
+
+//     const uniqueNames = [];
+
+
+//     holderLines.forEach(function(name) {
+
+//         if (
+//             !uniqueNames.includes(name)
+//         ) {
+
+//             uniqueNames.push(name);
+
+//         }
+
+//     });
+
+
+//     /*
+//        --------------------------------------------------------
+//        FINAL NAME
+//        --------------------------------------------------------
+//     */
+
+//     const finalName =
+//         uniqueNames.join(
+//             ", "
+//         );
+
+
+//     console.log(
+//         "Khata name extracted:",
+//         khataNumber,
+//         "→",
+//         finalName
+//     );
+
+
+//     return finalName;
+// }
+
+/* ============================================================
+   EXTRACT FIRST KHATA HOLDER NAME
+
+   RULE:
+
+   If a Khata contains:
+
+       ૧. Name A (123)
+       ૨. Name B (456)
+       ૩. Name C (789)
+
+   return ONLY:
+
+       Name A (123)
+
+   We intentionally ignore all later holder rows.
+
+   This does NOT change Khata-number extraction.
+============================================================ */
+
 function extractKhataName(text, khataNumber) {
 
     if (!text || !khataNumber) {
         return "";
     }
+
 
     /*
        --------------------------------------------------------
@@ -723,7 +1085,7 @@ function extractKhataName(text, khataNumber) {
     /*
        Start immediately after:
 
-       ખાતા નંબર : ૧૭૯
+       ખાતા નંબર : ૧૮૬
     */
 
     const startIndex =
@@ -781,240 +1143,151 @@ function extractKhataName(text, khataNumber) {
             });
 
 
-
-
     /*
        --------------------------------------------------------
-       FIND HOLDER ROWS
+       FIND FIRST HOLDER ROW ONLY
        
-       Example:
+       Examples:
 
-       ૩. હજામ મુકેશભાઈ અમથાભાઈ (૬૪૬) ૭૫ ૧-૩૩-૧૯ ૩.૦૦
+       ૬. સુથાર ધના હીરા (૩૭૮૨) ૫૫૭/૫૨ ...
 
-       ૪. હજામ શારદાબેન અમથાભાઈ (૬૪૬) કુલ સરવે નંબરો...
+       ૧. મોગલ આસબેગ નસરતબેગ (૧૧૮૧) ...
+
+       ૨. મોગલ રહેમબેગ અમીરબેગ (૧૧૮૧) ...
+
+       We deliberately take ONLY the first match.
        --------------------------------------------------------
     */
-
-    const holderLines = [];
-
 
     const holderRegex =
-          /^[^\s.]+\.\s*(.+?\([૦-૯0-9]+\))/;
+        /^[^\s.]+\.\s*(.+?\([૦-૯0-9]+\))/;
 
 
-         
-      lines.forEach(function(line) {
-      
-          /*
-             ----------------------------------------------------
-             FIND HOLDER ROW
-             
-             Example:
-             
-             ૩. હજામ મુકેશભાઈ અમથાભાઈ (૬૪૬) ૭૫ ૧-૩૩-૧૯ ૩.૦૦
-             
-             ૪. હજામ શારદાબેન અમથાભાઈ (૬૪૬) કુલ સરવે નંબરો...
-             ----------------------------------------------------
-          */
-      
-          const match =
-              line.match(
-                  holderRegex
-              );
-      
-      
-          if (!match) {
-              return;
-          }
-      
-      
-          let holderText =
-              match[1].trim();
-      
-      
-          if (!holderText) {
-              return;
-          }
-      
-      
-          /*
-             ----------------------------------------------------
-             REMOVE PROPERTY / SURVEY INFORMATION
-             
-             The reliable boundary is the numeric holder ID
-             inside parentheses.
-             
-             Example:
-             
-             સુથાર ધના હીરા (૩૭૮૨) ૫૫૭/૫૨ પૈકી ૨ ૦-૦૦૨-૦૨ ૦.૦૯
-             
-             becomes:
-             
-             સુથાર ધના હીરા (૩૭૮૨)
-             
-             This is safer than trying to understand every
-             possible survey-number format.
-             ----------------------------------------------------
-          */
-      
-          const nameMatch =
-              holderText.match(
-                  /^(.+?\([૦-૯0-9]+\))/
-              );
-      
-      
-          if (nameMatch) {
-      
-              holderText =
-                  nameMatch[1].trim();
-      
-          }
-      
-      
-          /*
-             ----------------------------------------------------
-             FALLBACK:
-             
-             If OCR did not give us a numeric ID in
-             parentheses, handle "કુલ સરવે નંબરો".
-             ----------------------------------------------------
-          */
-      
-          if (
-              holderText.includes(
-                  "કુલ સરવે નંબરો"
-              )
-          ) {
-      
-              holderText =
-                  holderText
-                      .split(
-                          "કુલ સરવે નંબરો"
-                      )[0]
-                      .trim();
-      
-          }
-      
-      
-          /*
-             ----------------------------------------------------
-             CLEAN WHITESPACE
-             ----------------------------------------------------
-          */
-      
-          holderText =
-              holderText
-                  .replace(
-                      /\s+/g,
-                      " "
-                  )
-                  .trim();
-      
-      
-          /*
-             ----------------------------------------------------
-             REMOVE ACCIDENTAL PUNCTUATION
-             ----------------------------------------------------
-          */
-      
-          holderText =
-              holderText.replace(
-                  /^[,;:|]+|[,;:|]+$/g,
-                  ""
-              );
-      
-      
-          if (!holderText) {
-              return;
-          }
-      
-      
-          /*
-             ----------------------------------------------------
-             STORE CLEAN HOLDER NAME
-             ----------------------------------------------------
-          */
-      
-          holderLines.push(
-              holderText
-          );
-      
-      });
+    for (
+        let i = 0;
+        i < lines.length;
+        i++
+    ) {
+
+        const line =
+            lines[i];
 
 
-
-          if (holderLines.length === 0) {
-
-            console.log(
-                "========== KHATA NAME EXTRACTION FAILED =========="
+        const match =
+            line.match(
+                holderRegex
             );
-        
-            console.log(
-                "Khata:",
-                khataNumber
-            );
-        
-            console.log(
-                "Raw section:",
-                JSON.stringify(section, null, 2)
-            );
-        
-            console.log(
-                "OCR lines:",
-                JSON.stringify(lines, null, 2)
-            );
-        
-            console.log(
-                "========== KHATA NAME EXTRACTION FAILED END =========="
-            );
-        
+
+
+        /*
+           Not a holder row.
+           Continue searching.
+        */
+
+        if (!match) {
+            continue;
         }
 
-    /*
-       --------------------------------------------------------
-       REMOVE DUPLICATES
-       --------------------------------------------------------
-    */
 
-    const uniqueNames = [];
+        let holderName =
+            match[1].trim();
 
 
-    holderLines.forEach(function(name) {
+        /*
+           ----------------------------------------------------
+           CLEAN WHITESPACE
+           ----------------------------------------------------
+        */
 
-        if (
-            !uniqueNames.includes(name)
-        ) {
+        holderName =
+            holderName
+                .replace(
+                    /\s+/g,
+                    " "
+                )
+                .trim();
 
-            uniqueNames.push(name);
+
+        /*
+           ----------------------------------------------------
+           REMOVE ACCIDENTAL PUNCTUATION
+           ----------------------------------------------------
+        */
+
+        holderName =
+            holderName.replace(
+                /^[,;:|]+|[,;:|]+$/g,
+                ""
+            );
+
+
+        /*
+           ----------------------------------------------------
+           FIRST VALID HOLDER FOUND
+           
+           STOP HERE.
+
+           DO NOT collect any more names.
+           ----------------------------------------------------
+        */
+
+        if (holderName) {
+
+            console.log(
+                "Khata FIRST holder extracted:",
+                khataNumber,
+                "→",
+                holderName
+            );
+
+
+            return holderName;
 
         }
 
-    });
+    }
 
 
     /*
        --------------------------------------------------------
-       FINAL NAME
+       NOTHING FOUND
        --------------------------------------------------------
     */
-
-    const finalName =
-        uniqueNames.join(
-            ", "
-        );
-
 
     console.log(
-        "Khata name extracted:",
-        khataNumber,
-        "→",
-        finalName
+        "========== FIRST KHATA NAME EXTRACTION FAILED =========="
+    );
+
+    console.log(
+        "Khata:",
+        khataNumber
+    );
+
+    console.log(
+        "Raw section:",
+        JSON.stringify(
+            section,
+            null,
+            2
+        )
+    );
+
+    console.log(
+        "OCR lines:",
+        JSON.stringify(
+            lines,
+            null,
+            2
+        )
+    );
+
+    console.log(
+        "========== FIRST KHATA NAME EXTRACTION FAILED END =========="
     );
 
 
-    return finalName;
+    return "";
 }
-
 
 
 

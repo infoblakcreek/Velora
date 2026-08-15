@@ -23,6 +23,130 @@ console.log(
 
 
 /* ============================================================
+   KHATA SCAN PROGRESS UI
+============================================================ */
+
+function updateKhataScanProgress(
+    percent,
+    status = "",
+    pageText = ""
+) {
+
+    const overlay =
+        document.getElementById(
+            "khataScanProgressOverlay"
+        );
+
+    const fill =
+        document.getElementById(
+            "khataScanProgressFill"
+        );
+
+    const percentText =
+        document.getElementById(
+            "khataScanProgressPercent"
+        );
+
+    const statusText =
+        document.getElementById(
+            "khataScanProgressStatus"
+        );
+
+    const pageElement =
+        document.getElementById(
+            "khataScanProgressPage"
+        );
+
+
+    if (!overlay) {
+        return;
+    }
+
+
+    overlay.style.display = "flex";
+
+
+    const safePercent =
+        Math.max(
+            0,
+            Math.min(
+                100,
+                Math.round(percent)
+            )
+        );
+
+
+    if (fill) {
+
+        fill.style.width =
+            safePercent + "%";
+
+    }
+
+
+    if (percentText) {
+
+        percentText.textContent =
+            safePercent + "%";
+
+    }
+
+
+    if (statusText) {
+
+        statusText.textContent =
+            status;
+
+    }
+
+
+    if (pageElement) {
+
+        pageElement.textContent =
+            pageText;
+
+    }
+
+}
+
+
+/* ============================================================
+   SHOW SCANNER
+============================================================ */
+
+function showKhataScanProgress() {
+
+    updateKhataScanProgress(
+        0,
+        "Preparing file...",
+        ""
+    );
+
+}
+
+
+/* ============================================================
+   HIDE SCANNER
+============================================================ */
+
+function hideKhataScanProgress() {
+
+    const overlay =
+        document.getElementById(
+            "khataScanProgressOverlay"
+        );
+
+
+    if (overlay) {
+
+        overlay.style.display =
+            "none";
+
+    }
+
+}
+
+/* ============================================================
    PDF.JS WORKER CONFIGURATION
    ============================================================ */
 
@@ -549,7 +673,7 @@ async function scanKhataFile(file) {
 
 async function scanKhataPDF(file) {
 
-  const TEST_ONLY_PAGE = 38;
+ 
   
     if (
         typeof pdfjsLib ===
@@ -593,11 +717,24 @@ async function scanKhataPDF(file) {
        READ EVERY PAGE
     -------------------------------------------------------- */
 
-    for (
-        let pageNumber = TEST_ONLY_PAGE;
-        pageNumber <= TEST_ONLY_PAGE;
-        pageNumber++
-    ) {
+      showKhataScanProgress();
+
+
+      for (
+          let pageNumber = 1;
+          pageNumber <= pdf.numPages;
+          pageNumber++
+      ) {
+      
+          const progress =
+              ((pageNumber - 1) / pdf.numPages) * 100;
+      
+      
+          updateKhataScanProgress(
+              progress,
+              "Scanning Khata pages...",
+              `Page ${pageNumber} of ${pdf.numPages}`
+          );
 
         console.log(
             "Extracting Khata page:",
@@ -676,6 +813,12 @@ async function scanKhataPDF(file) {
                     pageNumber
                 );
 
+              updateKhataScanProgress(
+                    ((pageNumber - 1) / pdf.numPages) * 100,
+                    "Gujarati OCR is reading this page...",
+                    `Page ${pageNumber} of ${pdf.numPages}`
+                );
+                
 
                 const ocrText =
                     await ocrKhataPDFPage(
@@ -684,33 +827,7 @@ async function scanKhataPDF(file) {
                     );
 
 
-              if (
-                  pageNumber === TEST_ONLY_PAGE &&
-                  ocrText
-              ) {
               
-                  console.log(
-                      "========== RAW OCR TEXT PAGE",
-                      pageNumber,
-                      "=========="
-                  );
-              
-                  console.log(
-                      "RAW OCR PAGE 37 LENGTH:",
-                      ocrText.length
-                  );
-                  
-                  console.log(
-                      JSON.stringify(
-                          ocrText
-                      )
-                  );
-              
-                  console.log(
-                      "========== END RAW OCR TEXT =========="
-                  );
-              
-              }
 
                   if (
                         ocrText &&
@@ -801,6 +918,14 @@ async function scanKhataPDF(file) {
       
       }
 
+        updateKhataScanProgress(
+              (pageNumber / pdf.numPages) * 100,
+              needsOCR
+                  ? "Reading page with Gujarati OCR..."
+                  : "Reading Khata pages...",
+              `Page ${pageNumber} of ${pdf.numPages}`
+          );
+
     }
 
 
@@ -825,7 +950,26 @@ async function scanKhataPDF(file) {
 
     };
 
+      updateKhataScanProgress(
+          100,
+          "Khata scanning completed!",
+          `${pdf.numPages} pages processed`
+      );
 
+        await new Promise(
+          function(resolve) {
+      
+              setTimeout(
+                  resolve,
+                  500
+              );
+      
+          }
+      );
+      
+      hideKhataScanProgress();
+
+  
     return result;
 }
 
@@ -936,3 +1080,20 @@ async function scanKhataImage(file) {
     }
 
 }
+
+
+/* ============================================================
+   EXPORT SCANNER
+============================================================ */
+
+window.scanKhataFile =
+    scanKhataFile;
+
+
+/* ============================================================
+   SCANNER READY
+============================================================ */
+
+console.log(
+    "Khata Scanner ready."
+);

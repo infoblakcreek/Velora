@@ -22,7 +22,20 @@ fetch("talapatrak/talapatrak.html")
             html
         );
 
-    console.log("Talapatrak HTML loaded");
+    console.log(
+          "Talapatrak HTML loaded"
+      );
+
+      if (
+        typeof window.safelyInitializeKhataUploadButtons ===
+        "function"
+    ) {
+    
+        window.safelyInitializeKhataUploadButtons();
+    
+    }
+      
+     
 
     const script =
         document.createElement("script");

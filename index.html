@@ -1042,7 +1042,72 @@
 
     </div>
 
+      <!-- ============================================================
+           KHATA SCAN PROGRESS OVERLAY
+      ============================================================ -->
+      
+      <div
+          id="khataScanProgressOverlay"
+          class="khataScanProgressOverlay"
+          style="display:none;">
+      
+          <div class="khataScanProgressCard">
+      
+              <!-- ICON -->
+      
+              <div class="khataScanProgressIcon">
+      
+                  <i class="fa-solid fa-file-circle-check"></i>
+      
+              </div>
+      
+      
+              <!-- TITLE -->
+      
+              <h3 id="khataScanProgressTitle">
+                  Scanning Khata File
+              </h3>
+      
+      
+              <!-- STATUS -->
+      
+              <p id="khataScanProgressStatus">
+                  Preparing file...
+              </p>
+      
+      
+              <!-- PROGRESS -->
+      
+              <div class="khataProgressBar">
+      
+                  <div
+                      id="khataScanProgressFill"
+                      class="khataProgressFill"
+                      style="width:0%;">
+                  </div>
+      
+              </div>
+      
+      
+              <!-- PERCENTAGE -->
+      
+              <strong
+                  id="khataScanProgressPercent">
+                  0%
+              </strong>
+      
+      
+              <!-- PAGE -->
+      
+              <span
+                  id="khataScanProgressPage">
+              </span>
+      
+          </div>
+      
+      </div>
 
+  
 </body>
 
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
