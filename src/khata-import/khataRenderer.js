@@ -102,15 +102,10 @@ function getKhataEditorBody(
    SAVE PRE-IMPORT EDITOR STATE
 ============================================================ */
 
-function saveKhataEditorSnapshot(
-    editorType
-) {
+function saveKhataEditorSnapshot(editorType) {
 
     const body =
-        getKhataEditorBody(
-            editorType
-        );
-
+        getKhataEditorBody(editorType);
 
     if (!body) {
 
@@ -129,7 +124,26 @@ function saveKhataEditorSnapshot(
             editorType,
 
         html:
-            body.innerHTML
+            body.innerHTML,
+
+        shikshanupakaranRows:
+            editorType === "shikshanupakaran"
+                ? (
+                    Array.isArray(
+                        window.shikshanupakaranAllRows
+                    )
+                        ? window.shikshanupakaranAllRows.map(
+                            function(rowData) {
+
+                                return {
+                                    ...rowData
+                                };
+
+                            }
+                        )
+                        : []
+                )
+                : null
 
     };
 
@@ -137,6 +151,21 @@ function saveKhataEditorSnapshot(
     console.log(
         "Khata editor PRE-IMPORT snapshot saved."
     );
+
+
+    if (
+        editorType ===
+        "shikshanupakaran"
+    ) {
+
+        console.log(
+            "Shikshanupakaran memory snapshot rows:",
+            window.khataEditorSnapshot
+                .shikshanupakaranRows
+                .length
+        );
+
+    }
 
 
     return true;
@@ -164,6 +193,113 @@ function restoreKhataEditorSnapshot() {
 
     }
 
+
+    /* ========================================================
+       SHIKSHANUPAKARAN
+       
+       Restore MEMORY first.
+       Then rebuild the DOM using the ORIGINAL
+       createShikshanupakaranRow().
+    ======================================================== */
+
+    if (
+        snapshot.editorType ===
+        "shikshanupakaran"
+    ) {
+
+        window.shikshanupakaranAllRows =
+            Array.isArray(
+                snapshot.shikshanupakaranRows
+            )
+
+                ? snapshot.shikshanupakaranRows.map(
+                    function(rowData) {
+
+                        return {
+                            ...rowData
+                        };
+
+                    }
+                )
+
+                : [];
+
+
+        console.log(
+            "SHIKSHANUPAKARAN MEMORY RESTORED:",
+            window.shikshanupakaranAllRows.length
+        );
+
+
+        /* -----------------------------------------------
+           Clear imported DOM rows
+        ----------------------------------------------- */
+
+        clearShikshanupakaranRows();
+
+
+        /* -----------------------------------------------
+           Rebuild using ORIGINAL row creator
+           
+           This automatically restores:
+           - row HTML
+           - event listeners
+           - Flatpickr
+           - calculations
+           - buttons
+        ----------------------------------------------- */
+
+        window.shikshanupakaranAllRows.forEach(
+            function(rowData) {
+
+                createShikshanupakaranRow(
+                    rowData
+                );
+
+            }
+        );
+
+
+        console.log(
+            "================================="
+        );
+
+        console.log(
+            "SHIKSHANUPAKARAN EDITOR RESTORED"
+        );
+
+        console.log(
+            "Memory rows:",
+            window.shikshanupakaranAllRows.length
+        );
+
+        console.log(
+            "DOM rows:",
+            document
+                .getElementById(
+                    "shikshanupakaranBody"
+                )
+                ?.querySelectorAll(
+                    "tr.shikshanupakaranRow"
+                ).length || 0
+        );
+
+        console.log(
+            "================================="
+        );
+
+
+        return true;
+
+    }
+
+
+    /* ========================================================
+       TALAPATRAK
+       
+       EXISTING TALAPATRAK RESTORATION.
+       DO NOT CHANGE ITS STRUCTURE.
+    ======================================================== */
 
     const body =
         getKhataEditorBody(
@@ -736,6 +872,10 @@ function escapeKhataRendererHTML(
    CREATE SHIKSHANUPAKARAN ROW
 ============================================================ */
 
+/* ============================================================
+   CREATE SHIKSHANUPAKARAN KHATA ROW
+============================================================ */
+
 function createKhataShikshanupakaranRow(
     khataNumber,
     name
@@ -747,13 +887,17 @@ function createKhataShikshanupakaranRow(
     ) {
 
         console.error(
-            "Original Shikshanupakaran row creator is not available."
+            "Original createShikshanupakaranRow() is not available."
         );
 
         return null;
 
     }
 
+
+    /* ========================================================
+       NORMALIZE IMPORTED DATA
+    ======================================================== */
 
     const finalKhataNumber =
         normalizeRendererKhataNumber(
@@ -767,29 +911,74 @@ function createKhataShikshanupakaranRow(
         );
 
 
+    /* ========================================================
+       CREATE ROW THROUGH THE ORIGINAL
+       SHIKSHANUPAKARAN ROW CREATOR
+       
+       IMPORTANT:
+       Do NOT create another row structure here.
+       
+       This guarantees imported rows use exactly the same:
+       - HTML
+       - event listeners
+       - calculations
+       - date picker
+       - auto-column logic
+       - add/delete buttons
+       - future row behavior
+    ======================================================== */
+
     const row =
-        window.createShikshanupakaranRow();
-
-
+        window.createShikshanupakaranRow({
+    
+            A:
+                finalKhataNumber,
+    
+            B:
+                finalName
+    
+        });
+    
+    
     if (!row) {
-
+    
+        console.error(
+            "Shikshanupakaran row creation failed."
+        );
+    
         return null;
-
+    
     }
+    
+    
+    /* ========================================================
+       REGISTER ROW WITH CURRENT IMPORT TRANSACTION
+    
+       This allows cancellation to remove only rows created
+       by this Khata import.
+    ======================================================== */
+    
+    if (
+        typeof window.registerKhataImportedRow ===
+        "function"
+    ) {
+    
+        window.registerKhataImportedRow(
+            row
+        );
+    
+    }
+    
+    
+    /* ========================================================
+       VERIFY IMPORTED VALUES
+    ======================================================== */
 
-
+  
     const numberInput =
         row.querySelector(
             '[data-column="A"]'
         );
-
-
-    if (numberInput) {
-
-        numberInput.value =
-            finalKhataNumber;
-
-    }
 
 
     const nameInput =
@@ -798,12 +987,31 @@ function createKhataShikshanupakaranRow(
         );
 
 
-    if (nameInput) {
+    if (
+        numberInput
+    ) {
+
+        numberInput.value =
+            finalKhataNumber;
+
+    }
+
+
+    if (
+        nameInput
+    ) {
 
         nameInput.value =
             finalName;
 
     }
+
+
+    /* ========================================================
+       DEBUG
+    ======================================================== */
+
+    window.khataImportDebugCounter++;
 
 
     return row;
@@ -1626,17 +1834,20 @@ async function mapParsedKhataToEditorProgressive(
     );
 
 
-    window.khataImportInProgress =
-        true;
+    // window.khataImportInProgress =
+    //     true;
 
-    window.khataImportCancelled =
-        false;
+    // window.khataImportCancelled =
+    //     false;
 
-    window.khataScanCancelled =
-        false;
+    // window.khataScanCancelled =
+    //     false;
+
+    // window.khataImportDebugCounter =
+    //     0;
 
     window.khataImportDebugCounter =
-        0;
+          0;
 
 
     /* ========================================================
@@ -1794,6 +2005,39 @@ async function mapParsedKhataToEditorProgressive(
         clearKhataEditorRows(
             editorType
         );
+    
+    
+    if (!cleared) {
+    
+        window.khataImportInProgress =
+            false;
+    
+        return false;
+    
+    }
+    
+    
+    /* ========================================================
+       SHIKSHANUPAKARAN IMPORT MEMORY
+    
+       The Shikshanupakaran editor uses
+       window.shikshanupakaranAllRows as its
+       master data source.
+    
+       Start a fresh imported memory set.
+    
+       TALAPATRAK IS NOT TOUCHED.
+    ======================================================== */
+    
+    if (
+        editorType ===
+        "shikshanupakaran"
+    ) {
+    
+        window.shikshanupakaranAllRows =
+            [];
+    
+    }
 
 
     if (!cleared) {
@@ -1901,13 +2145,48 @@ async function mapParsedKhataToEditorProgressive(
         else if (
             editorType === "shikshanupakaran"
         ) {
-
+        
             row =
                 createKhataShikshanupakaranRow(
                     khata.khataNumber,
                     khata.name
                 );
-
+        
+        
+            /* ====================================================
+               SAVE IMPORTED KHATA INTO SHIKSHANUPAKARAN MEMORY
+        
+               DOM alone is NOT enough.
+        
+               Shikshanupakaran uses:
+                   shikshanupakaranAllRows
+                       ↓
+                   editor
+                       ↓
+                   autosave
+        
+               Therefore every imported Khata must also
+               enter the master memory array.
+            ==================================================== */
+        
+            if (row) {
+        
+                window.shikshanupakaranAllRows.push({
+        
+                    A:
+                        normalizeRendererKhataNumber(
+                            khata.khataNumber
+                        ),
+        
+                    B:
+                        normalizeRendererKhataName(
+                            khata.name
+                        )
+        
+                });
+        
+            }
+        
         }
 
 
@@ -2109,23 +2388,42 @@ function createKhataTalapatrakRow(
 
     const row =
         window.createTalapatrakRow({
-
+    
             A:
                 finalKhataNumber,
-
+    
             B:
                 finalName
-
+    
         });
-
-
+    
+    
     if (!row) {
-
+    
         return null;
-
+    
     }
-
-
+    
+    
+    /* ========================================================
+       REGISTER ROW WITH CURRENT IMPORT TRANSACTION
+    
+       This allows cancellation to remove only rows created
+       by this Khata import.
+    ======================================================== */
+    
+    if (
+        typeof window.registerKhataImportedRow ===
+        "function"
+    ) {
+    
+        window.registerKhataImportedRow(
+            row
+        );
+    
+    }
+    
+    
     const numberInput =
         row.querySelector(
             ".columnA"
@@ -2197,4 +2495,66 @@ console.log(
 console.log(
     "Cancel function available:",
     typeof window.cancelKhataImport === "function"
+);
+
+
+function getKhataImportedMasterRowCount(){
+
+    const editorType =
+        typeof getActiveKhataEditor ===
+        "function"
+            ? getActiveKhataEditor()
+            : null;
+
+
+    if(
+        editorType ===
+        "shikshanupakaran"
+    ){
+
+        return Array.isArray(
+            window.shikshanupakaranAllRows
+        )
+            ? window.shikshanupakaranAllRows.length
+            : 0;
+
+    }
+
+
+    if(
+        editorType ===
+        "talapatrak"
+    ){
+
+        return Array.isArray(
+            window.talapatrakAllRows
+        )
+            ? window.talapatrakAllRows.length
+            : 0;
+
+    }
+
+
+    return 0;
+
+}
+
+const importedCount =
+    getKhataImportedMasterRowCount();
+
+
+console.log(
+    "KHATA MASTER DATA VERIFICATION:",
+    {
+        editor:
+            getActiveKhataEditor(),
+
+        masterRows:
+            importedCount,
+
+        visibleRows:
+            document.querySelectorAll(
+                ".shikshanupakaranRow"
+            ).length
+    }
 );

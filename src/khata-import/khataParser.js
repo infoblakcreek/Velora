@@ -942,18 +942,10 @@ function extractKhataName(
     khataNumber
 ){
 
-    if(
-        !section
-    ){
-
+    if(!section){
         return "";
-
     }
 
-
-    /* ========================================================
-       SPLIT INTO LINES
-    ======================================================== */
 
     const lines =
         section
@@ -961,50 +953,19 @@ function extractKhataName(
             .map(function(line){
 
                 return line
-                    .replace(
-                        /\s+/g,
-                        " "
-                    )
+                    .replace(/\s+/g, " ")
                     .trim();
 
             })
-            .filter(function(line){
-
-                return (
-                    line.length > 0
-                );
-
-            });
+            .filter(Boolean);
 
 
-    if(
-        lines.length === 0
-    ){
-
-        return "";
-
-    }
-
-
-    /* ========================================================
-       NUMBER ONLY
-    ======================================================== */
-
-    function isOnlyNumber(
-        value
-    ){
+    function isOnlyNumber(value){
 
         const cleaned =
-            value
-                .replace(
-                    /\s+/g,
-                    ""
-                )
-                .replace(
-                    /[()]/g,
-                    ""
-                );
-
+            String(value)
+                .replace(/\s+/g, "")
+                .replace(/[()]/g, "");
 
         return /^[૦-૯0-9./,:;\-]+$/.test(
             cleaned
@@ -1013,29 +974,7 @@ function extractKhataName(
     }
 
 
-    /* ========================================================
-       IMPORTANT:
-       ONLY NUMBERED HOLDER ROWS ARE VALID
-
-       Valid:
-
-           1. NAME
-           3. NAME
-           6. NAME
-           7. NAME
-           12. NAME
-
-       Invalid:
-
-           NAME
-           some header
-           footer
-           random text
-    ======================================================== */
-
-    function isNumberedHolderLine(
-        value
-    ){
+    function isNumberedHolderLine(value){
 
         return /^[૦-૯0-9]+\s*[.)-]\s*\S+/.test(
             value
@@ -1044,89 +983,79 @@ function extractKhataName(
     }
 
 
-    /* ========================================================
-       REMOVE LEADING HOLDER NUMBER
-    ======================================================== */
+    function cleanHolderName(value){
 
-    function removeLeadingHolderNumber(
-        value
-    ){
+        let name =
+            String(value)
+                .replace(/\s+/g, " ")
+                .trim();
 
-        return value
-            .replace(
+
+        /*
+           Remove holder serial number.
+
+           ૧. નામ
+           2. નામ
+           12. નામ
+        */
+
+        name =
+            name.replace(
                 /^[૦-૯0-9]+\s*[.)-]\s*/,
                 ""
             )
             .trim();
 
-    }
-
-
-    /* ========================================================
-       REMOVE TRAILING REFERENCE DATA
-    ======================================================== */
-
-    function removeTrailingReference(
-        value
-    ){
-
-        let result =
-            value;
-
 
         /*
-           Remove bracketed reference.
+           IMPORTANT:
+
+           Stop at the holder reference.
 
            Example:
 
-           રમેશભાઈ પટેલ (૫૩૩૧)
-
+           જશીબહેન શંકરભાઈ પટેલ (૫૪૦૪)
+           →
+           જશીબહેન શંકરભાઈ પટેલ
         */
 
-        result =
-            result.replace(
-                /\s*\([^)]*[૦-૯0-9][^)]*\)\s*$/,
-                ""
-            );
+        name =
+            name.split(
+                /\s*\([^)]*\)/
+            )[0]
+            .trim();
 
 
         /*
-           Remove plain numeric data at the end.
+           Stop when land/survey data begins.
+
+           Example:
+
+           ઠક્કર બીનાબેન ... યોગેશભાઇ
+           ૨૩૮/ પૈકી...
+
+           becomes:
+
+           ઠક્કર બીનાબેન ... યોગેશભાઇ
         */
 
-        result =
-            result.replace(
-                /\s+[૦-૯0-9]+(?:\s+[૦-૯0-9./-]+)*\s*$/,
-                ""
-            );
+        name =
+            name.split(
+                /\s+[૦-૯0-9]+\s*(?:[/.-]|(?=\s)|$)/
+            )[0]
+            .trim();
 
 
         /*
-           Remove punctuation.
+           Remove trailing separators.
         */
 
-        result =
-            result.replace(
-                /[\s|,:;.-]+$/,
-                ""
-            );
-
-
-        return result.trim();
-
-    }
-
-
-    /* ========================================================
-       CLEAN NAME
-    ======================================================== */
-
-    function cleanName(
-        value
-    ){
-
-        let name =
-            value
+        name =
+            name
+                .replace(
+                    /[|,:;.\-]+$/,
+                    ""
+                )
                 .replace(
                     /\s+/g,
                     " "
@@ -1134,33 +1063,60 @@ function extractKhataName(
                 .trim();
 
 
-        name =
-            removeLeadingHolderNumber(
-                name
-            );
-
-
-        name =
-            removeTrailingReference(
-                name
-            );
-
-
-        name =
-            name.replace(
-                /\s+/g,
-                " "
-            );
-
-
-        return name.trim();
+        return name;
 
     }
 
 
-    /* ========================================================
-       FIND FIRST NUMBERED HOLDER
-    ======================================================== */
+    function isValidHolderName(name){
+
+        if(!name){
+            return false;
+        }
+
+
+        if(name.length < 3){
+            return false;
+        }
+
+
+        if(name.length > 150){
+            return false;
+        }
+
+
+        if(isOnlyNumber(name)){
+            return false;
+        }
+
+
+        /*
+           Check blocked words ONLY AFTER
+           land/reference data has been removed.
+        */
+
+        if(
+            isKhataBlockedWord(name)
+        ){
+            return false;
+        }
+
+
+        if(
+            !/[અ-હળ-ૐA-Za-z]/.test(name)
+        ){
+            return false;
+        }
+
+
+        return true;
+
+    }
+
+
+    /*
+       FIRST numbered holder wins.
+    */
 
     for(
         let i = 0;
@@ -1171,7 +1127,7 @@ function extractKhataName(
         throwIfKhataParserCancelled();
 
 
-        const originalLine =
+        const line =
             lines[i];
 
 
@@ -1179,153 +1135,55 @@ function extractKhataName(
             "KHATA SECTION LINE:",
             khataNumber,
             "→",
-            originalLine
+            line
         );
 
-      /* ----------------------------------------------------
-         CRITICAL HOLDER RULE
-      
-         A holder row MUST begin with a serial number.
-      
-         Valid:
-      
-             2. રમેશભાઈ પટેલ
-             5. મહેશભાઈ પટેલ
-             45. રમિલાબેન પટેલ
-             102. કમલેશભાઈ પટેલ
-      
-         Invalid:
-      
-             રમેશભાઈ પટેલ
-             ખાતેદારનું નામ
-             પ્રિન્ટ કરવાનો હેતુ
-             footer text
-      
-         The serial number itself is NOT fixed.
-      ---------------------------------------------------- */
-      
-      if (
-          !isNumberedHolderLine(
-              originalLine
-          )
-      ) {
-      
-          continue;
-      
-      }
-
-        /* ----------------------------------------------------
-           CRITICAL FIX
-
-           If this is not a numbered row,
-           it CANNOT be the holder.
-        ---------------------------------------------------- */
 
         /*
-             A holder does NOT have to start with a serial number.
-          
-             Valid:
-          
-                 1. રમેશભાઈ પટેલ
-          
-             Also valid:
-          
-                 રમેશભાઈ પટેલ
-          */
-          
-          if (
-              isKhataBlockedWord(originalLine)
-          ) {
-              continue;
-          }
-          
-          if (
-              isOnlyNumber(originalLine)
-          ) {
-              continue;
-          }
+           Do NOT run isKhataBlockedWord()
+           against the complete row.
+
+           A legitimate row can contain:
+
+               પૈકી
+               સરવે data
+               કુલ
+               etc.
+
+           Those are not part of the person's name.
+        */
+
+        if(
+            !isNumberedHolderLine(line)
+        ){
+
+            continue;
+
+        }
+
+
+        const candidate =
+            cleanHolderName(
+                line
+            );
 
 
         console.log(
-            "NUMBERED HOLDER ROW FOUND:",
+            "CLEANED HOLDER CANDIDATE:",
             khataNumber,
             "→",
-            originalLine
+            candidate
         );
 
 
-        /* ----------------------------------------------------
-           Clean candidate
-        ---------------------------------------------------- */
-
-        let candidate =
-            cleanName(
-                originalLine
-            );
-
-
-        /* ----------------------------------------------------
-           Validate
-        ---------------------------------------------------- */
-
         if(
-            !candidate
+            !isValidHolderName(candidate)
         ){
 
             continue;
 
         }
 
-
-        if(
-            candidate.length < 3
-        ){
-
-            continue;
-
-        }
-
-
-        if(
-            candidate.length > 120
-        ){
-
-            continue;
-
-        }
-
-
-        if(
-            isKhataBlockedWord(
-                candidate
-            )
-        ){
-
-            console.warn(
-                "BLOCKED HOLDER CANDIDATE:",
-                khataNumber,
-                candidate
-            );
-
-            continue;
-
-        }
-
-
-        if(
-            isOnlyNumber(
-                candidate
-            )
-        ){
-
-            continue;
-
-        }
-
-
-        /* ====================================================
-           FIRST VALID HOLDER = FINAL ANSWER
-        ==================================================== */
 
         console.log(
             "FIRST HOLDER FOUND:",
