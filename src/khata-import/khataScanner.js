@@ -8,6 +8,7 @@
    - Detecting bad/garbled PDF text
    - Falling back to Gujarati OCR
    - Returning raw page-level text
+   - Reporting cancellation progress
 
    NOT responsible for:
 
@@ -15,11 +16,40 @@
    - Selecting names
    - Generating sequences
    - Filling editor fields
+
+   IMPORTANT CANCELLATION RULE:
+
+   When the user presses Cancel:
+
+       1. Stop starting new work
+       2. Abort active PDF/OCR work where possible
+       3. Do not return partial scan data
+       4. Do not allow cancelled data to continue
+       5. Keep the progress UI visible while stopping
+       6. Tell the user that cancellation is happening
+
    ============================================================ */
 
 console.log(
     "Khata Scanner module loaded"
 );
+
+
+/* ============================================================
+   ACTIVE KHATA SCANNER RESOURCES
+
+   These references allow cancellation to actively clean up
+   currently running PDF/OCR operations.
+============================================================ */
+
+window.khataActivePDFLoadingTask =
+    null;
+
+window.khataActivePDF =
+    null;
+
+window.khataOCRWorkerActive =
+    false;
 
 
 /* ============================================================
@@ -59,11 +89,14 @@ function updateKhataScanProgress(
 
 
     if (!overlay) {
+
         return;
+
     }
 
 
-    overlay.style.display = "flex";
+    overlay.style.display =
+        "flex";
 
 
     const safePercent =
@@ -100,10 +133,33 @@ function updateKhataScanProgress(
     }
 
 
+    /*
+       IMPORTANT:
+
+       Your current HTML contains the page/detail area
+       around the Cancel button.
+
+       Setting pageElement.textContent directly can destroy
+       the Cancel button if the button is inside that element.
+
+       Therefore we only update the text when the element
+       does NOT contain a button.
+    */
+
     if (pageElement) {
 
-        pageElement.textContent =
-            pageText;
+        const containsButton =
+            pageElement.querySelector(
+                "button"
+            );
+
+
+        if (!containsButton) {
+
+            pageElement.textContent =
+                pageText;
+
+        }
 
     }
 
@@ -121,6 +177,111 @@ function showKhataScanProgress() {
         "Preparing file...",
         ""
     );
+
+}
+
+
+/* ============================================================
+   SHOW CANCELLING STATUS
+============================================================ */
+
+function showKhataCancellingProgress(
+    detail = "Stopping current operation..."
+) {
+
+    const overlay =
+        document.getElementById(
+            "khataScanProgressOverlay"
+        );
+
+    const statusText =
+        document.getElementById(
+            "khataScanProgressStatus"
+        );
+
+    const fill =
+        document.getElementById(
+            "khataScanProgressFill"
+        );
+
+    const percentText =
+        document.getElementById(
+            "khataScanProgressPercent"
+        );
+
+
+    if (overlay) {
+
+        overlay.style.display =
+            "flex";
+
+    }
+
+
+    if (statusText) {
+
+        statusText.textContent =
+            "Cancelling Khata import...";
+
+    }
+
+
+    if (fill) {
+
+        /*
+           Keep the current visual progress.
+           Do NOT jump back to 0 because that can make
+           the user think the application restarted.
+        */
+
+        if (
+            fill.style.width === ""
+        ) {
+
+            fill.style.width =
+                "0%";
+
+        }
+
+    }
+
+
+    if (percentText) {
+
+        /*
+           Keep the current percentage.
+        */
+
+    }
+
+
+    /*
+       Update the detail text safely without destroying
+       the Cancel button.
+    */
+
+    const pageElement =
+        document.getElementById(
+            "khataScanProgressPage"
+        );
+
+
+    if (pageElement) {
+
+        const containsButton =
+            pageElement.querySelector(
+                "button"
+            );
+
+
+        if (!containsButton) {
+
+            pageElement.textContent =
+                detail;
+
+        }
+
+    }
 
 }
 
@@ -146,9 +307,10 @@ function hideKhataScanProgress() {
 
 }
 
+
 /* ============================================================
    PDF.JS WORKER CONFIGURATION
-   ============================================================ */
+============================================================ */
 
 if (
     typeof pdfjsLib !== "undefined"
@@ -162,7 +324,7 @@ if (
 
 /* ============================================================
    OCR CONFIGURATION
-   ============================================================ */
+============================================================ */
 
 const KHATA_OCR_SCRIPT =
     "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
@@ -170,13 +332,96 @@ const KHATA_OCR_SCRIPT =
 const KHATA_OCR_LANG_PATH =
     "https://tessdata.projectnaptha.com/4.0.0/";
 
-let khataOCRWorker = null;
-let khataOCRLoading = null;
+
+let khataOCRWorker =
+    null;
+
+
+let khataOCRLoading =
+    null;
+
+
+/* ============================================================
+   CHECK CANCELLATION
+============================================================ */
+
+function khataScannerIsCancelled(
+    abortSignal = null
+) {
+
+    return (
+
+        window.khataScanCancelled === true
+
+        ||
+
+        window.khataImportCancelled === true
+
+        ||
+
+        (
+            abortSignal &&
+            abortSignal.aborted
+        )
+
+    );
+
+}
+
+
+/* ============================================================
+   THROW CANCELLATION ERROR
+============================================================ */
+
+function throwIfKhataScannerCancelled(
+    abortSignal = null
+) {
+
+    if (
+        khataScannerIsCancelled(
+            abortSignal
+        )
+    ) {
+
+        throw new Error(
+            "KHATA_IMPORT_CANCELLED"
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   SMALL ASYNC YIELD
+
+   Gives the browser a chance to process:
+
+   - Cancel button clicks
+   - UI updates
+   - repaint
+   - AbortController
+============================================================ */
+
+function khataScannerYield() {
+
+    return new Promise(
+        function(resolve) {
+
+            setTimeout(
+                resolve,
+                0
+            );
+
+        }
+    );
+
+}
 
 
 /* ============================================================
    LOAD TESSERACT.JS
-   ============================================================ */
+============================================================ */
 
 async function loadKhataOCRLibrary() {
 
@@ -205,7 +450,9 @@ async function loadKhataOCRLibrary() {
 
 
             const script =
-                document.createElement("script");
+                document.createElement(
+                    "script"
+                );
 
 
             script.src =
@@ -223,6 +470,7 @@ async function loadKhataOCRLibrary() {
                         "Gujarati OCR library loaded."
                     );
 
+
                     resolve(
                         window.Tesseract
                     );
@@ -237,6 +485,7 @@ async function loadKhataOCRLibrary() {
                         "Gujarati OCR library failed to load.",
                         error
                     );
+
 
                     reject(
                         new Error(
@@ -255,18 +504,30 @@ async function loadKhataOCRLibrary() {
 
 
     return await khataOCRLoading;
+
 }
 
 
 /* ============================================================
    CREATE GUJARATI OCR WORKER
-   ============================================================ */
+============================================================ */
 
-async function getKhataOCRWorker() {
+async function getKhataOCRWorker(
+    abortSignal = null
+) {
+
+    throwIfKhataScannerCancelled(
+        abortSignal
+    );
+
 
     if (
         khataOCRWorker
     ) {
+
+        khataOCRWorkerActive =
+            true;
+
 
         return khataOCRWorker;
 
@@ -275,6 +536,11 @@ async function getKhataOCRWorker() {
 
     const Tesseract =
         await loadKhataOCRLibrary();
+
+
+    throwIfKhataScannerCancelled(
+        abortSignal
+    );
 
 
     if (
@@ -322,10 +588,37 @@ async function getKhataOCRWorker() {
 
                         }
 
+
+                        /*
+                           Cancellation is checked during
+                           OCR progress reporting.
+                        */
+
+                        if (
+                            khataScannerIsCancelled(
+                                abortSignal
+                            )
+                        ) {
+
+                            console.warn(
+                                "Gujarati OCR cancellation detected."
+                            );
+
+                        }
+
                     }
 
             }
         );
+
+
+    khataOCRWorkerActive =
+        true;
+
+
+    throwIfKhataScannerCancelled(
+        abortSignal
+    );
 
 
     console.log(
@@ -334,87 +627,221 @@ async function getKhataOCRWorker() {
 
 
     return khataOCRWorker;
+
+}
+
+
+/* ============================================================
+   TERMINATE OCR WORKER
+============================================================ */
+
+async function terminateKhataOCRWorker() {
+
+    const worker =
+        khataOCRWorker;
+
+
+    /*
+       Clear the global reference immediately.
+
+       This prevents another operation from accidentally
+       reusing the cancelled worker.
+    */
+
+    khataOCRWorker =
+        null;
+
+
+    khataOCRWorkerActive =
+        false;
+
+
+    if (!worker) {
+
+        return;
+
+    }
+
+
+    console.warn(
+        "Terminating Gujarati OCR worker..."
+    );
+
+
+    try {
+
+        if (
+            typeof worker.terminate ===
+            "function"
+        ) {
+
+            await worker.terminate();
+
+        }
+
+    }
+    catch (error) {
+
+        console.warn(
+            "Gujarati OCR worker termination failed:",
+            error
+        );
+
+    }
+
+
+    console.log(
+        "Gujarati OCR worker terminated."
+    );
+
 }
 
 
 /* ============================================================
    DETECT BAD / GARBLED PDF TEXT
-   ============================================================ */
+============================================================ */
 
 function isKhataTextGarbled(text) {
 
-    if (!text || !text.trim()) {
+    if (
+        !text ||
+        !text.trim()
+    ) {
+
         return true;
+
     }
 
-    const cleaned = text.trim();
+
+    const cleaned =
+        text.trim();
+
 
     const gujaratiCount =
-        (cleaned.match(/[\u0A80-\u0AFF]/g) || []).length;
+        (
+            cleaned.match(
+                /[\u0A80-\u0AFF]/g
+            ) || []
+        ).length;
+
 
     const replacementCount =
-        (cleaned.match(/�/g) || []).length;
+        (
+            cleaned.match(
+                /�/g
+            ) || []
+        ).length;
 
-    const badCharacters =
-        cleaned.match(
-            /[ƞƟƑƒƗƘƨƩƪƫƬƭƮƏƐƢƣƤƥƦƧ]/g
-        ) || [];
 
-    const badCount =
-        badCharacters.length;
+    const suspiciousCount =
+        (
+            cleaned.match(
+                /[ƞƟƑƒƗƘƨƩƪƫƬƭƮƏƐƢƣƤƥƦƧ˲Ȣɀ²]/g
+            ) || []
+        ).length;
+
+
+    const controlCount =
+        (
+            cleaned.match(
+                /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g
+            ) || []
+        ).length;
+
+
+    const latinCount =
+        (
+            cleaned.match(
+                /[A-Za-z]/g
+            ) || []
+        ).length;
+
 
     /*
-       Completely empty text
-       → OCR
+       Completely empty / non-Gujarati text.
     */
 
-    if (cleaned.length === 0) {
+    if (
+        gujaratiCount === 0
+    ) {
+
         return true;
+
     }
 
+
     /*
-       Replacement characters
-       → OCR
+       Replacement characters mean broken encoding.
     */
 
-    if (replacementCount > 0) {
+    if (
+        replacementCount > 0
+    ) {
+
         return true;
+
     }
 
+
     /*
-       Strong evidence of broken PDF encoding
-       → OCR
+       Suspicious encoded characters.
     */
 
-    if (badCount >= 3) {
+    if (
+        suspiciousCount >= 2
+    ) {
+
         return true;
+
     }
 
+
     /*
-       No Gujarati at all on a Gujarati Khata page
-       → OCR
+       Control characters indicate broken extraction.
     */
 
-    if (gujaratiCount === 0) {
+    if (
+        controlCount > 0
+    ) {
+
         return true;
+
     }
 
+
     /*
-       Otherwise trust PDF.js.
+       If a page contains a large amount of Latin/encoded
+       garbage compared with Gujarati, consider it bad.
     */
+
+    if (
+        latinCount > gujaratiCount
+    ) {
+
+        return true;
+
+    }
+
 
     return false;
+
 }
 
 
 /* ============================================================
    RENDER PDF PAGE TO CANVAS
-   ============================================================ */
+============================================================ */
 
 async function renderKhataPDFPage(
     page,
-    scale = 2.0
+    scale = 2.0,
+    abortSignal = null
 ) {
+
+    throwIfKhataScannerCancelled(
+        abortSignal
+    );
+
 
     const viewport =
         page.getViewport({
@@ -446,29 +873,62 @@ async function renderKhataPDFPage(
         );
 
 
-    await page.render({
+    try {
 
-        canvasContext:
-            context,
-
-        viewport:
-            viewport
-
-    }).promise;
+        throwIfKhataScannerCancelled(
+            abortSignal
+        );
 
 
-    return canvas;
+        await page.render({
+
+            canvasContext:
+                context,
+
+            viewport:
+                viewport
+
+        }).promise;
+
+
+        throwIfKhataScannerCancelled(
+            abortSignal
+        );
+
+
+        return canvas;
+
+    }
+    catch (error) {
+
+        if (
+            khataScannerIsCancelled(
+                abortSignal
+            )
+        ) {
+
+            throw new Error(
+                "KHATA_IMPORT_CANCELLED"
+            );
+
+        }
+
+
+        throw error;
+
+    }
+
 }
-
 
 
 /* ============================================================
    OCR ONE PDF PAGE
-   ============================================================ */
+============================================================ */
 
 async function ocrKhataPDFPage(
     page,
-    pageNumber
+    pageNumber,
+    abortSignal = null
 ) {
 
     console.log(
@@ -477,23 +937,55 @@ async function ocrKhataPDFPage(
     );
 
 
+    throwIfKhataScannerCancelled(
+        abortSignal
+    );
+
+
     const worker =
-        await getKhataOCRWorker();
+        await getKhataOCRWorker(
+            abortSignal
+        );
 
 
-    let canvas = null;
+    let canvas =
+        null;
 
 
     try {
 
-        /*
-           Render only this page.
-        */
+        throwIfKhataScannerCancelled(
+            abortSignal
+        );
+
+
+        updateKhataScanProgress(
+            Math.max(
+                0,
+                Math.min(
+                    99,
+                    Number(
+                        document
+                            .getElementById(
+                                "khataScanProgressPercent"
+                            )?.textContent
+                            ?.replace(
+                                "%",
+                                ""
+                            ) || 0
+                    )
+                )
+            ),
+            "Gujarati OCR is reading this page...",
+            `Reading page ${pageNumber}`
+        );
+
 
         canvas =
             await renderKhataPDFPage(
                 page,
-                2.0
+                2.0,
+                abortSignal
             );
 
 
@@ -506,14 +998,28 @@ async function ocrKhataPDFPage(
         );
 
 
-        /*
-           OCR the page.
-        */
+        throwIfKhataScannerCancelled(
+            abortSignal
+        );
+
 
         const result =
             await worker.recognize(
                 canvas
             );
+
+
+        /*
+           Tesseract may not stop immediately when the
+           AbortController is triggered.
+
+           Therefore cancellation is checked immediately
+           after recognize() returns.
+        */
+
+        throwIfKhataScannerCancelled(
+            abortSignal
+        );
 
 
         const text =
@@ -538,18 +1044,22 @@ async function ocrKhataPDFPage(
     finally {
 
         /*
-           IMPORTANT:
-           Release the canvas immediately after OCR.
-
-           Do NOT keep large canvases in memory.
+           Release canvas immediately.
         */
 
         if (canvas) {
 
-            canvas.width = 1;
-            canvas.height = 1;
+            canvas.width =
+                1;
 
-            if (canvas.parentNode) {
+
+            canvas.height =
+                1;
+
+
+            if (
+                canvas.parentNode
+            ) {
 
                 canvas.parentNode.removeChild(
                     canvas
@@ -559,24 +1069,12 @@ async function ocrKhataPDFPage(
 
         }
 
-        canvas = null;
+
+        canvas =
+            null;
 
 
-        /*
-           Give the browser a moment to
-           release rendering resources.
-        */
-
-        await new Promise(
-            function(resolve) {
-
-                setTimeout(
-                    resolve,
-                    50
-                );
-
-            }
-        );
+        await khataScannerYield();
 
 
         console.log(
@@ -590,10 +1088,303 @@ async function ocrKhataPDFPage(
 
 
 /* ============================================================
-   SCAN KHATA FILE
-   ============================================================ */
+   CANCEL KHATA SCAN
+============================================================ */
 
-async function scanKhataFile(file) {
+async function cancelKhataScan() {
+
+    console.warn(
+        "================================="
+    );
+
+    console.warn(
+        "KHATA SCAN CANCELLATION REQUESTED"
+    );
+
+    console.warn(
+        "================================="
+    );
+
+
+    /*
+       SET FLAGS FIRST.
+
+       This is the most important step.
+
+       Every active scanner operation checks these flags.
+    */
+
+    window.khataScanCancelled =
+        true;
+
+
+    window.khataImportCancelled =
+        true;
+
+
+    /*
+       Tell the user immediately that cancellation is
+       actually happening.
+
+       The overlay remains visible.
+    */
+
+    showKhataCancellingProgress(
+        "Stopping scanner and OCR..."
+    );
+
+
+    /*
+       Disable the Cancel button immediately.
+
+       This prevents repeated clicks while the first
+       cancellation request is being processed.
+    */
+
+    const cancelButtons =
+        document.querySelectorAll(
+            "#khataScanCancelButton"
+        );
+
+
+    cancelButtons.forEach(
+        function(button) {
+
+            button.disabled =
+                true;
+
+
+            button.innerHTML = `
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                Cancelling...
+            `;
+
+        }
+    );
+
+
+    /*
+       AbortController belongs to the COMPLETE
+       Khata import pipeline.
+    */
+
+    if (
+        window.khataImportAbortController
+    ) {
+
+        try {
+
+            window.khataImportAbortController.abort();
+
+
+            console.warn(
+                "Khata AbortController aborted."
+            );
+
+        }
+        catch (error) {
+
+            console.warn(
+                "Unable to abort Khata controller:",
+                error
+            );
+
+        }
+
+    }
+
+
+    /*
+       Destroy active PDF loading task.
+
+       This is useful if cancellation happens while
+       pdfjsLib.getDocument() is still loading.
+    */
+
+    const loadingTask =
+        window.khataActivePDFLoadingTask;
+
+
+    if (
+        loadingTask
+    ) {
+
+        try {
+
+            console.warn(
+                "Destroying active PDF loading task..."
+            );
+
+
+            if (
+                typeof loadingTask.destroy ===
+                "function"
+            ) {
+
+                await loadingTask.destroy();
+
+            }
+
+        }
+        catch (error) {
+
+            console.warn(
+                "Active PDF loading task destroy failed:",
+                error
+            );
+
+        }
+
+
+        window.khataActivePDFLoadingTask =
+            null;
+
+    }
+
+
+    /*
+       Destroy active PDF document if available.
+    */
+
+    const activePDF =
+        window.khataActivePDF;
+
+
+    if (
+        activePDF
+    ) {
+
+        try {
+
+            console.warn(
+                "Destroying active Khata PDF..."
+            );
+
+
+            if (
+                typeof activePDF.destroy ===
+                "function"
+            ) {
+
+                await activePDF.destroy();
+
+            }
+
+        }
+        catch (error) {
+
+            console.warn(
+                "Active PDF destroy failed:",
+                error
+            );
+
+        }
+
+
+        window.khataActivePDF =
+            null;
+
+    }
+
+
+    /*
+       Terminate OCR worker.
+
+       This is important because Tesseract recognition can
+       continue working internally even after AbortController
+       has been signalled.
+    */
+
+    if (
+        khataOCRWorker
+    ) {
+
+        showKhataCancellingProgress(
+            "Stopping Gujarati OCR..."
+        );
+
+
+        await terminateKhataOCRWorker();
+
+    }
+
+
+    /*
+       Final scanner cancellation state.
+    */
+
+    showKhataCancellingProgress(
+        "Khata import is stopping..."
+    );
+
+
+    console.warn(
+        "Khata scanner cancellation cleanup requested."
+    );
+
+
+    console.warn(
+        "================================="
+    );
+
+    console.warn(
+        "KHATA SCAN CANCELLATION SIGNAL SENT"
+    );
+
+    console.warn(
+        "================================="
+    );
+
+}
+
+
+/* ============================================================
+   EXPORT CANCEL SCANNER
+============================================================ */
+
+window.cancelKhataScan =
+    cancelKhataScan;
+
+
+/* ============================================================
+   CHECK KHATA SCAN CANCELLATION
+============================================================ */
+
+function isKhataScanCancelled() {
+
+    return (
+
+        window.khataScanCancelled === true
+
+        ||
+
+        window.khataImportCancelled === true
+
+        ||
+
+        (
+            window.khataImportAbortController &&
+            window.khataImportAbortController.signal &&
+            window.khataImportAbortController.signal.aborted
+        )
+
+    );
+
+}
+
+
+window.isKhataScanCancelled =
+    isKhataScanCancelled;
+
+
+/* ============================================================
+   SCAN KHATA FILE
+============================================================ */
+
+async function scanKhataFile(
+    file,
+    abortSignal = null
+) {
 
     if (!file) {
 
@@ -602,6 +1393,27 @@ async function scanKhataFile(file) {
         );
 
     }
+
+
+    /*
+       If caller did not provide a signal,
+       use the global import controller.
+    */
+
+    if (
+        !abortSignal &&
+        window.khataImportAbortController
+    ) {
+
+        abortSignal =
+            window.khataImportAbortController.signal;
+
+    }
+
+
+    throwIfKhataScannerCancelled(
+        abortSignal
+    );
 
 
     console.log(
@@ -628,9 +1440,9 @@ async function scanKhataFile(file) {
     );
 
 
-    /* --------------------------------------------------------
+    /*
        PDF
-    -------------------------------------------------------- */
+    */
 
     if (
         file.type ===
@@ -638,15 +1450,16 @@ async function scanKhataFile(file) {
     ) {
 
         return await scanKhataPDF(
-            file
+            file,
+            abortSignal
         );
 
     }
 
 
-    /* --------------------------------------------------------
+    /*
        IMAGE
-    -------------------------------------------------------- */
+    */
 
     if (
         file.type === "image/jpeg" ||
@@ -655,7 +1468,8 @@ async function scanKhataFile(file) {
     ) {
 
         return await scanKhataImage(
-            file
+            file,
+            abortSignal
         );
 
     }
@@ -664,20 +1478,21 @@ async function scanKhataFile(file) {
     throw new Error(
         "Unsupported Khata file type."
     );
+
 }
 
 
 /* ============================================================
    SCAN PDF
-   ============================================================ */
+============================================================ */
 
-async function scanKhataPDF(file) {
+async function scanKhataPDF(
+    file,
+    abortSignal = null
+) {
 
- 
-  
     if (
-        typeof pdfjsLib ===
-        "undefined"
+        typeof pdfjsLib === "undefined"
     ) {
 
         throw new Error(
@@ -685,6 +1500,11 @@ async function scanKhataPDF(file) {
         );
 
     }
+
+
+    throwIfKhataScannerCancelled(
+        abortSignal
+    );
 
 
     console.log(
@@ -698,307 +1518,714 @@ async function scanKhataPDF(file) {
         );
 
 
-    const pdf =
-        await pdfjsLib.getDocument({
-            data: arrayBuffer
-        }).promise;
-
-
-    console.log(
-        "Khata PDF pages:",
-        pdf.numPages
+    throwIfKhataScannerCancelled(
+        abortSignal
     );
 
 
-    const pages = [];
+    /*
+       Create PDF loading task separately.
+
+       The task is stored globally so Cancel can destroy
+       it while the PDF is still loading.
+    */
+
+    const loadingTask =
+        pdfjsLib.getDocument({
+            data: arrayBuffer
+        });
 
 
-    /* --------------------------------------------------------
-       READ EVERY PAGE
-    -------------------------------------------------------- */
-
-      showKhataScanProgress();
+    window.khataActivePDFLoadingTask =
+        loadingTask;
 
 
-      for (
-          let pageNumber = 1;
-          pageNumber <= pdf.numPages;
-          pageNumber++
-      ) {
-      
-          const progress =
-              ((pageNumber - 1) / pdf.numPages) * 100;
-      
-      
-          updateKhataScanProgress(
-              progress,
-              "Scanning Khata pages...",
-              `Page ${pageNumber} of ${pdf.numPages}`
-          );
+    let pdf =
+        null;
+
+
+    try {
+
+        throwIfKhataScannerCancelled(
+            abortSignal
+        );
+
+
+        pdf =
+            await loadingTask.promise;
+
+
+        window.khataActivePDF =
+            pdf;
+
+
+        window.khataActivePDFLoadingTask =
+            null;
+
+
+        throwIfKhataScannerCancelled(
+            abortSignal
+        );
+
 
         console.log(
-            "Extracting Khata page:",
-            pageNumber,
-            "/",
+            "Khata PDF pages:",
             pdf.numPages
         );
 
 
-        const page =
-            await pdf.getPage(
-                pageNumber
-            );
+        const pages =
+            [];
 
 
-        const textContent =
-            await page.getTextContent();
+        showKhataScanProgress();
 
 
-        const extractedText =
-            textContent.items
-                .map(
-                    function(item) {
-
-                        return item.str || "";
-
-                    }
-                )
-                .join(" ");
-
-
-        console.log(
-            "PDF text length:",
-            extractedText.length
-        );
-
-
-        /* ----------------------------------------------------
-           CHECK TEXT QUALITY
-        ---------------------------------------------------- */
-
-        const needsOCR =
-            isKhataTextGarbled(
-                extractedText
-            );
-
-
-        console.log(
-            "Khata page:",
-            pageNumber,
-            "Needs Gujarati OCR:",
-            needsOCR
-        );
-
-
-        let finalText =
-            extractedText;
-
-
-        /* ----------------------------------------------------
-           GUJARATI OCR FALLBACK
-        ---------------------------------------------------- */
-
-        if (
-            needsOCR
+        for (
+            let pageNumber = 1;
+            pageNumber <= pdf.numPages;
+            pageNumber++
         ) {
 
-            try {
+            /*
+               BEFORE PAGE
+            */
 
-                console.log(
-                    "PDF text appears garbled."
-                );
+            throwIfKhataScannerCancelled(
+                abortSignal
+            );
 
-                console.log(
-                    "Using Gujarati OCR fallback for page:",
+
+            const progress =
+                (
+                    (pageNumber - 1) /
+                    pdf.numPages
+                ) * 100;
+
+
+            updateKhataScanProgress(
+                progress,
+                "Scanning Khata pages...",
+                `Page ${pageNumber} of ${pdf.numPages}`
+            );
+
+
+            /*
+               Give browser time to process Cancel.
+            */
+
+            await khataScannerYield();
+
+
+            throwIfKhataScannerCancelled(
+                abortSignal
+            );
+
+
+            const page =
+                await pdf.getPage(
                     pageNumber
                 );
 
-              updateKhataScanProgress(
-                    ((pageNumber - 1) / pdf.numPages) * 100,
-                    "Gujarati OCR is reading this page...",
-                    `Page ${pageNumber} of ${pdf.numPages}`
-                );
-                
 
-                const ocrText =
-                    await ocrKhataPDFPage(
-                        page,
-                        pageNumber
-                    );
+            try {
+
+                /*
+                   CHECK AFTER getPage()
+                */
+
+                throwIfKhataScannerCancelled(
+                    abortSignal
+                );
+
+
+                const textContent =
+                      await page.getTextContent();
 
 
               
+                  
+                  /*
+                     CHECK AFTER TEXT EXTRACTION
+                  */
+                  
+                  throwIfKhataScannerCancelled(
+                      abortSignal
+                  );
+                  
+                  
+                  /* ========================================================
+                     PRESERVE PDF TEXT POSITION
+                  
+                     IMPORTANT:
+                  
+                     DO NOT flatten PDF.js text items into one string only.
+                  
+                     Each item contains:
+                     - str
+                     - transform
+                     - width
+                     - height
+                  
+                     transform[4] = X position
+                     transform[5] = Y position
+                  
+                     We preserve these so the parser can determine:
+                  
+                     - Khata number column
+                     - Khatedar name column
+                     - right-side columns
+                     - footer
+                  ======================================================== */
+                  
+                  const positionedItems =
+                      textContent.items
+                          .filter(
+                              function(item) {
+                  
+                                  return (
+                                      item &&
+                                      typeof item.str === "string" &&
+                                      item.str.trim().length > 0 &&
+                                      Array.isArray(item.transform)
+                                  );
+                  
+                              }
+                          )
+                          .map(
+                              function(item) {
+                  
+                                  return {
+                  
+                                      text:
+                                          item.str.trim(),
+                  
+                                      x:
+                                          Number(
+                                              item.transform[4]
+                                          ) || 0,
+                  
+                                      y:
+                                          Number(
+                                              item.transform[5]
+                                          ) || 0,
+                  
+                                      width:
+                                          Number(
+                                              item.width
+                                          ) || 0,
+                  
+                                      height:
+                                          Number(
+                                              item.height
+                                          ) || 0,
+                  
+                                      transform:
+                                          item.transform.slice()
+                  
+                                  };
+                  
+                              }
+                          );
+                  
 
-                  if (
-                        ocrText &&
-                        ocrText.trim().length > 0
-                    ) {
+
+
+                  console.log(
+                      "========== PDF POSITION DEBUG =========="
+                  );
+                  
+                  console.table(
+                      positionedItems.slice(
+                          0,
+                          100
+                      )
+                  );
+                  
+                  console.log(
+                      "========== PDF POSITION DEBUG END =========="
+                  );
+
+              
+
+              
+                  /* ========================================================
+                     KEEP THE OLD FLATTENED TEXT TOO
+                  
+                     This preserves your existing scanner/parser behavior
+                     while giving the NEW parser the physical coordinates.
+                  ======================================================== */
+                  
+                  const extractedText =
+                      positionedItems
+                          .map(
+                              function(item) {
+                  
+                                  return item.text;
+                  
+                              }
+                          )
+                          .join(" ");
+
+
+               const needsOCR =
+                    isKhataTextGarbled(
+                        extractedText
+                    );
+                
+                
+                console.log(
+                    "PAGE TEXT QUALITY:",
+                    pageNumber,
+                    needsOCR
+                        ? "GARBLED → OCR"
+                        : "HEALTHY PDF TEXT"
+                );
                     
+                    
+                    let finalText =
+                        extractedText;
+                    
+                    let usedOCR =
+                        false;
+                    
+                    let textSource =
+                        "pdf";
+                    
+                    let ocrText =
+                        "";
+
+
+                /*
+                   OCR FALLBACK
+                */
+
+                if (
+                    needsOCR
+                ) {
+
+                    throwIfKhataScannerCancelled(
+                        abortSignal
+                    );
+
+
+                    updateKhataScanProgress(
+                        progress,
+                        "Gujarati OCR is reading this page...",
+                        `Page ${pageNumber} of ${pdf.numPages}`
+                    );
+
+
+                    try {
+
+                        const ocrText =
+                            await ocrKhataPDFPage(
+                                page,
+                                pageNumber,
+                                abortSignal
+                            );
+
+
+                        throwIfKhataScannerCancelled(
+                            abortSignal
+                        );
+
+
+                        if (
+                              ocrText &&
+                              ocrText.trim()
+                          ) {
+                          
+                              finalText =
+                                  ocrText.trim();
+                          
+                              usedOCR =
+                                  true;
+                          
+                              textSource =
+                                  "ocr";
+                          
+                          }
+
+                    }
+                    catch (ocrError) {
+
                         /*
                            IMPORTANT:
-                    
-                           When OCR succeeds, use OCR text alone.
-                    
-                           Do NOT combine garbled PDF.js text
-                           with OCR text.
-                    
-                           Combining both causes duplicate Khata
-                           numbers and duplicate holder names.
+
+                           Never fall back to PDF text if the
+                           reason for the OCR error was CANCEL.
                         */
-                    
+
+                        if (
+                            khataScannerIsCancelled(
+                                abortSignal
+                            ) ||
+                            (
+                                ocrError &&
+                                ocrError.message ===
+                                    "KHATA_IMPORT_CANCELLED"
+                            )
+                        ) {
+
+                            console.warn(
+                                "Khata OCR cancelled."
+                            );
+
+
+                            throw new Error(
+                                "KHATA_IMPORT_CANCELLED"
+                            );
+
+                        }
+
+
+                        console.error(
+                            "Gujarati OCR failed:",
+                            pageNumber,
+                            ocrError
+                        );
+
+
+                        /*
+                           Preserve your existing behavior:
+
+                           If OCR genuinely fails for a
+                           non-cancellation reason, keep
+                           the original PDF.js text.
+                        */
+
                         finalText =
-                            ocrText.trim();
-                    
-                    
-                        console.log(
-                            "Gujarati OCR text used for page:",
-                            pageNumber
-                        );
-                    
-                    }
-                    else {
-                    
-                        console.warn(
-                            "Gujarati OCR returned empty text. Keeping PDF text."
-                        );
-                    
+                            extractedText;
+
                     }
 
-            }
-            catch (ocrError) {
+                }
 
-                console.error(
-                    "Gujarati OCR failed for page:",
-                    pageNumber,
-                    ocrError
+
+                /*
+                   FINAL CHECK BEFORE SAVING PAGE
+                */
+
+                throwIfKhataScannerCancelled(
+                    abortSignal
                 );
 
 
                 /*
-                   IMPORTANT:
-
-                   OCR failure must NOT destroy the original
-                   PDF extraction.
-
-                   We keep the PDF.js text as fallback.
+                   SAVE PAGE ONLY AFTER ALL CHECKS PASS
                 */
 
-                finalText =
-                    extractedText;
+                pages.push({
+
+                      pageNumber:
+                          pageNumber,
+                  
+                      text:
+                          finalText,
+                  
+                      /*
+                         TRUE when this page was read using Gujarati OCR.
+                      */
+                      usedOCR:
+                          usedOCR,
+                  
+                      /*
+                         "pdf" = healthy PDF text
+                         "ocr" = Gujarati OCR result
+                      */
+                      textSource:
+                          textSource,
+                  
+                      /*
+                         Original PDF.js positioned items.
+                  
+                         These are still preserved even when OCR was used,
+                         but the parser will NOT trust them for name
+                         extraction when usedOCR === true.
+                      */
+                      items:
+                          positionedItems
+                  
+                  });
+
+
+                updateKhataScanProgress(
+                    (
+                        pageNumber /
+                        pdf.numPages
+                    ) * 100,
+
+                    needsOCR
+                        ? "Reading page with Gujarati OCR..."
+                        : "Reading Khata pages...",
+
+                    `Page ${pageNumber} of ${pdf.numPages}`
+                );
+
+
+            }
+            finally {
+
+                if (
+                    page &&
+                    typeof page.cleanup ===
+                    "function"
+                ) {
+
+                    try {
+
+                        page.cleanup();
+
+                    }
+                    catch (error) {
+
+                        console.warn(
+                            "PDF page cleanup failed:",
+                            error
+                        );
+
+                    }
+
+                }
+
+            }
+
+
+            /*
+               Give browser control before next page.
+            */
+
+            await khataScannerYield();
+
+
+            throwIfKhataScannerCancelled(
+                abortSignal
+            );
+
+        }
+
+
+        /*
+           FINAL CANCELLATION CHECK
+        */
+
+        throwIfKhataScannerCancelled(
+            abortSignal
+        );
+
+
+        console.log(
+            "KHATA PDF TEXT EXTRACTION COMPLETE"
+        );
+
+
+        updateKhataScanProgress(
+            100,
+            "Khata scanning completed!",
+            `${pdf.numPages} pages processed`
+        );
+
+
+        return {
+
+            type:
+                "pdf",
+
+            fileName:
+                file.name,
+
+            pageCount:
+                pdf.numPages,
+
+            pages:
+                pages
+
+        };
+
+    }
+    catch (error) {
+
+        /*
+           Cancellation must NEVER become a normal scanner
+           error.
+        */
+
+        if (
+            khataScannerIsCancelled(
+                abortSignal
+            ) ||
+            (
+                error &&
+                error.message ===
+                    "KHATA_IMPORT_CANCELLED"
+            )
+        ) {
+
+            console.warn(
+                "Khata PDF scan cancelled."
+            );
+
+
+            showKhataCancellingProgress(
+                "Khata scanning stopped."
+            );
+
+
+            return null;
+
+        }
+
+
+        throw error;
+
+    }
+    finally {
+
+        /*
+           Clear active PDF loading reference.
+        */
+
+        if (
+            window.khataActivePDFLoadingTask ===
+            loadingTask
+        ) {
+
+            window.khataActivePDFLoadingTask =
+                null;
+
+        }
+
+
+        /*
+           PDF cleanup
+        */
+
+        if (
+            pdf &&
+            typeof pdf.cleanup ===
+            "function"
+        ) {
+
+            try {
+
+                await pdf.cleanup();
+
+            }
+            catch (error) {
+
+                console.warn(
+                    "PDF cleanup failed:",
+                    error
+                );
 
             }
 
         }
 
 
-        /* ----------------------------------------------------
-           SAVE PAGE
-        ---------------------------------------------------- */
+        /*
+           PDF destroy
+        */
 
-        pages.push({
+        if (
+            pdf &&
+            typeof pdf.destroy ===
+            "function"
+        ) {
 
-            pageNumber:
-                pageNumber,
+            try {
 
-            text:
-                finalText
+                await pdf.destroy();
 
-        });
+            }
+            catch (error) {
 
-      /*
-         Release PDF.js page resources.
-      */
-      
-      if (
-          page &&
-          typeof page.cleanup === "function"
-      ) {
-      
-          page.cleanup();
-      
-      }
+                console.warn(
+                    "PDF destroy failed:",
+                    error
+                );
 
-        updateKhataScanProgress(
-              (pageNumber / pdf.numPages) * 100,
-              needsOCR
-                  ? "Reading page with Gujarati OCR..."
-                  : "Reading Khata pages...",
-              `Page ${pageNumber} of ${pdf.numPages}`
-          );
+            }
+
+        }
+
+
+        if (
+            window.khataActivePDF ===
+            pdf
+        ) {
+
+            window.khataActivePDF =
+                null;
+
+        }
 
     }
 
-
-    console.log(
-        "KHATA PDF TEXT EXTRACTION COMPLETE"
-    );
-
-
-    const result = {
-
-        type:
-            "pdf",
-
-        fileName:
-            file.name,
-
-        pageCount:
-            pdf.numPages,
-
-        pages:
-            pages
-
-    };
-
-      updateKhataScanProgress(
-          100,
-          "Khata scanning completed!",
-          `${pdf.numPages} pages processed`
-      );
-
-        await new Promise(
-          function(resolve) {
-      
-              setTimeout(
-                  resolve,
-                  500
-              );
-      
-          }
-      );
-      
-      hideKhataScanProgress();
-
-  
-    return result;
 }
 
 
 /* ============================================================
    SCAN IMAGE
-   ============================================================ */
+============================================================ */
 
-async function scanKhataImage(file) {
+async function scanKhataImage(
+    file,
+    abortSignal = null
+) {
 
     console.log(
         "Khata image received."
     );
 
 
-    /* --------------------------------------------------------
-       IMAGE OCR
-    -------------------------------------------------------- */
+    throwIfKhataScannerCancelled(
+        abortSignal
+    );
+
 
     try {
 
         const worker =
-            await getKhataOCRWorker();
+            await getKhataOCRWorker(
+                abortSignal
+            );
+
+
+        throwIfKhataScannerCancelled(
+            abortSignal
+        );
+
+
+        updateKhataScanProgress(
+            50,
+            "Gujarati OCR is reading the image...",
+            "Processing image"
+        );
+
+
+        await khataScannerYield();
+
+
+        throwIfKhataScannerCancelled(
+            abortSignal
+        );
 
 
         const result =
             await worker.recognize(
                 file
             );
+
+
+        /*
+           Check immediately after OCR.
+        */
+
+        throwIfKhataScannerCancelled(
+            abortSignal
+        );
 
 
         const text =
@@ -1044,38 +2271,39 @@ async function scanKhataImage(file) {
     }
     catch (error) {
 
+        if (
+            khataScannerIsCancelled(
+                abortSignal
+            ) ||
+            (
+                error &&
+                error.message ===
+                    "KHATA_IMPORT_CANCELLED"
+            )
+        ) {
+
+            console.warn(
+                "Khata image OCR cancelled."
+            );
+
+
+            showKhataCancellingProgress(
+                "Image scanning stopped."
+            );
+
+
+            return null;
+
+        }
+
+
         console.error(
             "Gujarati image OCR failed:",
             error
         );
 
 
-        return {
-
-            type:
-                "image",
-
-            fileName:
-                file.name,
-
-            pageCount:
-                1,
-
-            pages: [
-
-                {
-
-                    pageNumber:
-                        1,
-
-                    text:
-                        ""
-
-                }
-
-            ]
-
-        };
+        throw error;
 
     }
 
@@ -1088,6 +2316,26 @@ async function scanKhataImage(file) {
 
 window.scanKhataFile =
     scanKhataFile;
+
+
+/* ============================================================
+   EXPORT PROGRESS FUNCTIONS
+============================================================ */
+
+window.updateKhataScanProgress =
+    updateKhataScanProgress;
+
+
+window.showKhataScanProgress =
+    showKhataScanProgress;
+
+
+window.showKhataCancellingProgress =
+    showKhataCancellingProgress;
+
+
+window.hideKhataScanProgress =
+    hideKhataScanProgress;
 
 
 /* ============================================================

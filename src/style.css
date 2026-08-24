@@ -3412,4 +3412,487 @@ body.dark-theme .mainBillsTableWrapper::-webkit-scrollbar-thumb:hover,
 }
 
 
+/* ======================================================================================================================= */
 
+
+/* ============================================================
+   KHATA SCAN PROGRESS OVERLAY
+   LIGHT + DARK THEME
+============================================================ */
+
+.khataScanProgressOverlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 99999;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    /*
+       Uses a neutral overlay in both themes.
+       The actual card follows the application theme.
+    */
+    background: rgba(0, 0, 0, 0.45);
+
+    backdrop-filter: blur(5px);
+
+    -webkit-backdrop-filter: blur(5px);
+}
+
+
+/* ============================================================
+   PROGRESS CARD
+============================================================ */
+
+.khataScanProgressCard {
+
+    width: 420px;
+
+    max-width: calc(100vw - 40px);
+
+    padding: 32px;
+
+    box-sizing: border-box;
+
+    /*
+       LIGHT THEME
+    */
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.20);
+
+    text-align: center;
+
+    font-family: "Poppins", sans-serif;
+
+    color: #222;
+}
+
+
+/* ============================================================
+   ICON
+============================================================ */
+
+.khataScanProgressIcon {
+
+    width: 64px;
+
+    height: 64px;
+
+    margin: 0 auto 18px;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    /*
+       Same green family as the Shikshanupakaran system
+    */
+    background: #eef7f0;
+
+    color: #3b9c5a;
+
+    font-size: 28px;
+}
+
+
+/* ============================================================
+   TITLE
+============================================================ */
+
+.khataScanProgressCard h3 {
+
+    margin: 0 0 8px;
+
+    font-size: 20px;
+
+    font-weight: 600;
+
+    color: #222;
+
+    line-height: 1.3;
+}
+
+
+/* ============================================================
+   STATUS
+============================================================ */
+
+.khataScanProgressCard p {
+
+    margin: 0 0 20px;
+
+    font-size: 14px;
+
+    font-weight: 400;
+
+    color: #777;
+
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   PROGRESS BAR
+============================================================ */
+
+.khataProgressBar {
+
+    width: 100%;
+
+    height: 10px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background: #e9ecef;
+
+    margin-bottom: 12px;
+}
+
+
+/* ============================================================
+   PROGRESS FILL
+============================================================ */
+
+.khataProgressFill {
+
+    height: 100%;
+
+    width: 0%;
+
+    border-radius: 20px;
+
+    background: #4caf68;
+
+    transition: width 0.25s ease;
+
+}
+
+
+/* ============================================================
+   PERCENTAGE
+============================================================ */
+
+#khataScanProgressPercent {
+
+    display: block;
+
+    margin: 0;
+
+    font-size: 22px;
+
+    font-weight: 700;
+
+    line-height: 1.3;
+
+    color: #333;
+}
+
+
+/* ============================================================
+   PAGE INFORMATION
+============================================================ */
+
+#khataScanProgressPage {
+
+    display: block;
+
+    margin-top: 5px;
+
+    font-size: 12px;
+
+    font-weight: 400;
+
+    color: #888;
+
+    line-height: 1.4;
+}
+
+
+/* ============================================================
+   DARK THEME
+   ------------------------------------------------------------
+   IMPORTANT:
+   This selector supports the common theme pattern:
+       body.dark
+       body[data-theme="dark"]
+       .dark
+   ============================================================ */
+
+body.dark .khataScanProgressCard,
+body[data-theme="dark"] .khataScanProgressCard {
+
+    background: #1f2937;
+
+    border-color: #374151;
+
+    color: #f3f4f6;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.50);
+}
+
+
+/* ============================================================
+   DARK THEME — ICON
+============================================================ */
+
+body.dark .khataScanProgressIcon,
+body[data-theme="dark"] .khataScanProgressIcon {
+
+    background: rgba(76, 175, 80, 0.15);
+
+    color: #6dcc86;
+}
+
+
+/* ============================================================
+   DARK THEME — TITLE
+============================================================ */
+
+body.dark .khataScanProgressCard h3,
+body[data-theme="dark"] .khataScanProgressCard h3 {
+
+    color: #f3f4f6;
+}
+
+
+/* ============================================================
+   DARK THEME — STATUS
+============================================================ */
+
+body.dark .khataScanProgressCard p,
+body[data-theme="dark"] .khataScanProgressCard p {
+
+    color: #aeb6c2;
+}
+
+
+/* ============================================================
+   DARK THEME — PROGRESS BAR
+============================================================ */
+
+body.dark .khataProgressBar,
+body[data-theme="dark"] .khataProgressBar {
+
+    background: #374151;
+}
+
+
+/* ============================================================
+   DARK THEME — PROGRESS FILL
+============================================================ */
+
+body.dark .khataProgressFill,
+body[data-theme="dark"] .khataProgressFill {
+
+    background: #62c97c;
+}
+
+
+/* ============================================================
+   DARK THEME — PERCENTAGE
+============================================================ */
+
+body.dark #khataScanProgressPercent,
+body[data-theme="dark"] #khataScanProgressPercent {
+
+    color: #f3f4f6;
+}
+
+
+/* ============================================================
+   DARK THEME — PAGE
+============================================================ */
+
+body.dark #khataScanProgressPage,
+body[data-theme="dark"] #khataScanProgressPage {
+
+    color: #9ca3af;
+}
+
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 600px) {
+
+    .khataScanProgressCard {
+
+        width: calc(100vw - 32px);
+
+        padding: 26px 22px;
+
+        border-radius: 16px;
+    }
+
+
+    .khataScanProgressIcon {
+
+        width: 56px;
+
+        height: 56px;
+
+        margin-bottom: 16px;
+
+        font-size: 24px;
+    }
+
+
+    .khataScanProgressCard h3 {
+
+        font-size: 18px;
+    }
+
+
+    .khataScanProgressCard p {
+
+        font-size: 13px;
+    }
+
+
+    #khataScanProgressPercent {
+
+        font-size: 20px;
+    }
+
+}
+
+/* ============================================================
+   KHATA IMPORT — CANCEL BUTTON
+============================================================ */
+
+.khataScanCancelButton {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    margin-top: 18px;
+
+    padding: 10px 22px;
+
+    min-width: 150px;
+
+    border: 1px solid #dc3545;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #dc3545;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    font-family: inherit;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease;
+
+}
+
+
+/* ============================================================
+   ICON
+============================================================ */
+
+.khataScanCancelButton i {
+
+    font-size: 13px;
+
+}
+
+
+/* ============================================================
+   HOVER
+============================================================ */
+
+.khataScanCancelButton:hover {
+
+    background: #dc3545;
+
+    color: #ffffff;
+
+    border-color: #dc3545;
+
+    box-shadow:
+        0 4px 10px rgba(220, 53, 69, 0.20);
+
+    transform: translateY(-1px);
+
+}
+
+
+/* ============================================================
+   ACTIVE
+============================================================ */
+
+.khataScanCancelButton:active {
+
+    transform: translateY(0);
+
+    box-shadow: none;
+
+}
+
+
+/* ============================================================
+   DISABLED / CANCELLING
+============================================================ */
+
+.khataScanCancelButton:disabled {
+
+    background: #f8f9fa;
+
+    color: #999999;
+
+    border-color: #dddddd;
+
+    cursor: not-allowed;
+
+    box-shadow: none;
+
+    transform: none;
+
+}
+
+
+/* ============================================================
+   CANCEL SPINNER
+============================================================ */
+
+.khataScanCancelButton .fa-spinner {
+
+    font-size: 13px;
+
+}

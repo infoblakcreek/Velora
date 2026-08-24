@@ -6,17 +6,18 @@
    - Reading raw page-level text from Khata Scanner
    - Finding ALL Khata numbers
    - Normalizing extracted Khata numbers
-   - Extracting Khata holder names
+   - Extracting FIRST Khata holder name
    - Returning structured Khata records
 
-   NOT responsible for:
+   FIXES INCLUDED:
 
-   - Reading PDF files
-   - OCR
-   - Selecting editor fields
-   - Generating sequences
-   - Saving to Firebase
+   - Isolates individual Khata section before name extraction
+   - Prevents footer extraction
+   - Prevents right-column header extraction
+   - Always selects first valid holder name
+   - Keeps cancellation support
 ============================================================ */
+
 
 console.log(
     "Khata Parser module loaded"
@@ -25,15 +26,113 @@ console.log(
 
 
 /* ============================================================
-   PARSE COMPLETE KHATA RESULT
-   ============================================================ */
+   KHATA CANCELLATION HELPER
+============================================================ */
 
-function parseKhataResult(result) {
+function throwIfKhataParserCancelled(){
 
-    if (
+    if(
+        typeof isKhataImportCancelled ===
+        "function"
+    ){
+
+        if(
+            isKhataImportCancelled()
+        ){
+
+            throw new Error(
+                "KHATA_IMPORT_CANCELLED"
+            );
+
+        }
+
+    }
+
+
+    if(
+        window.khataImportCancelled === true ||
+        window.khataScanCancelled === true
+    ){
+
+        throw new Error(
+            "KHATA_IMPORT_CANCELLED"
+        );
+
+    }
+
+
+    if(
+        window.khataImportAbortController &&
+        window.khataImportAbortController.signal &&
+        window.khataImportAbortController.signal.aborted
+    ){
+
+        throw new Error(
+            "KHATA_IMPORT_CANCELLED"
+        );
+
+    }
+
+}
+
+
+
+
+/* ============================================================
+   BROWSER YIELD
+============================================================ */
+
+function waitForKhataParserYield(){
+
+    return new Promise(
+        function(resolve){
+
+            if(
+                typeof requestAnimationFrame ===
+                "function"
+            ){
+
+                requestAnimationFrame(
+                    function(){
+
+                        resolve();
+
+                    }
+                );
+
+            }
+            else{
+
+                setTimeout(
+                    resolve,
+                    0
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+
+
+/* ============================================================
+   MAIN PARSER
+============================================================ */
+
+async function parseKhataResult(result){
+
+
+    throwIfKhataParserCancelled();
+
+
+
+    if(
         !result ||
         !Array.isArray(result.pages)
-    ) {
+    ){
 
         throw new Error(
             "Invalid Khata scanner result."
@@ -42,9 +141,11 @@ function parseKhataResult(result) {
     }
 
 
+
     console.log(
         "KHATA PARSER STARTED"
     );
+
 
     console.log(
         "Pages received:",
@@ -52,76 +153,198 @@ function parseKhataResult(result) {
     );
 
 
+
     const records = [];
 
 
-    /* --------------------------------------------------------
-       PROCESS EACH PAGE
-    -------------------------------------------------------- */
 
-    result.pages.forEach(function(page) {
+    for(
+        let pageIndex = 0;
+        pageIndex < result.pages.length;
+        pageIndex++
+    ){
 
-        const text =
+
+        throwIfKhataParserCancelled();
+
+
+        await waitForKhataParserYield();
+
+
+        throwIfKhataParserCancelled();
+
+
+
+        const page =
+            result.pages[pageIndex];
+
+       
+
+        if(!page){
+
+            continue;
+
+        }
+
+
+
+       const text =
             page.text || "";
-
-
-        /*
-           Keep the existing Khata number extraction.
-           DO NOT CHANGE THIS.
-        */
-
+        
+        
         const khataNumbers =
-            extractKhataNumbers(text);
+            extractKhataNumbers(
+                text
+            );
 
 
-        khataNumbers.forEach(
-            function(khataNumber) {
 
-                /*
-                   Extract holder names belonging
-                   to this Khata.
-                */
-
-                const name =
-                    extractKhataName(
-                        text,
-                        khataNumber
-                    );
+        for(
+            let khataIndex = 0;
+            khataIndex < khataNumbers.length;
+            khataIndex++
+        ){
 
 
-                records.push({
-
-                    pageNumber:
-                        page.pageNumber,
-
-                    khataNumber:
-                        khataNumber,
-
-                    name:
-                        name,
-
-                    rawText:
-                        text,
-
-                    /*
-                       Real extracted record.
-                    */
-
-                    isPlaceholder:
-                        false
-
-                });
+            throwIfKhataParserCancelled();
 
 
-                console.log(
-                    "Khata name extracted:",
+
+            const khataNumber =
+                khataNumbers[
+                    khataIndex
+                ];
+
+
+
+            /*
+               IMPORTANT FIX
+
+               Previously:
+
+               whole page → name extractor
+
+               Now:
+
+               only this Khata block → name extractor
+
+            */
+
+
+            let name = "";
+
+            let khataSection = "";
+
+            
+            
+            /* ========================================================
+                   NAME EXTRACTION
+                
+                   IMPORTANT:
+                   Use physical PDF positions first.
+                
+                   This prevents the FIRST Khata on a page from
+                   accidentally taking text that appears above it
+                   in the raw PDF text order.
+                ======================================================== */
+                
+                if (
+                      page.usedOCR === true ||
+                      page.textSource === "ocr"
+                  ) {
+                  
+                      /*
+                         OCR text is authoritative for this page.
+                  
+                         Do NOT use the original PDF positional items
+                         because they were detected as garbled.
+                      */
+                  
+                      khataSection =
+                          extractIndividualKhataSection(
+                              text,
+                              khataNumber
+                          );
+                  
+                      name =
+                          extractKhataName(
+                              khataSection,
+                              khataNumber
+                          );
+      
+                        }
+                        else if (
+                            Array.isArray(page.items) &&
+                            page.items.length > 0
+                        ) {
+                        
+                            /*
+                               PDF text is healthy.
+                               Positional extraction is safest.
+                            */
+                        
+                            name =
+                                extractKhataNameFromPositionedItems(
+                                    page.items,
+                                    khataNumber
+                                );
+                        
+                        }
+                        
+                        
+                        if (!name) {
+                        
+                            /*
+                               Final fallback.
+                            */
+                        
+                            khataSection =
+                                extractIndividualKhataSection(
+                                    text,
+                                    khataNumber
+                                );
+                        
+                            name =
+                                extractKhataName(
+                                    khataSection,
+                                    khataNumber
+                                );
+                        
+                        }
+
+
+
+            records.push({
+
+                pageNumber:
+                    page.pageNumber,
+
+                khataNumber:
                     khataNumber,
-                    "→",
-                    name
-                );
 
-            }
-        );
+                name:
+                    name,
+
+                rawText:
+                    khataSection || text,
+
+                isPlaceholder:
+                    false
+
+            });
+
+
+
+            console.log(
+                "Khata:",
+                khataNumber,
+                "→ Name:",
+                name || "(empty)"
+            );
+
+
+        }
+
 
 
         console.log(
@@ -132,130 +355,30 @@ function parseKhataResult(result) {
             "Khata numbers"
         );
 
-    });
+
+
+    }
+
+
 
 
     /* ========================================================
        CREATE MISSING KHATA NUMBERS
-       
-       Example:
-
-       971
-       973
-
-       becomes:
-
-       971
-       972 ← empty placeholder
-       973
     ======================================================== */
 
-    console.log(
-        "Checking for missing Khata numbers..."
-    );
+
+    throwIfKhataParserCancelled();
 
 
-    /*
-       Convert Gujarati digits to normal numbers
-       for sequence checking.
-    */
-
-    function gujaratiToEnglishNumber(value) {
-
-        if (!value) {
-            return null;
-        }
-
-
-        const map = {
-
-            "૦": "0",
-            "૧": "1",
-            "૨": "2",
-            "૩": "3",
-            "૪": "4",
-            "૫": "5",
-            "૬": "6",
-            "૭": "7",
-            "૮": "8",
-            "૯": "9"
-
-        };
-
-
-        const english =
-            String(value)
-                .replace(
-                    /[૦-૯]/g,
-                    function(digit) {
-
-                        return map[digit];
-
-                    }
-                );
-
-
-        /*
-           Make sure the result is actually numeric.
-        */
-
-        if (!/^\d+$/.test(english)) {
-            return null;
-        }
-
-
-        return Number(english);
-
-    }
-
-
-    /*
-       Convert normal number back to Gujarati digits.
-    */
-
-    function englishToGujaratiNumber(value) {
-
-        const map = [
-
-            "૦",
-            "૧",
-            "૨",
-            "૩",
-            "૪",
-            "૫",
-            "૬",
-            "૭",
-            "૮",
-            "૯"
-
-        ];
-
-
-        return String(value)
-            .replace(
-                /\d/g,
-                function(digit) {
-
-                    return map[
-                        Number(digit)
-                    ];
-
-                }
-            );
-
-    }
-
-
-    /*
-       Collect all actual Khata numbers.
-    */
 
     const existingNumbers =
         new Set();
 
 
+
     records.forEach(
-        function(record) {
+        function(record){
+
 
             const numeric =
                 gujaratiToEnglishNumber(
@@ -263,7 +386,10 @@ function parseKhataResult(result) {
                 );
 
 
-            if (numeric !== null) {
+
+            if(
+                numeric !== null
+            ){
 
                 existingNumbers.add(
                     numeric
@@ -271,85 +397,78 @@ function parseKhataResult(result) {
 
             }
 
+
         }
     );
 
 
-    /*
-       Only create placeholders if we
-       have at least two valid numbers.
-    */
 
-    if (
+    if(
         existingNumbers.size >= 2
-    ) {
+    ){
 
-        const sortedNumbers =
+
+        const sorted =
             Array.from(
                 existingNumbers
-            ).sort(
-                function(a, b) {
-                    return a - b;
-                }
+            )
+            .sort(
+                (a,b)=>a-b
             );
 
 
-        const firstNumber =
-            sortedNumbers[0];
+
+        const first =
+            sorted[0];
 
 
-        const lastNumber =
-            sortedNumbers[
-                sortedNumbers.length - 1
+        const last =
+            sorted[
+                sorted.length-1
             ];
 
 
-        console.log(
-            "Khata sequence:",
-            firstNumber,
-            "→",
-            lastNumber
-        );
 
-
-        /*
-           Find every missing number.
-        */
-
-        for (
-            let number = firstNumber;
-            number <= lastNumber;
+        for(
+            let number = first;
+            number <= last;
             number++
-        ) {
+        ){
 
-            if (
+
+            if(
+                number % 25 === 0
+            ){
+
+                await waitForKhataParserYield();
+
+                throwIfKhataParserCancelled();
+
+            }
+
+
+
+            if(
                 existingNumbers.has(
                     number
                 )
-            ) {
+            ){
 
                 continue;
 
             }
 
 
-            const missingKhata =
-                englishToGujaratiNumber(
-                    number
-                );
 
-
-            /*
-               Create EMPTY placeholder.
-            */
-
-            const placeholder = {
+            records.push({
 
                 pageNumber:
                     null,
 
                 khataNumber:
-                    missingKhata,
+                    englishToGujaratiNumber(
+                        number
+                    ),
 
                 name:
                     "",
@@ -360,87 +479,32 @@ function parseKhataResult(result) {
                 isPlaceholder:
                     true
 
-            };
+            });
 
-
-            records.push(
-                placeholder
-            );
-
-
-            console.log(
-                "Missing Khata created:",
-                missingKhata
-            );
 
         }
+
 
     }
 
 
-    /* ========================================================
-       SORT ALL KHATAS NUMERICALLY
-       
-       This ensures:
-
-       ૯૭૧
-       ૯૭૨
-       ૯૭૩
-       ૯૭૪
-
-       rather than insertion/page order.
-    ======================================================== */
 
     records.sort(
-        function(a, b) {
-
-            const aNumber =
-                gujaratiToEnglishNumber(
-                    a.khataNumber
-                );
-
-
-            const bNumber =
-                gujaratiToEnglishNumber(
-                    b.khataNumber
-                );
-
-
-            if (
-                aNumber === null &&
-                bNumber === null
-            ) {
-
-                return 0;
-
-            }
-
-
-            if (
-                aNumber === null
-            ) {
-
-                return 1;
-
-            }
-
-
-            if (
-                bNumber === null
-            ) {
-
-                return -1;
-
-            }
-
+        function(a,b){
 
             return (
-                aNumber -
-                bNumber
+                gujaratiToEnglishNumber(
+                    a.khataNumber
+                )
+                -
+                gujaratiToEnglishNumber(
+                    b.khataNumber
+                )
             );
 
         }
     );
+
 
 
     console.log(
@@ -449,43 +513,11 @@ function parseKhataResult(result) {
 
 
     console.log(
-        "Actual Khata records:",
-        records.filter(
-            function(record) {
-                return !record.isPlaceholder;
-            }
-        ).length
-    );
-
-
-    console.log(
-        "Empty Khata records:",
-        records.filter(
-            function(record) {
-                return record.isPlaceholder;
-            }
-        ).length
-    );
-
-
-    console.log(
-        "Total Khata records:",
+        "Total Khata:",
         records.length
     );
 
 
-    /*
-       IMPORTANT:
-
-       Return the ARRAY directly.
-
-       The existing Khata Scanner code does:
-
-           khataRecords.forEach(...)
-
-       Therefore parseKhataResult()
-       must return an array.
-    */
 
     return records;
 
@@ -494,674 +526,1937 @@ function parseKhataResult(result) {
 
 
 /* ============================================================
-   EXTRACT ALL KHATA NUMBERS
-
-   DO NOT CHANGE THIS LOGIC.
-   It is currently working.
+   KHATA NUMBER EXTRACTION
 ============================================================ */
 
-function extractKhataNumbers(text) {
+function extractKhataNumbers(text){
 
-    if (!text) {
+    if(
+        !text
+    ){
+
         return [];
+
     }
 
 
-    /*
-       PDF.js extraction pattern:
-
-       ખાતા નંબર  ૨૮૬
-       ખાતા નંબર  ૨૮X
-       ખાતા નંબર  ૩X૦
-
-       IMPORTANT:
-
-       In this PDF, PDF.js extracts Gujarati digit ૫
-       as the character "X".
-
-       Therefore:
-
-       X → ૫
-    */
-
     const regex =
-        /ખાતા\s*નંબર[\s\S]{0,20}?([૦-૯0-9Xx]+)/gi;
+        /ખાતા\s*નંબર\s*[:：]?\s*([૦-૯0-9Xx]+)/gi;
 
 
     const matches =
-        text.matchAll(regex);
+        text.matchAll(
+            regex
+        );
 
 
     const numbers = [];
 
 
-    for (const match of matches) {
+    for(
+        const match of matches
+    ){
 
-        if (!match[1]) {
+        if(
+            !match[1]
+        ){
+
             continue;
+
         }
 
 
-        let khataNumber =
-            match[1].trim();
+        let number =
+            match[1]
+                .trim();
 
 
-        /*
-           PDF.js character mapping:
-
-           X = Gujarati ૫
-
-           Examples:
-
-           ૨૯X → ૨૯૫
-           ૩X૦ → ૩૫૦
-           X૦૦ → ૫૦૦
-           XX૦ → ૫૫૦
-           ૧૦X૪ → ૧૦૫૪
-        */
-
-        khataNumber =
-            khataNumber.replace(
+        number =
+            number.replace(
                 /[Xx]/g,
                 "૫"
             );
 
 
-        numbers.push(
-            khataNumber
-        );
-
-    }
-
-
-    return numbers;
-
-}
-
-async function testGujaratiOCR(canvas) {
-
-    console.log("=================================");
-    console.log("GUJARATI OCR TEST STARTED");
-    console.log("=================================");
-
-    if (
-        typeof Tesseract === "undefined"
-    ) {
-
-        console.error(
-            "Tesseract.js is not loaded."
-        );
-
-        return "";
-    }
-
-
-    try {
-
-        const result =
-            await Tesseract.recognize(
-                canvas,
-                "guj",
-                {
-
-                    logger:
-                        function(info) {
-
-                            console.log(
-                                "Gujarati OCR:",
-                                info
-                            );
-
-                        }
-
-                }
+        number =
+            number.replace(
+                /[^૦-૯0-9]/g,
+                ""
             );
 
 
-        const text =
-            result.data.text
-                .replace(/\s+/g, " ")
-                .trim();
+        if(
+            number
+        ){
 
+            numbers.push(
+                number
+            );
 
-        console.log(
-            "GUJARATI OCR RESULT:",
-            text
-        );
-
-
-        console.log(
-            "================================="
-        );
-        console.log(
-            "GUJARATI OCR TEST COMPLETE"
-        );
-        console.log(
-            "================================="
-        );
-
-
-        return text;
+        }
 
     }
-    catch (error) {
 
-        console.error(
-            "GUJARATI OCR FAILED:",
-            error
-        );
 
-        return "";
-
-    }
+    return [
+        ...new Set(numbers)
+    ];
 
 }
 
 
-/* ============================================================
-   EXTRACT KHATA HOLDER NAME(S)
 
-   This does NOT change Khata-number extraction.
-
-   For each Khata number, we:
-
-   1. Find the corresponding Khata section
-   2. Stop at "કુ_ ખાતેદાર"
-   3. Extract:
-         ૧. Name
-         ૨. Name
-         ૩. Name
-   4. Return all names as one string
-============================================================ */
-
-// function extractKhataName(text, khataNumber) {
-
-//     if (!text || !khataNumber) {
-//         return "";
-//     }
-
-//     /*
-//        --------------------------------------------------------
-//        NORMALIZE TEXT
-//        --------------------------------------------------------
-//     */
-
-//     const normalizedText =
-//         text.replace(/\r\n/g, "\n");
-
-
-//     /*
-//        --------------------------------------------------------
-//        FIND THIS KHATA SECTION
-//        --------------------------------------------------------
-//     */
-
-//     const khataRegex =
-//         new RegExp(
-//             "ખાતા\\s*નંબર\\s*[:：]?\\s*" +
-//             khataNumber
-//         );
-
-
-//     const khataMatch =
-//         normalizedText.match(
-//             khataRegex
-//         );
-
-
-//     if (!khataMatch) {
-
-//         console.warn(
-//             "Khata section not found:",
-//             khataNumber
-//         );
-
-//         return "";
-//     }
-
-
-//     /*
-//        Start immediately after:
-
-//        ખાતા નંબર : ૧૭૯
-//     */
-
-//     const startIndex =
-//         khataMatch.index +
-//         khataMatch[0].length;
-
-
-//     let section =
-//         normalizedText.substring(
-//             startIndex
-//         );
-
-
-//     /*
-//        --------------------------------------------------------
-//        STOP AT NEXT KHATA
-//        --------------------------------------------------------
-//     */
-
-//     const nextKhataMatch =
-//         section.match(
-//             /ખાતા\s*નંબર\s*[:：]?/i
-//         );
-
-
-//     if (nextKhataMatch) {
-
-//         section =
-//             section.substring(
-//                 0,
-//                 nextKhataMatch.index
-//             );
-
-//     }
-
-
-//     /*
-//        --------------------------------------------------------
-//        SPLIT INTO OCR LINES
-//        --------------------------------------------------------
-//     */
-
-//     const lines =
-//         section
-//             .split("\n")
-//             .map(function(line) {
-
-//                 return line.trim();
-
-//             })
-//             .filter(function(line) {
-
-//                 return line.length > 0;
-
-//             });
-
-
-
-
-//     /*
-//        --------------------------------------------------------
-//        FIND HOLDER ROWS
-       
-//        Example:
-
-//        ૩. હજામ મુકેશભાઈ અમથાભાઈ (૬૪૬) ૭૫ ૧-૩૩-૧૯ ૩.૦૦
-
-//        ૪. હજામ શારદાબેન અમથાભાઈ (૬૪૬) કુલ સરવે નંબરો...
-//        --------------------------------------------------------
-//     */
-
-//     const holderLines = [];
-
-
-//     const holderRegex =
-//           /^[^\s.]+\.\s*(.+?\([૦-૯0-9]+\))/;
-
-
-         
-//       lines.forEach(function(line) {
-      
-//           /*
-//              ----------------------------------------------------
-//              FIND HOLDER ROW
-             
-//              Example:
-             
-//              ૩. હજામ મુકેશભાઈ અમથાભાઈ (૬૪૬) ૭૫ ૧-૩૩-૧૯ ૩.૦૦
-             
-//              ૪. હજામ શારદાબેન અમથાભાઈ (૬૪૬) કુલ સરવે નંબરો...
-//              ----------------------------------------------------
-//           */
-      
-//           const match =
-//               line.match(
-//                   holderRegex
-//               );
-      
-      
-//           if (!match) {
-//               return;
-//           }
-      
-      
-//           let holderText =
-//               match[1].trim();
-      
-      
-//           if (!holderText) {
-//               return;
-//           }
-      
-      
-//           /*
-//              ----------------------------------------------------
-//              REMOVE PROPERTY / SURVEY INFORMATION
-             
-//              The reliable boundary is the numeric holder ID
-//              inside parentheses.
-             
-//              Example:
-             
-//              સુથાર ધના હીરા (૩૭૮૨) ૫૫૭/૫૨ પૈકી ૨ ૦-૦૦૨-૦૨ ૦.૦૯
-             
-//              becomes:
-             
-//              સુથાર ધના હીરા (૩૭૮૨)
-             
-//              This is safer than trying to understand every
-//              possible survey-number format.
-//              ----------------------------------------------------
-//           */
-      
-//           const nameMatch =
-//               holderText.match(
-//                   /^(.+?\([૦-૯0-9]+\))/
-//               );
-      
-      
-//           if (nameMatch) {
-      
-//               holderText =
-//                   nameMatch[1].trim();
-      
-//           }
-      
-      
-//           /*
-//              ----------------------------------------------------
-//              FALLBACK:
-             
-//              If OCR did not give us a numeric ID in
-//              parentheses, handle "કુલ સરવે નંબરો".
-//              ----------------------------------------------------
-//           */
-      
-//           if (
-//               holderText.includes(
-//                   "કુલ સરવે નંબરો"
-//               )
-//           ) {
-      
-//               holderText =
-//                   holderText
-//                       .split(
-//                           "કુલ સરવે નંબરો"
-//                       )[0]
-//                       .trim();
-      
-//           }
-      
-      
-//           /*
-//              ----------------------------------------------------
-//              CLEAN WHITESPACE
-//              ----------------------------------------------------
-//           */
-      
-//           holderText =
-//               holderText
-//                   .replace(
-//                       /\s+/g,
-//                       " "
-//                   )
-//                   .trim();
-      
-      
-//           /*
-//              ----------------------------------------------------
-//              REMOVE ACCIDENTAL PUNCTUATION
-//              ----------------------------------------------------
-//           */
-      
-//           holderText =
-//               holderText.replace(
-//                   /^[,;:|]+|[,;:|]+$/g,
-//                   ""
-//               );
-      
-      
-//           if (!holderText) {
-//               return;
-//           }
-      
-      
-//           /*
-//              ----------------------------------------------------
-//              STORE CLEAN HOLDER NAME
-//              ----------------------------------------------------
-//           */
-      
-//           holderLines.push(
-//               holderText
-//           );
-      
-//       });
-
-
-
-//           if (holderLines.length === 0) {
-
-//             console.log(
-//                 "========== KHATA NAME EXTRACTION FAILED =========="
-//             );
-        
-//             console.log(
-//                 "Khata:",
-//                 khataNumber
-//             );
-        
-//             console.log(
-//                 "Raw section:",
-//                 JSON.stringify(section, null, 2)
-//             );
-        
-//             console.log(
-//                 "OCR lines:",
-//                 JSON.stringify(lines, null, 2)
-//             );
-        
-//             console.log(
-//                 "========== KHATA NAME EXTRACTION FAILED END =========="
-//             );
-        
-//         }
-
-//     /*
-//        --------------------------------------------------------
-//        REMOVE DUPLICATES
-//        --------------------------------------------------------
-//     */
-
-//     const uniqueNames = [];
-
-
-//     holderLines.forEach(function(name) {
-
-//         if (
-//             !uniqueNames.includes(name)
-//         ) {
-
-//             uniqueNames.push(name);
-
-//         }
-
-//     });
-
-
-//     /*
-//        --------------------------------------------------------
-//        FINAL NAME
-//        --------------------------------------------------------
-//     */
-
-//     const finalName =
-//         uniqueNames.join(
-//             ", "
-//         );
-
-
-//     console.log(
-//         "Khata name extracted:",
-//         khataNumber,
-//         "→",
-//         finalName
-//     );
-
-
-//     return finalName;
-// }
 
 /* ============================================================
-   EXTRACT FIRST KHATA HOLDER NAME
+   ISOLATE ONE KHATA BLOCK
 
-   RULE:
+   IMPORTANT FIX
 
-   If a Khata contains:
+   Prevents:
+   - next Khata name mixing
+   - footer mixing
+   - column mixing
 
-       ૧. Name A (123)
-       ૨. Name B (456)
-       ૩. Name C (789)
-
-   return ONLY:
-
-       Name A (123)
-
-   We intentionally ignore all later holder rows.
-
-   This does NOT change Khata-number extraction.
 ============================================================ */
 
-function extractKhataName(text, khataNumber) {
 
-    if (!text || !khataNumber) {
+/* ============================================================
+   ISOLATE ONE KHATA BLOCK
+
+   STRICT RULE:
+
+   A Khata section MUST start at:
+
+       ખાતા નંબર XXXXX
+
+   NOTHING BEFORE THAT HEADER is allowed.
+
+   The section ends immediately before the next:
+
+       ખાતા નંબર XXXXX
+
+============================================================ */
+
+function extractIndividualKhataSection(
+    text,
+    khataNumber
+){
+
+    if(
+        !text ||
+        !khataNumber
+    ){
+
         return "";
+
     }
 
 
-    /*
-       --------------------------------------------------------
-       NORMALIZE TEXT
-       --------------------------------------------------------
-    */
+    /* ========================================================
+       NORMALIZE TARGET NUMBER
+    ======================================================== */
 
-    const normalizedText =
-        text.replace(/\r\n/g, "\n");
+    const normalizedKhataNumber =
+        String(khataNumber)
+            .replace(
+                /[Xx]/g,
+                "૫"
+            )
+            .trim();
 
 
-    /*
-       --------------------------------------------------------
-       FIND THIS KHATA SECTION
-       --------------------------------------------------------
-    */
+    /* ========================================================
+       FIND EXACT KHATA HEADER
 
-    const khataRegex =
+       IMPORTANT:
+
+       We require the WORD "ખાતા" + "નંબર"
+
+       We do NOT search for the number by itself.
+    ======================================================== */
+
+    const startRegex =
         new RegExp(
             "ખાતા\\s*નંબર\\s*[:：]?\\s*" +
-            khataNumber
+            normalizedKhataNumber +
+            "(?=\\s|$)",
+            "i"
         );
 
 
-    const khataMatch =
-        normalizedText.match(
-            khataRegex
+    const startMatch =
+        text.match(
+            startRegex
         );
 
 
-    if (!khataMatch) {
+    if(
+        !startMatch
+    ){
 
         console.warn(
-            "Khata section not found:",
+            "KHATA SECTION START NOT FOUND:",
             khataNumber
         );
 
         return "";
+
     }
 
 
-    /*
-       Start immediately after:
-
-       ખાતા નંબર : ૧૮૬
-    */
+    /* ========================================================
+       START EXACTLY AFTER KHATA HEADER
+    ======================================================== */
 
     const startIndex =
-        khataMatch.index +
-        khataMatch[0].length;
+        startMatch.index +
+        startMatch[0].length;
 
 
     let section =
-        normalizedText.substring(
+        text.substring(
             startIndex
         );
 
 
-    /*
-       --------------------------------------------------------
-       STOP AT NEXT KHATA
-       --------------------------------------------------------
-    */
+    /* ========================================================
+       FIND NEXT KHATA HEADER
 
-    const nextKhataMatch =
+       IMPORTANT:
+
+       We again require:
+
+           ખાતા નંબર
+
+       We do NOT stop at a random number.
+    ======================================================== */
+
+    const nextKhataRegex =
+        /ખાતા\s*નંબર\s*[:：]?\s*[૦-૯0-9Xx]+/i;
+
+
+    const nextMatch =
         section.match(
-            /ખાતા\s*નંબર\s*[:：]?/i
+            nextKhataRegex
         );
 
 
-    if (nextKhataMatch) {
+    if(
+        nextMatch
+    ){
 
         section =
             section.substring(
                 0,
-                nextKhataMatch.index
+                nextMatch.index
             );
 
     }
 
 
-    /*
-       --------------------------------------------------------
-       SPLIT INTO OCR LINES
-       --------------------------------------------------------
-    */
+    /* ========================================================
+       DEBUG
+
+       This lets us verify exactly what belongs to
+       this Khata.
+    ======================================================== */
+
+    console.log(
+        "================================================"
+    );
+
+    console.log(
+        "KHATA SECTION:",
+        khataNumber
+    );
+
+    console.log(
+        "SECTION START INDEX:",
+        startIndex
+    );
+
+    console.log(
+        "NEXT KHATA FOUND:",
+        !!nextMatch
+    );
+
+    console.log(
+        "SECTION TEXT:",
+        section
+    );
+
+    console.log(
+        "================================================"
+    );
+
+
+    return section.trim();
+
+}
+
+
+
+
+
+/* ============================================================
+   SHARED KHATA BLOCKED-WORD CHECK
+============================================================ */
+
+const KHATA_BLOCKED_WORDS = [
+
+    "ખાતા",
+    "ખાતેદાર",
+    "નામ",
+    "સરવે",
+    "સર્વે",
+    "જમીન",
+    "વિગત",
+    "ક્ષેત્રફળ",
+    "ગામ",
+    "તાલુકો",
+    "જીલ્લો",
+    "જિલ્લો",
+    "હિસ્સો",
+    "પૈકી",
+
+    "માંગણું",
+    "માંગણી",
+    "છૂટની",
+    "રકમ",
+    "ચોખ્ખું",
+    "લેવા પાત્ર",
+    "ગત સાલનું",
+    "જાદેવસૂલાત",
+    "ખરેખર",
+    "વસૂલ",
+    "બિન હુકમી",
+    "બાકી",
+    "શેરો",
+    "કુલ",
+    "એકંદર",
+
+    "સરકારી",
+    "ખેતી",
+    "સિવાય",
+    "કાયમનું",
+    "લોકલ",
+    "ફંડ",
+    "ફરતી",
+
+    "પાવતી",
+    "તારીખ",
+    "મુજબ",
+
+    "સૌજન્ય",
+    "રાષ્ટ્રીય",
+    "સૂચના",
+    "વિજ્ઞાન",
+    "કેન્દ્ર",
+    "ગુજરાત રાજ્ય",
+
+    "પાના",
+    "પાના નં",
+
+    "પ્રિન્ટ",
+    "પ્રિન્ટ કરનાર",
+    "પ્રિન્ટ કરવાનો હેતુ"
+
+];
+
+
+function isKhataBlockedWord(
+    value
+) {
+
+    if (!value) {
+
+        return false;
+
+    }
+
+
+    const text =
+        String(value);
+
+
+    for (
+        let i = 0;
+        i < KHATA_BLOCKED_WORDS.length;
+        i++
+    ) {
+
+        if (
+            text.includes(
+                KHATA_BLOCKED_WORDS[i]
+            )
+        ) {
+
+            return true;
+
+        }
+
+    }
+
+
+    return false;
+
+}
+/* ============================================================
+   EXTRACT FIRST KHATA HOLDER NAME
+
+   FINAL RULE:
+
+   A holder row MUST START WITH A NUMBER.
+
+   Examples:
+
+       1. રમેશભાઈ પટેલ
+       3. મહેશભાઈ પટેલ
+       6. રમિલાબેન પટેલ
+       7. કમલેશભાઈ પટેલ
+       12. હસમુખભાઈ પટેલ
+
+   The number does NOT matter.
+
+   We take ONLY the FIRST numbered holder row.
+
+   IMPORTANT:
+
+   Lines without a leading number are NEVER accepted
+   as a holder name.
+
+   Therefore:
+
+       some header
+       another text
+       6. રમેશભાઈ પટેલ
+       7. મહેશભાઈ પટેલ
+
+   becomes:
+
+       રમેશભાઈ પટેલ
+============================================================ */
+
+function extractKhataName(
+    section,
+    khataNumber
+){
+
+    if(
+        !section
+    ){
+
+        return "";
+
+    }
+
+
+    /* ========================================================
+       SPLIT INTO LINES
+    ======================================================== */
 
     const lines =
         section
-            .split("\n")
-            .map(function(line) {
+            .split(/\r?\n/)
+            .map(function(line){
 
-                return line.trim();
+                return line
+                    .replace(
+                        /\s+/g,
+                        " "
+                    )
+                    .trim();
 
             })
-            .filter(function(line) {
+            .filter(function(line){
 
-                return line.length > 0;
+                return (
+                    line.length > 0
+                );
 
             });
 
 
+    if(
+        lines.length === 0
+    ){
+
+        return "";
+
+    }
+
+
+    /* ========================================================
+       NUMBER ONLY
+    ======================================================== */
+
+    function isOnlyNumber(
+        value
+    ){
+
+        const cleaned =
+            value
+                .replace(
+                    /\s+/g,
+                    ""
+                )
+                .replace(
+                    /[()]/g,
+                    ""
+                );
+
+
+        return /^[૦-૯0-9./,:;\-]+$/.test(
+            cleaned
+        );
+
+    }
+
+
+    /* ========================================================
+       IMPORTANT:
+       ONLY NUMBERED HOLDER ROWS ARE VALID
+
+       Valid:
+
+           1. NAME
+           3. NAME
+           6. NAME
+           7. NAME
+           12. NAME
+
+       Invalid:
+
+           NAME
+           some header
+           footer
+           random text
+    ======================================================== */
+
+    function isNumberedHolderLine(
+        value
+    ){
+
+        return /^[૦-૯0-9]+\s*[.)-]\s*\S+/.test(
+            value
+        );
+
+    }
+
+
+    /* ========================================================
+       REMOVE LEADING HOLDER NUMBER
+    ======================================================== */
+
+    function removeLeadingHolderNumber(
+        value
+    ){
+
+        return value
+            .replace(
+                /^[૦-૯0-9]+\s*[.)-]\s*/,
+                ""
+            )
+            .trim();
+
+    }
+
+
+    /* ========================================================
+       REMOVE TRAILING REFERENCE DATA
+    ======================================================== */
+
+    function removeTrailingReference(
+        value
+    ){
+
+        let result =
+            value;
+
+
+        /*
+           Remove bracketed reference.
+
+           Example:
+
+           રમેશભાઈ પટેલ (૫૩૩૧)
+
+        */
+
+        result =
+            result.replace(
+                /\s*\([^)]*[૦-૯0-9][^)]*\)\s*$/,
+                ""
+            );
+
+
+        /*
+           Remove plain numeric data at the end.
+        */
+
+        result =
+            result.replace(
+                /\s+[૦-૯0-9]+(?:\s+[૦-૯0-9./-]+)*\s*$/,
+                ""
+            );
+
+
+        /*
+           Remove punctuation.
+        */
+
+        result =
+            result.replace(
+                /[\s|,:;.-]+$/,
+                ""
+            );
+
+
+        return result.trim();
+
+    }
+
+
+    /* ========================================================
+       CLEAN NAME
+    ======================================================== */
+
+    function cleanName(
+        value
+    ){
+
+        let name =
+            value
+                .replace(
+                    /\s+/g,
+                    " "
+                )
+                .trim();
+
+
+        name =
+            removeLeadingHolderNumber(
+                name
+            );
+
+
+        name =
+            removeTrailingReference(
+                name
+            );
+
+
+        name =
+            name.replace(
+                /\s+/g,
+                " "
+            );
+
+
+        return name.trim();
+
+    }
+
+
+    /* ========================================================
+       FIND FIRST NUMBERED HOLDER
+    ======================================================== */
+
+    for(
+        let i = 0;
+        i < lines.length;
+        i++
+    ){
+
+        throwIfKhataParserCancelled();
+
+
+        const originalLine =
+            lines[i];
+
+
+        console.log(
+            "KHATA SECTION LINE:",
+            khataNumber,
+            "→",
+            originalLine
+        );
+
+      /* ----------------------------------------------------
+         CRITICAL HOLDER RULE
+      
+         A holder row MUST begin with a serial number.
+      
+         Valid:
+      
+             2. રમેશભાઈ પટેલ
+             5. મહેશભાઈ પટેલ
+             45. રમિલાબેન પટેલ
+             102. કમલેશભાઈ પટેલ
+      
+         Invalid:
+      
+             રમેશભાઈ પટેલ
+             ખાતેદારનું નામ
+             પ્રિન્ટ કરવાનો હેતુ
+             footer text
+      
+         The serial number itself is NOT fixed.
+      ---------------------------------------------------- */
+      
+      if (
+          !isNumberedHolderLine(
+              originalLine
+          )
+      ) {
+      
+          continue;
+      
+      }
+
+        /* ----------------------------------------------------
+           CRITICAL FIX
+
+           If this is not a numbered row,
+           it CANNOT be the holder.
+        ---------------------------------------------------- */
+
+        /*
+             A holder does NOT have to start with a serial number.
+          
+             Valid:
+          
+                 1. રમેશભાઈ પટેલ
+          
+             Also valid:
+          
+                 રમેશભાઈ પટેલ
+          */
+          
+          if (
+              isKhataBlockedWord(originalLine)
+          ) {
+              continue;
+          }
+          
+          if (
+              isOnlyNumber(originalLine)
+          ) {
+              continue;
+          }
+
+
+        console.log(
+            "NUMBERED HOLDER ROW FOUND:",
+            khataNumber,
+            "→",
+            originalLine
+        );
+
+
+        /* ----------------------------------------------------
+           Clean candidate
+        ---------------------------------------------------- */
+
+        let candidate =
+            cleanName(
+                originalLine
+            );
+
+
+        /* ----------------------------------------------------
+           Validate
+        ---------------------------------------------------- */
+
+        if(
+            !candidate
+        ){
+
+            continue;
+
+        }
+
+
+        if(
+            candidate.length < 3
+        ){
+
+            continue;
+
+        }
+
+
+        if(
+            candidate.length > 120
+        ){
+
+            continue;
+
+        }
+
+
+        if(
+            isKhataBlockedWord(
+                candidate
+            )
+        ){
+
+            console.warn(
+                "BLOCKED HOLDER CANDIDATE:",
+                khataNumber,
+                candidate
+            );
+
+            continue;
+
+        }
+
+
+        if(
+            isOnlyNumber(
+                candidate
+            )
+        ){
+
+            continue;
+
+        }
+
+
+        /* ====================================================
+           FIRST VALID HOLDER = FINAL ANSWER
+        ==================================================== */
+
+        console.log(
+            "FIRST HOLDER FOUND:",
+            khataNumber,
+            "→",
+            candidate
+        );
+
+
+        return candidate;
+
+    }
+
+
+    console.warn(
+        "NO NUMBERED HOLDER FOUND:",
+        khataNumber
+    );
+
+
+    return "";
+
+}
+
+
+
+
+/* ============================================================
+   POSITIONAL KHATA NAME EXTRACTION
+
+   NAME RULES
+   ------------------------------------------------------------
+
+   1. Find the Khata number.
+
+   2. Look ONLY BELOW that Khata number.
+
+   3. The holder names are listed below the Khata number.
+
+   4. There can be ANY number of holders:
+        1. Name A
+        2. Name B
+        6. Name C
+        7. Name D
+
+   5. The number in front of the name does NOT matter.
+
+      Examples:
+        1. રameshbhai
+        3. મહેશભાઈ
+        6. રમિલાબેન
+        7. કમલેશભાઈ
+
+      ALL are valid.
+
+   6. Take ONLY THE FIRST HOLDER NAME.
+
+   7. Remove the number in front of that first name.
+
+      Example:
+        "6. રમેશભાઈ પટેલ"
+        becomes:
+        "રમેશભાઈ પટેલ"
+
+   8. Remove numbers appearing AFTER the name.
+
+      Example:
+        "રમેશભાઈ પટેલ (૫૩૩૧) ૩૮૩ ૦-૯૫-૧૩ ૩.૧૨"
+        becomes:
+        "રમેશભાઈ પટેલ"
+
+   9. Do NOT take:
+        - page header
+        - table header
+        - footer
+        - financial columns
+        - next Khata
+        - second/third holder
+        - numbers by themselves
+
+   10. The FIRST valid holder line BELOW the Khata number
+       wins.
+
+============================================================ */
+
+/* ============================================================
+   POSITIONAL KHATA NAME EXTRACTION — FIXED
+
+   PURPOSE
+   ------------------------------------------------------------
+   Finds the FIRST HOLDER NAME belonging to THIS Khata only.
+
+   IMPORTANT RULES:
+
+   1. Find the physical position of the Khata number.
+
+   2. Find the next Khata number on the page.
+
+   3. Create a physical region between those two Khatas.
+
+   4. Search ONLY inside that region.
+
+   5. Do NOT require the holder name to start with 1., 2., 3.
+
+   6. The first valid Gujarati/name-like line is selected.
+
+   7. Do not steal names from another Khata.
+
+   8. Do not search an arbitrary 300px area.
+
+============================================================ */
+
+function extractKhataNameFromPositionedItems(
+    items,
+    khataNumber
+) {
+
+    if (
+        !Array.isArray(items) ||
+        items.length === 0 ||
+        !khataNumber
+    ) {
+        return "";
+    }
+
+
+    /* ========================================================
+       TARGET KHATA NUMBER
+    ======================================================== */
+
+    const targetEnglish =
+        gujaratiToEnglishNumber(
+            String(khataNumber)
+                .replace(/[Xx]/g, "૫")
+                .trim()
+        );
+
+
+    if (
+        targetEnglish === null
+    ) {
+        return "";
+    }
+
+
+    /* ========================================================
+       CLEAN PDF ITEMS
+    ======================================================== */
+
+    const cleanItems =
+        items
+            .filter(function(item) {
+
+                return (
+                    item &&
+                    typeof item.text === "string" &&
+                    item.text.trim() &&
+                    Number.isFinite(item.x) &&
+                    Number.isFinite(item.y)
+                );
+
+            })
+            .map(function(item) {
+
+                return {
+
+                    text:
+                        item.text
+                            .replace(/\s+/g, " ")
+                            .trim(),
+
+                    x:
+                        Number(item.x),
+
+                    y:
+                        Number(item.y),
+
+                    width:
+                        Number(item.width) || 0,
+
+                    height:
+                        Number(item.height) || 0
+
+                };
+
+            });
+
+
+    if (
+        cleanItems.length === 0
+    ) {
+        return "";
+    }
+
+
+    /* ========================================================
+       NUMBER NORMALIZER
+    ======================================================== */
+
+    function normalizeDigits(text) {
+
+        return String(text)
+            .replace(
+                /[૦-૯]/g,
+                function(digit) {
+
+                    return gujaratiToEnglishNumber(
+                        digit
+                    );
+
+                }
+            );
+
+    }
+
+
+    /* ========================================================
+       FIND KHATA NUMBER ITEMS
+
+       We search for actual Khata-number text.
+
+       IMPORTANT:
+       Do NOT confuse random numbers in the document
+       with Khata numbers.
+    ======================================================== */
+
+    const khataPositions = [];
+
+
+    for (
+        let i = 0;
+        i < cleanItems.length;
+        i++
+    ) {
+
+        const item =
+            cleanItems[i];
+
+
+        const normalized =
+            normalizeDigits(
+                item.text
+            );
+
+
+        /* ----------------------------------------------------
+           CASE 1
+
+           "ખાતા નંબર ૧૦૦૫"
+        ---------------------------------------------------- */
+
+        const combinedMatch =
+            normalized.match(
+                /ખાતા\s*નંબર\s*[:：]?\s*(\d+)/i
+            );
+
+
+        if (
+            combinedMatch
+        ) {
+
+            khataPositions.push({
+
+                item:
+                    item,
+
+                number:
+                    Number(
+                        combinedMatch[1]
+                    )
+
+            });
+
+            continue;
+
+        }
+
+
+        /* ----------------------------------------------------
+           CASE 2
+
+           "ખાતા નંબર"
+
+           and
+
+           "૧૦૦૫"
+
+           are separate PDF items.
+        ---------------------------------------------------- */
+
+        if (
+            /ખાતા\s*નંબર/i.test(
+                normalized
+            )
+        ) {
+
+            for (
+                let j = 0;
+                j < cleanItems.length;
+                j++
+            ) {
+
+                const candidate =
+                    cleanItems[j];
+
+
+                const candidateNormalized =
+                    normalizeDigits(
+                        candidate.text
+                    ).trim();
+
+
+                if (
+                    !/^\d+$/.test(
+                        candidateNormalized
+                    )
+                ) {
+                    continue;
+                }
+
+
+                if (
+                    Number(candidateNormalized) !==
+                    targetEnglish
+                ) {
+
+                    /*
+                       Don't need this one for the target,
+                       but it may be another Khata.
+                    */
+
+                    continue;
+
+                }
+
+
+                const sameLine =
+                    Math.abs(
+                        candidate.y -
+                        item.y
+                    ) <= 12;
+
+
+                const nearby =
+                    Math.abs(
+                        candidate.x -
+                        item.x
+                    ) <= 250;
+
+
+                if (
+                    sameLine &&
+                    nearby
+                ) {
+
+                    khataPositions.push({
+
+                        item:
+                            candidate,
+
+                        number:
+                            targetEnglish
+
+                    });
+
+                    break;
+
+                }
+
+            }
+
+        }
+
+    }
+
+
+    /* ========================================================
+       IF WE DIDN'T FIND THE TARGET THROUGH THE ABOVE METHOD,
+       FALL BACK TO EXACT NUMERIC ITEM SEARCH.
+
+       This is ONLY a fallback.
+    ======================================================== */
+
+    let khataItem = null;
+
+
+    for (
+        let i = 0;
+        i < khataPositions.length;
+        i++
+    ) {
+
+        if (
+            khataPositions[i].number ===
+            targetEnglish
+        ) {
+
+            khataItem =
+                khataPositions[i].item;
+
+            break;
+
+        }
+
+    }
+
+
+    if (
+        !khataItem
+    ) {
+
+        /*
+           Fallback: exact numeric PDF item.
+        */
+
+        for (
+            let i = 0;
+            i < cleanItems.length;
+            i++
+        ) {
+
+            const normalized =
+                normalizeDigits(
+                    cleanItems[i].text
+                ).trim();
+
+
+            if (
+                /^\d+$/.test(normalized) &&
+                Number(normalized) ===
+                    targetEnglish
+            ) {
+
+                khataItem =
+                    cleanItems[i];
+
+                break;
+
+            }
+
+        }
+
+    }
+
+
+    if (
+        !khataItem
+    ) {
+
+        console.warn(
+            "KHATA POSITION NOT FOUND:",
+            khataNumber
+        );
+
+        return "";
+
+    }
+
+
+    console.log(
+        "=========================================="
+    );
+
+    console.log(
+        "KHATA POSITION FOUND:",
+        khataNumber
+    );
+
+    console.log(
+        "X:",
+        khataItem.x,
+        "Y:",
+        khataItem.y
+    );
+
+    console.log(
+        "TEXT:",
+        khataItem.text
+    );
+
+    console.log(
+        "=========================================="
+    );
+
+
+    /* ========================================================
+       FIND ALL KHATA POSITIONS ON THIS PAGE
+
+       This is CRITICAL.
+
+       We need to know where THIS Khata ends.
+
+       We must NOT use a fixed 300px search distance.
+    ======================================================== */
+
+    const allKhataPositions = [];
+
+
+    for (
+        let i = 0;
+        i < cleanItems.length;
+        i++
+    ) {
+
+        const item =
+            cleanItems[i];
+
+
+        const normalized =
+            normalizeDigits(
+                item.text
+            ).trim();
+
+
+        /*
+           Combined:
+
+               ખાતા નંબર ૧૦૦૫
+        */
+
+        const combined =
+            normalized.match(
+                /ખાતા\s*નંબર\s*[:：]?\s*(\d+)/i
+            );
+
+
+        if (
+            combined
+        ) {
+
+            allKhataPositions.push({
+
+                number:
+                    Number(
+                        combined[1]
+                    ),
+
+                item:
+                    item
+
+            });
+
+        }
+
+    }
+
+
     /*
-       --------------------------------------------------------
-       FIND FIRST HOLDER ROW ONLY
-       
-       Examples:
+       Sort visually from top to bottom.
 
-       ૬. સુથાર ધના હીરા (૩૭૮૨) ૫૫૭/૫૨ ...
-
-       ૧. મોગલ આસબેગ નસરતબેગ (૧૧૮૧) ...
-
-       ૨. મોગલ રહેમબેગ અમીરબેગ (૧૧૮૧) ...
-
-       We deliberately take ONLY the first match.
-       --------------------------------------------------------
+       PDF.js:
+       Higher Y = visually higher.
     */
 
-    const holderRegex =
-        /^[^\s.]+\.\s*(.+?\([૦-૯0-9]+\))/;
+    allKhataPositions.sort(
+        function(a, b) {
 
+            return b.item.y - a.item.y;
+
+        }
+    );
+
+
+    /* ========================================================
+       FIND NEXT KHATA BELOW CURRENT KHATA
+
+       IMPORTANT:
+
+       We use physical position, NOT Khata number.
+
+       This means even if Khata numbers are weird,
+       the physical document structure remains correct.
+    ======================================================== */
+
+    let nextKhataItem = null;
+
+
+    for (
+        let i = 0;
+        i < allKhataPositions.length;
+        i++
+    ) {
+
+        const candidate =
+            allKhataPositions[i].item;
+
+
+        /*
+           Candidate must be visually below current Khata.
+        */
+
+        if (
+            candidate.y <
+            khataItem.y - 2
+        ) {
+
+            /*
+               Prefer the closest next Khata.
+            */
+
+            if (
+                !nextKhataItem ||
+                candidate.y >
+                nextKhataItem.y
+            ) {
+
+                nextKhataItem =
+                    candidate;
+
+            }
+
+        }
+
+    }
+
+
+    console.log(
+        "CURRENT KHATA:",
+        khataNumber,
+        "| Y:",
+        khataItem.y
+    );
+
+
+    console.log(
+        "NEXT KHATA:",
+        nextKhataItem
+            ? nextKhataItem.text
+            : "(none)"
+    );
+
+
+    console.log(
+        "NEXT KHATA Y:",
+        nextKhataItem
+            ? nextKhataItem.y
+            : "(end of page)"
+    );
+
+
+    /* ========================================================
+       CREATE PHYSICAL KHATA REGION
+
+       Current:
+
+           Y = 600
+
+       Next:
+
+           Y = 550
+
+       Therefore the current Khata owns:
+
+           600 → 550
+
+       The next Khata's content is NOT included.
+    ======================================================== */
+
+    const currentY =
+        khataItem.y;
+
+
+    const nextY =
+        nextKhataItem
+            ? nextKhataItem.y
+            : -Infinity;
+
+
+    const regionItems =
+        cleanItems
+            .filter(function(item) {
+
+                /*
+                   Must be visually below current Khata.
+                */
+
+                if (
+                    item.y >=
+                    currentY - 2
+                ) {
+
+                    return false;
+
+                }
+
+
+                /*
+                   Must remain ABOVE the next Khata.
+
+                   If there is no next Khata,
+                   everything below current Khata
+                   is allowed until page end.
+                */
+
+                if (
+                    nextKhataItem &&
+                    item.y <=
+                    nextY + 2
+                ) {
+
+                    return false;
+
+                }
+
+
+                return true;
+
+            });
+
+
+    console.log(
+        "KHATA REGION ITEMS:",
+        khataNumber,
+        regionItems.length
+    );
+
+
+    /* ========================================================
+       HOLDER NAME COLUMN
+
+       The holder name normally appears to the RIGHT
+       of the Khata number.
+
+       We therefore avoid unrelated text far away
+       on the left/right side.
+    ======================================================== */
+
+    const khataX =
+        khataItem.x;
+
+
+    /*
+       Do not make this too narrow.
+
+       PDF layouts vary.
+
+       We allow text reasonably to the right
+       of the Khata number.
+    */
+
+    const minNameX =
+        khataX - 10;
+
+
+    const maxNameX =
+        khataX + 450;
+
+
+    const candidateItems =
+        regionItems
+            .filter(function(item) {
+
+                return (
+                    item.x >= minNameX &&
+                    item.x <= maxNameX
+                );
+
+            });
+
+
+    /* ========================================================
+       GROUP INTO PHYSICAL LINES
+    ======================================================== */
+
+    const lines = [];
+
+
+    for (
+        let i = 0;
+        i < candidateItems.length;
+        i++
+    ) {
+
+        const item =
+            candidateItems[i];
+
+
+        let line =
+            null;
+
+
+        for (
+            let j = 0;
+            j < lines.length;
+            j++
+        ) {
+
+            if (
+                Math.abs(
+                    lines[j].y -
+                    item.y
+                ) <= 4
+            ) {
+
+                line =
+                    lines[j];
+
+                break;
+
+            }
+
+        }
+
+
+        if (
+            !line
+        ) {
+
+            line = {
+
+                y:
+                    item.y,
+
+                items:
+                    []
+
+            };
+
+
+            lines.push(
+                line
+            );
+
+        }
+
+
+        line.items.push(
+            item
+        );
+
+    }
+
+
+    /*
+       Top → bottom.
+    */
+
+    lines.sort(
+        function(a, b) {
+
+            return b.y - a.y;
+
+        }
+    );
+
+
+
+    /* ========================================================
+       NUMBER ONLY
+    ======================================================== */
+
+    function isOnlyNumber(text) {
+
+        const cleaned =
+            text
+                .replace(/\s+/g, "")
+                .replace(/[()]/g, "");
+
+
+        return /^[૦-૯0-9./,:;\-]+$/.test(
+            cleaned
+        );
+
+    }
+
+
+    /* ========================================================
+       REMOVE LEADING SERIAL NUMBER
+
+       IMPORTANT:
+
+       Serial number is OPTIONAL.
+
+       These are both valid:
+
+           1. રમેશભાઈ પટેલ
+
+       and:
+
+           રમેશભાઈ પટેલ
+    ======================================================== */
+
+    function removeLeadingNumber(text) {
+
+        return text
+
+            .replace(
+                /^\s*[૦-૯0-9]+\s*[.)-]\s*/,
+                ""
+            )
+
+            .replace(
+                /^\s*[૦-૯0-9]+\s+/,
+                ""
+            )
+
+            .trim();
+
+    }
+
+
+    /* ========================================================
+       REMOVE TRAILING DATA
+    ======================================================== */
+
+    function removeTrailingData(text) {
+
+        let result =
+            text;
+
+
+        /*
+           Parenthesized reference.
+
+           Example:
+
+               બાબુલાલ મણીલાલ ઠક્કર (૫૩૮૪)
+        */
+
+        result =
+            result.replace(
+                /\s*\([^)]*[0-9૦-૯][^)]*\)\s*.*$/u,
+                ""
+            );
+
+
+        /*
+           Gujarati page/reference marker.
+        */
+
+        result =
+            result.replace(
+                /\s*\(પ[૦-૯0-9]+\).*$/u,
+                ""
+            );
+
+
+        /*
+           Numeric data after the name.
+
+           Example:
+
+               નામ ૫૫૭/૫૪ ૦-૦૨-૩૮ ૦.૨૫
+
+           becomes:
+
+               નામ
+        */
+
+        result =
+            result.replace(
+                /\s+[૦-૯0-9][૦-૯0-9\s./,:;\-]*$/u,
+                ""
+            );
+
+
+        /*
+           Remove trailing separators.
+        */
+
+        result =
+            result
+                .replace(
+                    /[|,:;]+$/,
+                    ""
+                )
+                .trim();
+
+
+        return result;
+
+    }
+
+
+    /* ========================================================
+       CLEAN NAME
+    ======================================================== */
+
+    function cleanName(text) {
+
+        let name =
+            text
+                .replace(/\s+/g, " ")
+                .trim();
+
+
+        name =
+            removeLeadingNumber(
+                name
+            );
+
+
+        name =
+            removeTrailingData(
+                name
+            );
+
+
+        name =
+            name
+                .replace(
+                    /^[|,:;]+/,
+                    ""
+                )
+                .replace(
+                    /[|,:;]+$/,
+                    ""
+                )
+                .replace(
+                    /\s+/g,
+                    " "
+                )
+                .trim();
+
+
+        return name;
+
+    }
+
+
+    /* ========================================================
+       NAME VALIDATION
+
+       IMPORTANT:
+
+       Serial number is NOT required.
+
+       We only require actual Gujarati/Latin letters.
+    ======================================================== */
+
+    function looksLikeHolderName(
+    text
+) {
+
+    if (
+        !text
+    ) {
+
+        return false;
+
+    }
+
+
+    /* ----------------------------------------------------
+       HOLDER MUST START WITH SERIAL NUMBER
+
+       Examples:
+
+           2. Name
+           5. Name
+           45. Name
+           102. Name
+
+       Serial number may be Gujarati or English.
+    ---------------------------------------------------- */
+
+    if (
+        !/^[૦-૯0-9]+\s*[.)-]\s*\S+/.test(
+            text
+        )
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        isKhataBlockedWord(
+            text
+        )
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        isOnlyNumber(
+            text
+        )
+    ) {
+
+        return false;
+
+    }
+
+
+    /*
+       Must contain Gujarati or Latin letters.
+    */
+
+    if (
+        !/[અ-હળ-ૐA-Za-z]/.test(
+            text
+        )
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        text.length < 3
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        text.length > 150
+    ) {
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+    /* ========================================================
+       SCAN PHYSICAL LINES
+
+       FIRST VALID LINE = FIRST HOLDER
+    ======================================================== */
 
     for (
         let i = 0;
@@ -1173,150 +2468,283 @@ function extractKhataName(text, khataNumber) {
             lines[i];
 
 
-        const match =
-            line.match(
-                holderRegex
-            );
+        line.items.sort(
+            function(a, b) {
+
+                return a.x - b.x;
+
+            }
+        );
 
 
-        /*
-           Not a holder row.
-           Continue searching.
-        */
+        const lineText =
+            line.items
+                .map(function(item) {
 
-        if (!match) {
-            continue;
-        }
+                    return item.text;
 
-
-        let holderName =
-            match[1].trim();
-
-
-        /*
-           ----------------------------------------------------
-           CLEAN WHITESPACE
-           ----------------------------------------------------
-        */
-
-        holderName =
-            holderName
-                .replace(
-                    /\s+/g,
-                    " "
-                )
+                })
+                .join(" ")
+                .replace(/\s+/g, " ")
                 .trim();
 
 
-        /*
-           ----------------------------------------------------
-           REMOVE ACCIDENTAL PUNCTUATION
-           ----------------------------------------------------
-        */
+        if (
+            !lineText
+        ) {
 
-        holderName =
-            holderName.replace(
-                /^[,;:|]+|[,;:|]+$/g,
-                ""
-            );
-
-
-        /*
-           ----------------------------------------------------
-           FIRST VALID HOLDER FOUND
-           
-           STOP HERE.
-
-           DO NOT collect any more names.
-           ----------------------------------------------------
-        */
-
-        if (holderName) {
-
-            console.log(
-                "Khata FIRST holder extracted:",
-                khataNumber,
-                "→",
-                holderName
-            );
-
-
-            return holderName;
+            continue;
 
         }
+
+
+        console.log(
+            "KHATA CANDIDATE LINE:",
+            khataNumber,
+            "→",
+            lineText
+        );
+
+
+        if (
+            isKhataBlockedWord(
+                lineText
+            )
+        ) {
+
+            continue;
+
+        }
+
+
+        if (
+            isOnlyNumber(
+                lineText
+            )
+        ) {
+
+            continue;
+
+        }
+
+
+        const name =
+            cleanName(
+                lineText
+            );
+
+
+        if (
+            !looksLikeHolderName(
+                name
+            )
+        ) {
+
+            continue;
+
+        }
+
+
+        console.log(
+            "FIRST KHATA HOLDER FOUND:",
+            khataNumber,
+            "→",
+            name
+        );
+
+
+        return name;
 
     }
 
 
-    /*
-       --------------------------------------------------------
-       NOTHING FOUND
-       --------------------------------------------------------
-    */
-
-    console.log(
-        "========== FIRST KHATA NAME EXTRACTION FAILED =========="
-    );
-
-    console.log(
-        "Khata:",
+    console.warn(
+        "NO KHATA HOLDER FOUND:",
         khataNumber
-    );
-
-    console.log(
-        "Raw section:",
-        JSON.stringify(
-            section,
-            null,
-            2
-        )
-    );
-
-    console.log(
-        "OCR lines:",
-        JSON.stringify(
-            lines,
-            null,
-            2
-        )
-    );
-
-    console.log(
-        "========== FIRST KHATA NAME EXTRACTION FAILED END =========="
     );
 
 
     return "";
+
 }
 
 
 
 /* ============================================================
-GET ONLY VALID KHATA RECORDS
+   EXTRACT FIRST NUMBER FROM TEXT
 ============================================================ */
 
-function getValidKhatas(parsedResult) {
+function extractNumberFromText(
+    text
+) {
 
-    /*
-       parseKhataResult() returns the records ARRAY directly.
+    if (
+        !text
+    ) {
 
-       Therefore we must work with the array itself,
-       not parsedResult.khatas.
-    */
+        return null;
 
-    if (!Array.isArray(parsedResult)) {
+    }
+
+
+    const normalized =
+        String(text)
+            .replace(
+                /[Xx]/g,
+                "૫"
+            );
+
+
+    const match =
+        normalized.match(
+            /[૦-૯0-9]+/
+        );
+
+
+    if (
+        !match
+    ) {
+
+        return null;
+
+    }
+
+
+    return gujaratiToEnglishNumber(
+        match[0]
+    );
+
+}
+
+
+/* ============================================================
+   GUJARATI NUMBER HELPERS
+============================================================ */
+
+
+function gujaratiToEnglishNumber(value){
+
+
+    if(
+        value === null ||
+        value === undefined
+    ){
+
+        return null;
+
+    }
+
+
+
+    const map = {
+
+        "૦":"0",
+        "૧":"1",
+        "૨":"2",
+        "૩":"3",
+        "૪":"4",
+        "૫":"5",
+        "૬":"6",
+        "૭":"7",
+        "૮":"8",
+        "૯":"9"
+
+    };
+
+
+
+    const result =
+        String(value)
+        .replace(
+            /[૦-૯]/g,
+            function(d){
+
+                return map[d];
+
+            }
+        );
+
+
+
+    if(
+        !/^\d+$/.test(result)
+    ){
+
+        return null;
+
+    }
+
+
+
+    return Number(result);
+
+}
+
+
+
+
+function englishToGujaratiNumber(value){
+
+
+    const map = [
+
+        "૦",
+        "૧",
+        "૨",
+        "૩",
+        "૪",
+        "૫",
+        "૬",
+        "૭",
+        "૮",
+        "૯"
+
+    ];
+
+
+
+    return String(value)
+    .replace(
+        /\d/g,
+        function(d){
+
+            return map[
+                Number(d)
+            ];
+
+        }
+    );
+
+}
+
+
+
+
+
+/* ============================================================
+   DEBUG HELPERS
+============================================================ */
+
+
+function getValidKhatas(parsedResult){
+
+
+    if(
+        !Array.isArray(parsedResult)
+    ){
 
         return [];
 
     }
 
 
+
     return parsedResult.filter(
-        function(khata) {
+        function(item){
 
             return (
-                khata &&
-                khata.khataNumber
+                item &&
+                item.khataNumber
             );
 
         }
@@ -1325,16 +2753,10 @@ function getValidKhatas(parsedResult) {
 }
 
 
-/* ============================================================
-DEBUG KHATA SUMMARY
-============================================================ */
 
-function logKhataSummary(parsedResult) {
 
-    const khatas =
-        getValidKhatas(
-            parsedResult
-        );
+
+function logKhataSummary(parsedResult){
 
 
     console.log(
@@ -1342,24 +2764,21 @@ function logKhataSummary(parsedResult) {
     );
 
 
-    console.log(
-        "Khata records:",
-        khatas.length
-    );
-
-
-    khatas.forEach(
-        function(khata) {
+    getValidKhatas(
+        parsedResult
+    )
+    .forEach(
+        function(k){
 
             console.log(
                 "Page:",
-                khata.pageNumber,
+                k.pageNumber,
                 "| Khata:",
-                khata.khataNumber,
+                k.khataNumber,
                 "| Name:",
-                khata.name,
+                k.name,
                 "| Placeholder:",
-                khata.isPlaceholder
+                k.isPlaceholder
             );
 
         }
@@ -1370,25 +2789,138 @@ function logKhataSummary(parsedResult) {
         "========== KHATA SUMMARY END =========="
     );
 
+
 }
 
 
+
+
+
+
 /* ============================================================
-   EXPORT PARSER
+   OCR TEST (PRESERVED)
 ============================================================ */
+
+
+async function testGujaratiOCR(
+    canvas,
+    abortSignal=null
+){
+
+    throwIfKhataParserCancelled();
+
+
+
+    if(
+        typeof Tesseract === "undefined"
+    ){
+
+        return "";
+
+    }
+
+
+
+    try{
+
+
+        const result =
+            await Tesseract.recognize(
+                canvas,
+                "guj"
+            );
+
+
+
+        throwIfKhataParserCancelled();
+
+
+
+        return result.data.text
+              .replace(
+                  /\r\n/g,
+                  "\n"
+              )
+              .replace(
+                  /\r/g,
+                  "\n"
+              )
+              .split("\n")
+              .map(function(line){
+          
+                  return line
+                      .replace(
+                          /[ \t]+/g,
+                          " "
+                      )
+                      .trim();
+          
+              })
+              .filter(function(line){
+          
+                  return line.length > 0;
+          
+              })
+              .join("\n")
+              .trim();
+
+
+    }
+    catch(error){
+
+
+        if(
+            error.message ===
+            "KHATA_IMPORT_CANCELLED"
+        ){
+
+            throw error;
+
+        }
+
+
+        return "";
+
+    }
+
+}
+
+
+
+
+
+
+
+/* ============================================================
+   EXPORTS
+============================================================ */
+
 
 window.parseKhataResult =
     parseKhataResult;
 
 
-/* ============================================================
-   EXPORT DEBUG HELPERS
+window.extractKhataNumbers =
+    extractKhataNumbers;
 
-   These are useful from the browser console.
-============================================================ */
 
 window.getValidKhatas =
     getValidKhatas;
 
+
 window.logKhataSummary =
     logKhataSummary;
+
+
+window.throwIfKhataParserCancelled =
+    throwIfKhataParserCancelled;
+
+
+window.waitForKhataParserYield =
+    waitForKhataParserYield;
+
+
+
+console.log(
+    "Khata Parser module ready."
+);

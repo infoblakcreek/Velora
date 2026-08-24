@@ -1329,24 +1329,127 @@ body.dark-theme,
 
 }
 
+/* ============================================================
+   RENAME — PURPLE
+============================================================ */
 
-.talapatrakCardMenuItem.download{
+.talapatrakCardMenuItem[data-action="rename"] {
 
-    color:#2563eb;
+    color: #7c3aed;
 
-    background:#ffffff;
+    background: #ffffff;
+
+}
+
+
+.talapatrakCardMenuItem[data-action="rename"] i {
+
+    color: #8b5cf6;
 
 }
 
 
-.talapatrakCardMenuItem.download:hover{
+.talapatrakCardMenuItem[data-action="rename"]:hover {
 
-    color:#1d4ed8;
+    color: #6d28d9;
 
-    background:#eff6ff;
+    background: #f5f3ff;
 
 }
 
+
+.talapatrakCardMenuItem[data-action="rename"]:hover i {
+
+    color: #6d28d9;
+
+}
+
+
+/* ============================================================
+   COPY — BLUE
+============================================================ */
+
+.talapatrakCardMenuItem[data-action="copy"] {
+
+    color: #2563eb;
+
+    background: #ffffff;
+
+}
+
+
+.talapatrakCardMenuItem[data-action="copy"] i {
+
+    color: #3b82f6;
+
+}
+
+
+.talapatrakCardMenuItem[data-action="copy"]:hover {
+
+    color: #1d4ed8;
+
+    background: #eff6ff;
+
+}
+
+
+.talapatrakCardMenuItem[data-action="copy"]:hover i {
+
+    color: #1d4ed8;
+
+}
+
+
+/* ============================================================
+   DUPLICATE — GREEN
+============================================================ */
+
+.talapatrakCardMenuItem[data-action="duplicate"] {
+
+    color: #059669;
+
+    background: #ffffff;
+
+}
+
+
+.talapatrakCardMenuItem[data-action="duplicate"] i {
+
+    color: #10b981;
+
+}
+
+
+.talapatrakCardMenuItem[data-action="duplicate"]:hover {
+
+    color: #047857;
+
+    background: #ecfdf5;
+
+}
+
+
+.talapatrakCardMenuItem[data-action="duplicate"]:hover i {
+
+    color: #047857;
+
+}
+
+
+/* ============================================================
+   DIVIDER
+============================================================ */
+
+.talapatrakCardMenuDivider {
+
+    height: 1px;
+
+    margin: 5px 8px;
+
+    background: #e2e8f0;
+
+}
 
 .talapatrakCardMenuItem.delete{
 
@@ -2191,6 +2294,129 @@ border:
 
 
 /* ============================================================
+   TALAPATRAK — FULL VIEW BUTTON
+============================================================ */
+
+.talapatrakTopButton.fullView {
+
+    color: var(--talapatrak-primary);
+
+    background: #ffffff;
+
+    border: 1px solid #c7d2fe;
+
+    box-shadow:
+        0 6px 16px rgba(99, 102, 241, 0.10);
+
+    transition:
+        transform 0.2s ease,
+        color 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+
+}
+
+
+/* ------------------------------------------------------------
+   FULL VIEW ICON
+------------------------------------------------------------ */
+
+.talapatrakTopButton.fullView i {
+
+    margin: 0;
+
+    font-size: 15px;
+
+}
+
+
+/* ------------------------------------------------------------
+   HOVER
+------------------------------------------------------------ */
+
+.talapatrakTopButton.fullView:hover {
+
+    color: #ffffff;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--talapatrak-primary),
+            var(--talapatrak-purple)
+        );
+
+    border-color: transparent;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 22px rgba(99, 102, 241, 0.24);
+
+}
+
+
+/* ------------------------------------------------------------
+   ACTIVE
+------------------------------------------------------------ */
+
+.talapatrakTopButton.fullView:active {
+
+    transform: translateY(0);
+
+}
+
+
+/* ------------------------------------------------------------
+   FOCUS
+------------------------------------------------------------ */
+
+.talapatrakTopButton.fullView:focus-visible {
+
+    outline: 2px solid var(--talapatrak-primary);
+
+    outline-offset: 2px;
+
+}
+
+
+/* ------------------------------------------------------------
+   FULL VIEW — ACTIVE STATE
+------------------------------------------------------------ */
+
+.talapatrakTopButton.fullView.active {
+
+    color: #ffffff;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--talapatrak-primary),
+            var(--talapatrak-purple)
+        );
+
+    border-color: transparent;
+
+    box-shadow:
+        0 8px 18px rgba(99, 102, 241, 0.22);
+
+}
+
+
+/* ------------------------------------------------------------
+   ACTIVE STATE HOVER
+------------------------------------------------------------ */
+
+.talapatrakTopButton.fullView.active:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 24px rgba(99, 102, 241, 0.30);
+
+}
+
+/* ============================================================
    EDITOR CONTENT
 ============================================================ */
 
@@ -2787,6 +3013,7 @@ border:
 }
 
 
+
 /* ============================================================
    RESPONSIVE — TABLET
 ============================================================ */
@@ -3049,5 +3276,1814 @@ border:
     }
 
 }
+
+
+
+/* ============================================================
+   TALAPATRAK EDITOR — FULL SCREEN DESKTOP
+   COLUMN B HAS DEDICATED SPACE
+============================================================ */
+
+@media (min-width: 1201px) {
+
+    /* --------------------------------------------------------
+       FULL SCREEN EDITOR
+    -------------------------------------------------------- */
+
+    .talapatrakEditorView {
+
+        width: 100%;
+        height: 100vh;
+        min-height: 100vh;
+
+        overflow: hidden;
+
+    }
+
+
+    /* --------------------------------------------------------
+       TOP BAR
+    -------------------------------------------------------- */
+
+    .talapatrakEditorTopBar {
+
+        height: 60px;
+        min-height: 60px;
+
+        padding: 8px 20px;
+
+    }
+
+
+    .talapatrakTopButton {
+
+        height: 38px;
+
+        padding: 0 13px;
+
+        font-size: 13px;
+
+        border-radius: 10px;
+
+    }
+
+
+    .talapatrakEditorTitle > i {
+
+        width: 36px;
+        height: 36px;
+
+        flex: 0 0 36px;
+
+        border-radius: 10px;
+
+        font-size: 15px;
+
+    }
+
+
+    .talapatrakEditorTitle h2 {
+
+        font-size: 17px;
+
+    }
+
+
+    .talapatrakEditorTitle span {
+
+        margin-top: 2px;
+
+        font-size: 10px;
+
+    }
+
+
+    /* --------------------------------------------------------
+       EDITOR CONTENT
+    -------------------------------------------------------- */
+
+    .talapatrakEditorContent {
+
+        width: calc(100% - 24px);
+
+        height: calc(100vh - 72px);
+
+        margin: 12px auto;
+
+        overflow: hidden;
+
+    }
+
+
+    /* --------------------------------------------------------
+       EDITOR PAGE
+    -------------------------------------------------------- */
+
+    .talapatrakPage {
+
+        width: 100%;
+        height: 100%;
+
+        padding: 16px;
+
+        box-sizing: border-box;
+
+        border-radius: 16px;
+
+        overflow: hidden;
+
+    }
+
+
+    /* --------------------------------------------------------
+       INFORMATION PANEL
+    -------------------------------------------------------- */
+
+    .talapatrakInfoPanel {
+
+        min-height: 58px;
+        height: 58px;
+
+        margin-bottom: 12px;
+
+        padding: 10px 14px;
+
+        gap: 12px;
+
+        border-radius: 12px;
+
+    }
+
+
+    .talapatrakInfoField {
+
+        gap: 6px;
+
+    }
+
+
+    .talapatrakInfoField label {
+
+        font-size: 11px;
+
+    }
+
+
+    .talapatrakInfoInput {
+
+        height: 30px;
+        min-height: 30px;
+
+        font-size: 12px;
+
+        line-height: 30px;
+
+    }
+
+
+    .talapatrakInfoStatic {
+
+        font-size: 12px;
+
+    }
+
+
+    /* --------------------------------------------------------
+       TABLE WRAPPER
+    -------------------------------------------------------- */
+
+    .talapatrakTableWrapper {
+
+        width: 100%;
+
+        height: calc(100% - 70px);
+
+        overflow-x: auto;
+        overflow-y: auto;
+
+        box-sizing: border-box;
+
+    }
+
+
+    /* ========================================================
+       TABLE
+    ======================================================== */
+
+    .talapatrakTable {
+
+        width: max-content;
+
+        min-width: 1750px;
+
+        table-layout: fixed;
+
+    }
+
+
+    /* ========================================================
+       COLUMN A
+    ======================================================== */
+
+    .talapatrakTable .colA {
+
+        width: 75px;
+
+        min-width: 75px;
+
+    }
+
+
+    /* ========================================================
+       COLUMN B — DEDICATED SPACE
+       DO NOT REDUCE THIS
+    ======================================================== */
+
+    .talapatrakTable .colB {
+
+        width: 200px;
+
+        min-width: 200px;
+
+        max-width: 200px;
+
+    }
+
+
+    /* ========================================================
+       C → G
+    ======================================================== */
+
+    .talapatrakTable .colC,
+    .talapatrakTable .colD,
+    .talapatrakTable .colE,
+    .talapatrakTable .colF,
+    .talapatrakTable .colG {
+
+        width: 105px;
+
+        min-width: 105px;
+
+    }
+
+
+    /* ========================================================
+       H
+    ======================================================== */
+
+    .talapatrakTable .colH {
+
+        width: 125px;
+
+        min-width: 125px;
+
+    }
+
+
+    /* ========================================================
+       I
+    ======================================================== */
+
+    .talapatrakTable .colI {
+
+        width: 95px;
+
+        min-width: 95px;
+
+    }
+
+
+    /* ========================================================
+       J
+    ======================================================== */
+
+    .talapatrakTable .colJ {
+
+        width: 125px;
+
+        min-width: 125px;
+
+    }
+
+
+    /* ========================================================
+       K
+    ======================================================== */
+
+    .talapatrakTable .colK {
+
+        width: 110px;
+
+        min-width: 110px;
+
+    }
+
+
+    /* ========================================================
+       L
+    ======================================================== */
+
+    .talapatrakTable .colL {
+
+        width: 105px;
+
+        min-width: 105px;
+
+    }
+
+
+    /* ========================================================
+       M
+    ======================================================== */
+
+    .talapatrakTable .colM {
+
+        width: 90px;
+
+        min-width: 90px;
+
+    }
+
+
+    /* ========================================================
+       N
+    ======================================================== */
+
+    .talapatrakTable .colN {
+
+        width: 125px;
+
+        min-width: 125px;
+
+    }
+
+
+    /* ========================================================
+       O
+    ======================================================== */
+
+    .talapatrakTable .colO {
+
+        width: 90px;
+
+        min-width: 90px;
+
+    }
+
+
+    /* ========================================================
+       P → U
+    ======================================================== */
+
+    .talapatrakTable .colP,
+    .talapatrakTable .colQ,
+    .talapatrakTable .colR,
+    .talapatrakTable .colS,
+    .talapatrakTable .colT,
+    .talapatrakTable .colU {
+
+        width: 105px;
+
+        min-width: 105px;
+
+    }
+
+
+    /* ========================================================
+       V
+    ======================================================== */
+
+    .talapatrakTable .colV {
+
+        width: 85px;
+
+        min-width: 85px;
+
+    }
+
+
+    /* ========================================================
+       ACTION COLUMN
+    ======================================================== */
+
+    .talapatrakTable .colAction {
+
+        width: 64px;
+
+        min-width: 64px;
+
+    }
+
+
+    /* ========================================================
+       TABLE HEADER
+    ======================================================== */
+
+    .talapatrakTable thead th {
+
+        height: 42px;
+
+        padding: 6px 5px;
+
+        font-size: 10px;
+
+        line-height: 1.2;
+
+    }
+
+
+    /* --------------------------------------------------------
+       INFORMATION ROW
+    -------------------------------------------------------- */
+
+    .talapatrakTable .talapatrakInfoRow th {
+
+        height: 36px;
+
+        padding: 6px 12px;
+
+    }
+
+
+    .talapatrakInfo {
+
+        min-height: 22px;
+
+        gap: 16px;
+
+    }
+
+
+    .talapatrakInfo strong {
+
+        font-size: 12px;
+
+    }
+
+
+    .talapatrakInfo span {
+
+        font-size: 11px;
+
+    }
+
+
+    /* --------------------------------------------------------
+       BODY ROWS
+    -------------------------------------------------------- */
+
+    .talapatrakTable tbody td {
+
+        height: 38px;
+
+        min-height: 38px;
+
+        padding: 3px 4px;
+
+        font-size: 11px;
+
+    }
+
+
+    /* --------------------------------------------------------
+       INPUTS
+    -------------------------------------------------------- */
+
+    .talapatrakTable input,
+    .talapatrakTable textarea,
+    .talapatrakTable select {
+
+        min-height: 28px;
+
+        height: 28px;
+
+        padding: 3px 4px;
+
+        border-radius: 5px;
+
+        font-size: 11px;
+
+    }
+
+
+    /* --------------------------------------------------------
+       ACTION BUTTON
+    -------------------------------------------------------- */
+
+    .talapatrakActions {
+
+        margin-top: 8px;
+
+    }
+
+
+    #addTalapatrakRow {
+
+        height: 34px;
+
+        padding: 0 14px;
+
+        border-radius: 8px;
+
+        font-size: 11px;
+
+    }
+
+}
+
+
+
+
+
+/* ============================================================
+   TALAPATRAK PAGINATION
+   FINAL — CENTERED BELOW TABLE
+============================================================ */
+
+#talapatrakPagination {
+
+    width: 100%;
+
+    height: 40px;
+
+    min-height: 40px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 14px;
+
+    margin: 10px 0 0 0;
+
+    padding: 0;
+
+    box-sizing: border-box;
+
+    flex-shrink: 0;
+
+}
+
+
+/* ============================================================
+   PREVIOUS / NEXT
+============================================================ */
+
+#talapatrakPreviousPage,
+#talapatrakNextPage {
+
+    height: 34px;
+
+    min-width: 88px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 7px;
+
+    padding: 0 14px;
+
+    border: 1px solid #c7d2fe;
+
+    border-radius: 9px;
+
+    background: #ffffff;
+
+    color: var(--talapatrak-primary);
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+
+}
+
+
+/* ============================================================
+   HOVER
+============================================================ */
+
+#talapatrakPreviousPage:hover:not(:disabled),
+#talapatrakNextPage:hover:not(:disabled) {
+
+    color: #ffffff;
+
+    border-color: transparent;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            var(--talapatrak-primary),
+            var(--talapatrak-purple)
+        );
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 6px 14px rgba(99, 102, 241, 0.20);
+
+}
+
+
+/* ============================================================
+   DISABLED
+============================================================ */
+
+#talapatrakPreviousPage:disabled,
+#talapatrakNextPage:disabled {
+
+    opacity: 0.45;
+
+    cursor: not-allowed;
+
+    transform: none;
+
+}
+
+
+/* ============================================================
+   PAGE INFO
+============================================================ */
+
+#talapatrakPageInfo {
+
+    min-width: 80px;
+
+    text-align: center;
+
+    color: #475569;
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+}
+
+
+/* ============================================================
+   IMPORTANT:
+   DESKTOP EDITOR MUST LEAVE SPACE FOR PAGINATION
+============================================================ */
+
+@media (min-width: 1201px) {
+
+    .talapatrakPage {
+
+        overflow: hidden;
+
+        display: flex;
+
+        flex-direction: column;
+
+    }
+
+
+    .talapatrakInfoPanel {
+
+        flex: 0 0 58px;
+
+    }
+
+
+    .talapatrakTableWrapper {
+
+        flex: 1 1 auto;
+
+        min-height: 0;
+
+        height: auto;
+
+        overflow-x: auto;
+
+        overflow-y: auto;
+
+    }
+
+
+    #talapatrakPagination {
+
+        flex: 0 0 40px;
+
+        height: 40px;
+
+        min-height: 40px;
+
+        margin-top: 10px;
+
+    }
+
+
+    .talapatrakActions {
+
+        flex: 0 0 auto;
+
+        margin-top: 8px;
+
+    }
+
+}
+
+
+/* ============================================================
+   DARK THEME
+============================================================ */
+
+body.dark-theme #talapatrakPreviousPage,
+body.dark-theme #talapatrakNextPage,
+[data-theme="dark"] #talapatrakPreviousPage,
+[data-theme="dark"] #talapatrakNextPage {
+
+    background: var(--talapatrak-card);
+
+    border-color: var(--talapatrak-border);
+
+    color: var(--talapatrak-primary);
+
+}
+
+
+body.dark-theme #talapatrakPageInfo,
+[data-theme="dark"] #talapatrakPageInfo {
+
+    color: var(--talapatrak-muted);
+
+}
+
+/* ============================================================
+   TALAPATRAK PAGINATION
+============================================================ */
+
+.talapatrakPagination {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    width: 100%;
+
+    margin-top: 16px;
+
+    padding: 10px 14px;
+
+    box-sizing: border-box;
+
+}
+
+
+/* ============================================================
+   PAGINATION BUTTONS
+============================================================ */
+
+.talapatrakPagination button {
+
+    width: 36px;
+
+    height: 36px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: 1px solid #dbe3f0;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #475569;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+
+}
+
+
+.talapatrakPagination button:hover:not(:disabled) {
+
+    color: var(--talapatrak-primary);
+
+    background: #eef2ff;
+
+    border-color: #c7d2fe;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 4px 10px rgba(99, 102, 241, 0.10);
+
+}
+
+
+.talapatrakPagination button:disabled {
+
+    opacity: 0.4;
+
+    cursor: not-allowed;
+
+}
+
+
+/* ============================================================
+   PAGE JUMP
+============================================================ */
+
+.talapatrakPageJump {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    padding: 0 6px;
+
+    color: #64748b;
+
+    font-size: 13px;
+
+    font-weight: 500;
+
+}
+
+
+.talapatrakPageJump strong {
+
+    color: #475569;
+
+    font-weight: 600;
+
+}
+
+
+/* ============================================================
+   PAGE NUMBER INPUT
+============================================================ */
+
+#talapatrakPageInput {
+
+    width: 48px;
+
+    height: 34px;
+
+    padding: 0 6px;
+
+    box-sizing: border-box;
+
+    text-align: center;
+
+    border: 1px solid #cbd5e1;
+
+    border-radius: 7px;
+
+    background: #ffffff;
+
+    color: #334155;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    outline: none;
+
+}
+
+
+#talapatrakPageInput:focus {
+
+    border-color:
+        var(--talapatrak-primary);
+
+    box-shadow:
+        0 0 0 3px rgba(99, 102, 241, 0.10);
+
+}
+
+
+/* ============================================================
+   REMOVE NUMBER INPUT ARROWS
+============================================================ */
+
+#talapatrakPageInput::-webkit-inner-spin-button,
+#talapatrakPageInput::-webkit-outer-spin-button {
+
+    -webkit-appearance: none;
+
+    margin: 0;
+
+}
+
+
+#talapatrakPageInput {
+
+    appearance: textfield;
+
+}
+
+
+/* ============================================================
+   ROW INFORMATION
+============================================================ */
+
+.talapatrakPageInfo {
+
+    margin-left: 10px;
+
+    color: #94a3b8;
+
+    font-size: 12px;
+
+    white-space: nowrap;
+
+}
+
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 700px) {
+
+    .talapatrakPagination {
+
+        flex-wrap: wrap;
+
+    }
+
+
+    .talapatrakPageInfo {
+
+        width: 100%;
+
+        margin: 4px 0 0;
+
+        text-align: center;
+
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+/* ============================================================
+   TALAPATRAK — FULL VIEW MODE
+   EXCEL-STYLE FIT TO SCREEN
+============================================================ */
+
+
+/* ============================================================
+   HIDE APPLICATION UI
+============================================================ */
+
+body.talapatrakFullViewMode .sidebar,
+body.talapatrakFullViewMode .sideBar,
+body.talapatrakFullViewMode .appSidebar,
+body.talapatrakFullViewMode .mainSidebar {
+
+    display: none !important;
+
+}
+
+
+/* ============================================================
+   HIDE TALAPATRAK TOP BAR
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakEditorTopBar {
+
+    display: none !important;
+
+}
+
+
+/* ============================================================
+   FULL SCREEN EDITOR
+============================================================ */
+
+body.talapatrakFullViewMode
+#talapatrakEditorView {
+
+    position: fixed !important;
+
+    inset: 0 !important;
+
+    width: 100vw !important;
+
+    height: 100vh !important;
+
+    max-width: none !important;
+
+    max-height: none !important;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    z-index: 9999 !important;
+
+    overflow: hidden !important;
+
+    background: #ffffff !important;
+
+}
+
+
+/* ============================================================
+   EDITOR CONTENT
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakEditorContent {
+
+    width: 100% !important;
+
+    height: 100% !important;
+
+    max-width: none !important;
+
+    margin: 0 !important;
+
+    padding: 12px !important;
+
+    box-sizing: border-box !important;
+
+    overflow-x: hidden !important;
+
+    overflow-y: auto !important;
+
+}
+
+
+/* ============================================================
+   TALAPATRAK PAGE
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakPage {
+
+    width: 100% !important;
+
+    max-width: none !important;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+
+}
+
+
+/* ============================================================
+   INFORMATION PANEL
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakInfoPanel {
+
+    width: 100% !important;
+
+    max-width: none !important;
+
+    box-sizing: border-box !important;
+
+}
+
+
+/* ============================================================
+   TABLE WRAPPER
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTableWrapper {
+
+    width: 100% !important;
+
+    max-width: 100% !important;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+
+    overflow-x: hidden !important;
+
+    overflow-y: visible !important;
+
+}
+
+
+/* ============================================================
+   SHOW ALL COLUMNS
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable .printHide {
+
+    display: table-cell !important;
+
+}
+
+
+body.talapatrakFullViewMode
+.talapatrakTable col.printHide {
+
+    display: table-column !important;
+
+}
+
+
+/* ============================================================
+   ACTION COLUMN
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable .colAction {
+
+    display: table-cell !important;
+
+}
+
+
+/* ============================================================
+   TABLE — FIT ENTIRE WIDTH
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable {
+
+    width: 100% !important;
+
+    max-width: 100% !important;
+
+    min-width: 0 !important;
+
+    table-layout: fixed !important;
+
+    border-collapse: collapse !important;
+
+    box-sizing: border-box !important;
+
+}
+
+
+/* ============================================================
+   ALL CELLS
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable th,
+body.talapatrakFullViewMode
+.talapatrakTable td {
+
+    min-width: 0 !important;
+
+    max-width: none !important;
+
+    box-sizing: border-box !important;
+
+    overflow: hidden !important;
+
+}
+
+
+/* ============================================================
+   COLUMN A — KHATA NUMBER
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable .colA {
+
+    width: 4% !important;
+
+}
+
+
+/* ============================================================
+   COLUMN B — ACCOUNT HOLDER NAME
+   GIVE THIS ITS OWN SPACE
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable .colB {
+
+    width: 13% !important;
+
+}
+
+
+/* ============================================================
+   C–H — DEMAND
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable .colC,
+body.talapatrakFullViewMode
+.talapatrakTable .colD,
+body.talapatrakFullViewMode
+.talapatrakTable .colE,
+body.talapatrakFullViewMode
+.talapatrakTable .colF,
+body.talapatrakFullViewMode
+.talapatrakTable .colG,
+body.talapatrakFullViewMode
+.talapatrakTable .colH {
+
+    width: 4.5% !important;
+
+}
+
+
+/* ============================================================
+   I — DISCOUNT
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable .colI {
+
+    width: 4.5% !important;
+
+}
+
+
+/* ============================================================
+   J — NET DEMAND
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable .colJ {
+
+    width: 5% !important;
+
+}
+
+
+/* ============================================================
+   K — PREVIOUS YEAR
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable .colK {
+
+    width: 5% !important;
+
+}
+
+
+/* ============================================================
+   L — RECEIPT NUMBER
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable .colL {
+
+    width: 4.5% !important;
+
+}
+
+
+/* ============================================================
+   M — DATE
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable .colM {
+
+    width: 4.5% !important;
+
+}
+
+
+/* ============================================================
+   N — RECEIPT COLLECTION
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable .colN {
+
+    width: 5% !important;
+
+}
+
+
+/* ============================================================
+   O — TOTAL
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable .colO {
+
+    width: 4.5% !important;
+
+}
+
+
+/* ============================================================
+   P — ACTUAL COLLECTION
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable .colP {
+
+    width: 5% !important;
+
+}
+
+
+/* ============================================================
+   Q — UNAUTHORIZED ARREARS
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable .colQ {
+
+    width: 5% !important;
+
+}
+
+
+/* ============================================================
+   R — BALANCE COLLECTION
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable .colR {
+
+    width: 4.5% !important;
+
+}
+
+
+/* ============================================================
+   S — REMARK
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable .colS {
+
+    width: 4% !important;
+
+}
+
+
+/* ============================================================
+   T — BALANCE
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable .colT {
+
+    width: 4% !important;
+
+}
+
+
+/* ============================================================
+   U — EXTRA
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable .colU {
+
+    width: 4% !important;
+
+}
+
+
+/* ============================================================
+   V — ACTION
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable .colV {
+
+    width: 4% !important;
+
+}
+
+
+/* ============================================================
+   ACTION COLUMN
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable .colAction {
+
+    width: 5% !important;
+
+}
+
+
+/* ============================================================
+   TABLE INPUTS
+   SHRINK WITH THEIR CELLS
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable input,
+body.talapatrakFullViewMode
+.talapatrakTable textarea {
+
+    width: 100% !important;
+
+    max-width: 100% !important;
+
+    min-width: 0 !important;
+
+    box-sizing: border-box !important;
+
+}
+
+
+/* ============================================================
+   COLUMN B — NAME
+   ALLOW NAME TO WRAP
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable td:nth-child(2) input,
+body.talapatrakFullViewMode
+.talapatrakTable td:nth-child(2) textarea {
+
+    white-space: normal !important;
+
+    overflow-wrap: anywhere !important;
+
+    word-break: break-word !important;
+
+    text-align: left !important;
+
+}
+
+
+/* ============================================================
+   BODY CELLS
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable tbody td {
+
+    white-space: normal !important;
+
+    overflow-wrap: break-word !important;
+
+}
+
+
+/* ============================================================
+   HEADER CELLS
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakTable thead th {
+
+    white-space: normal !important;
+
+    overflow-wrap: break-word !important;
+
+    word-break: normal !important;
+
+}
+
+
+/* ============================================================
+   PAGINATION
+============================================================ */
+
+body.talapatrakFullViewMode
+#talapatrakPagination {
+
+    display: flex !important;
+
+}
+
+
+/* ============================================================
+   ADD ROW
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakActions {
+
+    display: flex !important;
+
+}
+
+
+/* ============================================================
+   FULL VIEW BUTTON
+   TOP BAR IS HIDDEN
+============================================================ */
+
+body.talapatrakFullViewMode
+#talapatrakFullViewButton {
+
+    display: none !important;
+
+}
+
+
+/* ============================================================
+   PREVENT BACKGROUND SCROLL
+============================================================ */
+
+body.talapatrakFullViewMode {
+
+    overflow: hidden !important;
+
+}
+
+
+
+/* ======================================================================================================================== */
+
+/* ============================================================
+   TALAPATRAK — FULL VIEW SHRINK BUTTON
+============================================================ */
+
+.talapatrakShrinkViewButton {
+
+    /* Hidden normally */
+    display: none !important;
+
+    /* Floating button */
+    position: fixed !important;
+
+    top: 16px !important;
+
+    right: 20px !important;
+
+    z-index: 100000 !important;
+
+    /* Size */
+    width: auto !important;
+
+    min-width: 0 !important;
+
+    height: 36px !important;
+
+    padding: 0 13px !important;
+
+    /* Layout */
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    gap: 7px !important;
+
+    /* Appearance */
+    background: #ffffff !important;
+
+    color: var(--talapatrak-primary) !important;
+
+    border: 1px solid #c7d2fe !important;
+
+    border-radius: 8px !important;
+
+    /* Typography */
+    font-family: inherit !important;
+
+    font-size: 13px !important;
+
+    font-weight: 600 !important;
+
+    line-height: 1 !important;
+
+    white-space: nowrap !important;
+
+    /* Prevent table styles from affecting button */
+    text-align: center !important;
+
+    box-sizing: border-box !important;
+
+    /* Shadow */
+    box-shadow:
+        0 4px 12px rgba(99, 102, 241, 0.14) !important;
+
+    /* Interaction */
+    cursor: pointer !important;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease !important;
+
+}
+
+
+/* ============================================================
+   SHOW ONLY IN FULL VIEW
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakShrinkViewButton {
+
+    display: flex !important;
+
+}
+
+
+/* ============================================================
+   BUTTON ICON
+============================================================ */
+
+.talapatrakShrinkViewButton i {
+
+    display: inline-flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    width: auto !important;
+
+    height: auto !important;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    font-size: 12px !important;
+
+    line-height: 1 !important;
+
+    color: inherit !important;
+
+}
+
+
+/* ============================================================
+   BUTTON TEXT
+============================================================ */
+
+.talapatrakShrinkViewButton span {
+
+    display: inline-block !important;
+
+    width: auto !important;
+
+    height: auto !important;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    font-size: 13px !important;
+
+    line-height: 1 !important;
+
+    white-space: nowrap !important;
+
+    color: inherit !important;
+
+}
+
+
+/* ============================================================
+   HOVER
+============================================================ */
+
+.talapatrakShrinkViewButton:hover {
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--talapatrak-primary),
+            var(--talapatrak-purple)
+        ) !important;
+
+    color: #ffffff !important;
+
+    border-color: transparent !important;
+
+    transform: translateY(-1px) !important;
+
+    box-shadow:
+        0 7px 18px rgba(99, 102, 241, 0.25) !important;
+
+}
+
+
+/* ============================================================
+   ACTIVE
+============================================================ */
+
+.talapatrakShrinkViewButton:active {
+
+    transform: translateY(0) !important;
+
+}
+
+
+/* ============================================================
+   FOCUS
+============================================================ */
+
+.talapatrakShrinkViewButton:focus {
+
+    outline: none !important;
+
+}
+
+
+.talapatrakShrinkViewButton:focus-visible {
+
+    outline: 2px solid var(--talapatrak-primary) !important;
+
+    outline-offset: 2px !important;
+
+}
+
+
+/* ============================================================
+   FULL VIEW CONTENT
+   LEAVE ROOM FOR FLOATING BUTTON
+============================================================ */
+
+body.talapatrakFullViewMode
+.talapatrakEditorContent {
+
+    padding-top: 62px !important;
+
+}
+
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 700px) {
+
+    .talapatrakShrinkViewButton {
+
+        top: 12px !important;
+
+        right: 12px !important;
+
+        width: 36px !important;
+
+        min-width: 36px !important;
+
+        height: 36px !important;
+
+        padding: 0 !important;
+
+        border-radius: 8px !important;
+
+    }
+
+
+    .talapatrakShrinkViewButton span {
+
+        display: none !important;
+
+    }
+
+
+    body.talapatrakFullViewMode
+    .talapatrakEditorContent {
+
+        padding-top: 56px !important;
+
+    }
+
+}
+
+
+
+/* ======================================================================================================================== */
 
 

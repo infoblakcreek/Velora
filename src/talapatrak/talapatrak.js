@@ -1,6 +1,3 @@
-
-/* =========================================================================== */
-
 console.log("TALAPATRAK JS FILE RUNNING");
 
 /* ============================================================
@@ -15,6 +12,7 @@ console.log("TALAPATRAK JS FILE RUNNING");
 
 const talapatrakNavElement =
     document.getElementById(
+                            
         "talapatrakNav"
     );
 
@@ -67,6 +65,53 @@ const emptyAddTalapatrakButton =
         "emptyAddTalapatrakButton"
     );
 
+
+if (backToTalapatrakManagementButton) {
+
+    backToTalapatrakManagementButton.addEventListener(
+        "click",
+        function () {
+
+            console.log(
+                "Back to Talapatrak Management clicked"
+            );
+
+            // Hide editor
+            const editorView =
+                document.getElementById(
+                    "talapatrakEditorView"
+                );
+
+            if (editorView) {
+
+                editorView.style.display =
+                    "none";
+
+            }
+
+
+            // Show management view
+            const managementView =
+                document.getElementById(
+                    "talapatrakView"
+                );
+
+            if (managementView) {
+
+                managementView.style.display =
+                    "block";
+
+            }
+
+
+            console.log(
+                "Returned to Talapatrak Management"
+            );
+
+        }
+    );
+
+}
 
 
 if (talapatrakNavElement) {
@@ -332,18 +377,27 @@ let talapatrakViewMode =
     "grid";
 
 
+/* ============================================================
+   TALAPATRAK PAGINATION / VIRTUAL ROW STATE
+============================================================ */
+
+window.talapatrakAllRows = [];
+
+window.talapatrakCurrentPage = 1;
+
+window.talapatrakRowsPerPage = 20;
+
+window.talapatrakTotalPages = 1;
+
+
 
 /* ============================================================
-        LOAD TALAPATRAK RECORDS FROM FIREBASE
+   LOAD TALAPATRAK RECORDS
 ============================================================ */
 
 async function loadTalapatrakRecords() {
 
     try {
-
-        /*
-            Make sure a user is logged in
-        */
 
         if (
             !auth ||
@@ -354,19 +408,26 @@ async function loadTalapatrakRecords() {
                 "No user logged in. Cannot load Talapatrak records."
             );
 
-            talapatrakRecords =
-                [];
+            talapatrakRecords = [];
+
+            console.log(
+                "BEFORE RENDER MANAGEMENT CALL"
+            );
 
             renderTalapatrakManagement();
+
+            console.log(
+                "AFTER RENDER MANAGEMENT CALL"
+            );
 
             return;
 
         }
 
 
-        /*
-            Show loading message
-        */
+        /* ========================================================
+           LOADING STATE
+        ======================================================== */
 
         if (
             talapatrakVillageGridElement
@@ -374,12 +435,9 @@ async function loadTalapatrakRecords() {
 
             talapatrakVillageGridElement.innerHTML = `
 
-                <div
-                    class="talapatrakLoadingState">
+                <div class="talapatrakLoadingState">
 
-                    <i
-                        class="fa-solid fa-spinner fa-spin">
-                    </i>
+                    <i class="fa-solid fa-spinner fa-spin"></i>
 
                     <p>
                         Loading Talapatrak records...
@@ -392,16 +450,18 @@ async function loadTalapatrakRecords() {
         }
 
 
-        /*
-            Get records belonging
-            to current user
-        */
+        /* ========================================================
+           LOAD RECORDS
+        ======================================================== */
+
+        console.log(
+            "LOAD TALAPATRAK → BEFORE FIRESTORE QUERY"
+        );
+
 
         const snapshot =
             await db
-                .collection(
-                    "talapatraks"
-                )
+                .collection("talapatraks")
                 .where(
                     "userId",
                     "==",
@@ -410,21 +470,19 @@ async function loadTalapatrakRecords() {
                 .get();
 
 
-        /*
-            Clear old records
-        */
-
-        talapatrakRecords =
-            [];
+        console.log(
+            "LOAD TALAPATRAK → FIRESTORE QUERY FINISHED"
+        );
 
 
-        /*
-            Convert Firestore documents
-            into JavaScript objects
-        */
+        /* ========================================================
+           BUILD RECORD ARRAY
+        ======================================================== */
+
+        talapatrakRecords = [];
+
 
         snapshot.forEach(
-
             function(doc) {
 
                 talapatrakRecords.push({
@@ -437,66 +495,56 @@ async function loadTalapatrakRecords() {
                 });
 
             }
-
         );
-
-      await createNextYearTalapatrakCopies();
-
-
-      /*
-          Reload records after creating
-          new financial year copies
-      */
-      
-      const updatedSnapshot =
-          await db
-              .collection("talapatraks")
-              .where(
-                  "userId",
-                  "==",
-                  auth.currentUser.uid
-              )
-              .get();
-      
-      
-      talapatrakRecords = [];
-      
-      
-      updatedSnapshot.forEach(function(doc) {
-      
-          talapatrakRecords.push({
-      
-              id:
-                  doc.id,
-      
-              ...doc.data()
-      
-          });
-      
-      });
-
-      
-      await loadTalapatrakCount();
-
-      console.log(
-          "LOADED TALAPATRAK RECORDS:",
-          talapatrakRecords
-      );
 
 
         console.log(
-            "Talapatrak records loaded:",
+            "LOAD TALAPATRAK → RECORDS BUILT:",
+            talapatrakRecords.length
+        );
+
+
+        console.log(
+            "LOADED TALAPATRAK RECORDS:",
             talapatrakRecords
         );
 
 
-        /*
-            Render management page
-        */
+        /* ========================================================
+           COUNT
+        ======================================================== */
+
+        await loadTalapatrakCount();
+
+
+        console.log(
+            "LOAD TALAPATRAK → COUNT COMPLETE"
+        );
+
+
+        /* ========================================================
+           RENDER
+        ======================================================== */
+
+        console.log(
+            "BEFORE RENDER MANAGEMENT CALL"
+        );
+
 
         renderTalapatrakManagement();
 
+
+        console.log(
+            "AFTER RENDER MANAGEMENT CALL"
+        );
+
+
+        console.log(
+            "LOAD TALAPATRAK → FUNCTION COMPLETE"
+        );
+
     }
+
 
     catch(error) {
 
@@ -512,12 +560,9 @@ async function loadTalapatrakRecords() {
 
             talapatrakVillageGridElement.innerHTML = `
 
-                <div
-                    class="talapatrakLoadingState">
+                <div class="talapatrakLoadingState">
 
-                    <i
-                        class="fa-solid fa-triangle-exclamation">
-                    </i>
+                    <i class="fa-solid fa-triangle-exclamation"></i>
 
                     <p>
                         Unable to load Talapatrak records.
@@ -533,6 +578,560 @@ async function loadTalapatrakRecords() {
 
 }
 
+
+
+function syncVisibleTalapatrakRows() {
+
+    const currentPage =
+        Number(
+            window.talapatrakCurrentPage
+        ) || 1;
+
+
+    const totalRows =
+        Array.isArray(
+            window.talapatrakAllRows
+        )
+            ? window.talapatrakAllRows.length
+            : 0;
+
+
+    const rowsPerPage =
+        Number(
+            window.talapatrakRowsPerPage
+        ) ||
+        Number(
+            typeof TALAPATRAK_ROWS_PER_PAGE !== "undefined"
+                ? TALAPATRAK_ROWS_PER_PAGE
+                : 20
+        ) ||
+        20;
+
+
+    if (!talapatrakBody) {
+
+        return;
+
+    }
+
+
+    if (
+        !Array.isArray(
+            window.talapatrakAllRows
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    const startIndex =
+        (
+            currentPage -
+            1
+        ) *
+        rowsPerPage;
+
+
+    const visibleRows =
+        Array.from(
+            talapatrakBody.querySelectorAll(
+                ".talapatrakRow"
+            )
+        );
+
+
+    console.log(
+        "SYNC PAGE → MEMORY:",
+        "Page:",
+        currentPage,
+        "Visible rows:",
+        visibleRows.length,
+        "Total memory rows:",
+        window.talapatrakAllRows.length
+    );
+
+
+    visibleRows.forEach(
+        function(row, visibleIndex) {
+
+            const memoryIndex =
+                startIndex +
+                visibleIndex;
+
+
+            if (
+                memoryIndex < 0 ||
+                memoryIndex >=
+                    window.talapatrakAllRows.length
+            ) {
+
+                return;
+
+            }
+
+
+            const existingMemoryRow =
+                window.talapatrakAllRows[
+                    memoryIndex
+                ];
+
+
+            /*
+             * NEVER replace the entire memory object
+             * with a newly created blank object.
+             */
+
+            if (
+                !existingMemoryRow ||
+                typeof existingMemoryRow !==
+                    "object"
+            ) {
+
+                return;
+
+            }
+
+
+            const columns = [
+                "A",
+                "B",
+                "C",
+                "D",
+                "E",
+                "F",
+                "G",
+                "H",
+                "I",
+                "J",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U"
+            ];
+
+
+            columns.forEach(
+                function(columnCode) {
+
+                    const input =
+                        row.querySelector(
+                            ".column" +
+                            columnCode
+                        );
+
+
+                    if (!input) {
+
+                        return;
+
+                    }
+
+
+                    /*
+                     * Only update the memory value
+                     * from an actual DOM input.
+                     */
+
+                    existingMemoryRow[
+                        columnCode
+                    ] =
+                        input.value;
+
+                }
+            );
+
+
+            /*
+             * Preserve global row number.
+             */
+
+            existingMemoryRow.A =
+                memoryIndex + 1;
+
+        }
+    );
+
+
+    console.log(
+        "MEMORY AFTER SYNC:",
+        JSON.stringify(
+            window.talapatrakAllRows,
+            null,
+            2
+        )
+    );
+
+}
+
+
+function renderTalapatrakGrandTotalRow() {
+
+    console.log(
+        "======================================"
+    );
+
+    console.log(
+        "RENDERING TALAPATRAK GRAND TOTAL ROW"
+    );
+
+
+    /* ========================================================
+       FIND TABLE BODY
+    ======================================================== */
+
+    const tbody =
+        document.getElementById(
+            "talapatrakBody"
+        );
+
+
+    if (!tbody) {
+
+        console.warn(
+            "talapatrakBody not found."
+        );
+
+        return;
+
+    }
+
+
+    /* ========================================================
+       GET TOTALS
+    ======================================================== */
+
+    const totals =
+        window.talapatrakTotals;
+
+
+    if (!totals) {
+
+        console.warn(
+            "No Talapatrak totals available."
+        );
+
+        return;
+
+    }
+
+
+    console.log(
+        "TOTALS USED FOR GRAND TOTAL ROW:",
+        totals
+    );
+
+
+    /* ========================================================
+       REMOVE EXISTING GRAND TOTAL ROW
+    ======================================================== */
+
+    const existingRow =
+        tbody.querySelector(
+            ".talapatrakGrandTotalRow"
+        );
+
+
+    if (existingRow) {
+
+        existingRow.remove();
+
+    }
+
+
+    /* ========================================================
+       CREATE GRAND TOTAL ROW
+       
+       ACTUAL TABLE STRUCTURE:
+       
+       A
+       B
+       C
+       D
+       E
+       F
+       G
+       H
+       I
+       J
+       K
+       L
+       M
+       N
+       O
+       P
+       Q
+       R
+       S
+       T
+       U
+       V
+       ACTION
+    ======================================================== */
+
+    const totalRow =
+        document.createElement(
+            "tr"
+        );
+
+
+    totalRow.className =
+        "talapatrakGrandTotalRow";
+
+
+    /* ========================================================
+       TOTAL VALUES
+    ======================================================== */
+
+    const values = [
+
+        /* A */
+        "કુલ",
+
+        /* B */
+        "",
+
+        /* C */
+        totals.C,
+
+        /* D */
+        totals.D,
+
+        /* E */
+        totals.E,
+
+        /* F */
+        totals.F,
+
+        /* G */
+        totals.G,
+
+        /* H */
+        totals.H,
+
+        /* I */
+        totals.I,
+
+        /* J */
+        totals.J,
+
+        /* K */
+        totals.K,
+
+        /* L — Receipt Number */
+        "",
+
+        /* M — Date */
+        "",
+
+        /* N */
+        totals.N,
+
+        /* O */
+        totals.O,
+
+        /* P */
+        totals.P,
+
+        /* Q */
+        totals.Q,
+
+        /* R */
+        totals.R,
+
+        /* S */
+        totals.S,
+
+        /* T */
+        totals.T,
+
+        /* U */
+        totals.U,
+
+        /* V */
+        "",
+
+        /* ACTION */
+        ""
+
+    ];
+
+
+    console.log(
+        "GRAND TOTAL CELL COUNT:",
+        values.length
+    );
+
+
+    /* ========================================================
+       CREATE CELLS
+    ======================================================== */
+
+    values.forEach(
+        function(value, index) {
+
+            const cell =
+                document.createElement(
+                    "td"
+                );
+
+
+            /* ----------------------------------------------
+               VALUE
+            ---------------------------------------------- */
+
+            if (
+                value === undefined ||
+                value === null
+            ) {
+
+                cell.textContent = "";
+
+            }
+
+            else {
+
+                cell.textContent =
+                    value;
+
+            }
+
+
+            /* ----------------------------------------------
+               GRAND TOTAL LABEL
+            ---------------------------------------------- */
+
+            if (index === 0) {
+
+                cell.classList.add(
+                    "grandTotalLabel"
+                );
+
+            }
+
+
+            /* ----------------------------------------------
+               HIDE EDITOR-ONLY COLUMNS
+               
+               T  = index 19
+               U  = index 20
+               V  = index 21
+               ACTION = index 22
+            ---------------------------------------------- */
+
+            if (
+                index === 19 ||
+                index === 20 ||
+                index === 21 ||
+                index === 22
+            ) {
+
+                cell.classList.add(
+                    "printHide"
+                );
+
+            }
+
+
+            totalRow.appendChild(
+                cell
+            );
+
+        }
+    );
+
+
+    /* ========================================================
+       SAFETY CHECK
+    ======================================================== */
+
+    const expectedColumns = 23;
+
+    if (
+        totalRow.children.length !==
+        expectedColumns
+    ) {
+
+        console.warn(
+            "GRAND TOTAL COLUMN MISMATCH:",
+            totalRow.children.length,
+            "expected:",
+            expectedColumns
+        );
+
+    }
+
+
+    /* ========================================================
+       ADD GRAND TOTAL ROW
+    ======================================================== */
+
+    tbody.appendChild(
+        totalRow
+    );
+
+
+    /* ========================================================
+       CONFIRM RENDER
+    ======================================================== */
+
+    console.log(
+        "GRAND TOTAL ROW RENDERED SUCCESSFULLY"
+    );
+
+
+    console.log(
+        "GRAND TOTAL VALUES:",
+        values
+    );
+
+
+    console.log(
+        "GRAND TOTAL DOM CELLS:",
+        totalRow.children.length
+    );
+
+
+    console.log(
+        "======================================"
+    );
+
+}
+
+
+
+function setCalculationEditorValue(
+    id,
+    value
+) {
+
+    const input =
+        document.getElementById(
+            id
+        );
+
+
+    if (!input) return;
+
+
+    input.value =
+        value === undefined ||
+        value === null
+            ? ""
+            : value;
+
+}
+
+
+  
 
 /* ============================================================
         TALAPATRAK SORT DROPDOWN
@@ -553,6 +1152,10 @@ const talapatrakSortOptions =
     document.querySelectorAll(
         ".talapatrakSortOption"
     );
+
+
+window.talapatrakOpeningInProgress = false;
+
 
 /* ============================================================
         SORT DROPDOWN OPEN / CLOSE
@@ -607,7 +1210,15 @@ talapatrakSortOptions.forEach(function(option) {
             );
 
 
+            console.log(
+                "BEFORE RENDER MANAGEMENT CALL"
+            );
+            
             renderTalapatrakManagement();
+            
+            console.log(
+                "AFTER RENDER MANAGEMENT CALL"
+            );
 
         }
     );
@@ -783,9 +1394,7 @@ if (
     );
 
 }
-/* ============================================================
-        RENDER MANAGEMENT VIEW
-============================================================ */
+
 
 /* ============================================================
         RENDER TALAPATRAK VILLAGE CARDS
@@ -814,15 +1423,12 @@ function renderTalapatrakManagement() {
             filteredRecords
         );
 
-      console.log(
-        "RECORDS TO CREATE CARDS:",
-        sortedRecords.length
-    );
+      
     
     console.log(
-        "GRID ELEMENT:",
-        talapatrakVillageGridElement
-    );
+          "GRID ELEMENT EXISTS:",
+          !!talapatrakVillageGridElement
+      );
 
     /*
         Update village count
@@ -837,9 +1443,9 @@ function renderTalapatrakManagement() {
 
 
           console.log(
-              "ACTUAL COUNT ELEMENT:",
-              talapatrakRecordCountElement.outerHTML
-          );
+                "COUNT ELEMENT EXISTS:",
+                !!talapatrakRecordCountElement
+            );
           
               console.log(
             "COUNT AFTER UPDATE:",
@@ -923,12 +1529,19 @@ function renderTalapatrakManagement() {
   
     console.log(
         "RECORDS BEING USED TO CREATE CARDS:",
-        sortedRecords
-    );
-
-    console.log(
-        "RECORDS TO CREATE CARDS:",
-        sortedRecords
+        sortedRecords.map(
+            function(record) {
+    
+                return {
+                    id: record.id,
+                    moje: record.moje,
+                    rows: Array.isArray(record.rows)
+                        ? record.rows.length
+                        : 0
+                };
+    
+            }
+        )
     );
     
     console.log(
@@ -980,7 +1593,14 @@ function renderTalapatrakManagement() {
         sortedRecords.length
     );
 
+
+          console.log(
+            "AFTER TALAPATRAK CARDS RENDERED"
+        );
+
 }
+
+
 /* ============================================================
         CREATE TALAPATRAK VILLAGE CARD
 ============================================================ */
@@ -1140,22 +1760,65 @@ function createTalapatrakVillageCard(
             
                 <div class="talapatrakCardMenu">
 
-                
-                    <button
-                        class="talapatrakCardMenuItem download"
-                        data-action="download">
-                
-                
-                        <i class="fa-solid fa-download"></i>
-                
-                
-                        Download
-                
-                
-                    </button>
-                
-                
-                
+
+                    <!-- RENAME -->
+              
+                        <button
+                            type="button"
+                            class="talapatrakCardMenuItem"
+                            data-action="rename">
+                    
+                            <i class="fa-solid fa-pen"></i>
+                    
+                            <span>
+                                Rename
+                            </span>
+                    
+                        </button>
+                    
+                    
+                        <!-- COPY -->
+                    
+                        <button
+                            type="button"
+                            class="talapatrakCardMenuItem"
+                            data-action="copy">
+                    
+                            <i class="fa-solid fa-copy"></i>
+                    
+                            <span>
+                                Copy
+                            </span>
+                    
+                        </button>
+                    
+                    
+                        <!-- DUPLICATE -->
+                    
+                        <button
+                            type="button"
+                            class="talapatrakCardMenuItem"
+                            data-action="duplicate">
+                    
+                            <i class="fa-solid fa-clone"></i>
+                    
+                            <span>
+                                Duplicate
+                            </span>
+                    
+                        </button>
+                    
+                    
+                         
+              
+                      <!-- DIVIDER -->
+                  
+                      <div class="talapatrakCardMenuDivider"></div>
+                  
+                  
+                      <!-- DELETE -->
+                  
+                   
                     <button
                         class="talapatrakCardMenuItem delete"
                         data-action="delete">
@@ -1246,38 +1909,46 @@ function createTalapatrakVillageCard(
         Open card when clicking
     */
 
-      card.addEventListener(
-
-    "click",
-
-    function(event) {
-
-
-        /*
-            Do not open card when
-            clicking menu area
-        */
-
-        if (
-
-            event.target.closest(
-                ".talapatrakCardMenuWrapper"
-            )
-
-        ) {
-
-            return;
-
-        }
-
-
-          openTalapatrakRecord(
-            record.id
-          );
-
-    }
-
-);
+     card.addEventListener(
+          "click",
+          function(event) {
+      
+              console.log(
+                    "CARD CLICKED:",
+                    record.id
+                );
+      
+      
+              if (
+                  event.target.closest(
+                      ".talapatrakCardMenuWrapper"
+                  )
+              ) {
+      
+                  console.log(
+                      "CLICK WAS ON CARD MENU"
+                  );
+      
+                  return;
+      
+              }
+      
+      
+              event.preventDefault();
+              event.stopPropagation();
+      
+      
+              console.log(
+                  "OPENING RECORD:",
+                  record.id
+              );
+              
+              openTalapatrakRecord(
+                  record
+              );
+      
+          }
+      );
 
 
       /* ============================================================
@@ -1302,11 +1973,678 @@ const deleteButton =
     );
 
 
-const downloadButton =
+
+
+  /* ============================================================
+   RENAME / COPY / DUPLICATE BUTTONS
+============================================================ */
+
+const renameButton =
     card.querySelector(
-        '[data-action="download"]'
+        '[data-action="rename"]'
     );
 
+
+const copyButton =
+    card.querySelector(
+        '[data-action="copy"]'
+    );
+
+
+const duplicateButton =
+    card.querySelector(
+        '[data-action="duplicate"]'
+    );
+
+
+/* ============================================================
+   RENAME
+============================================================ */
+
+if (renameButton) {
+
+    renameButton.addEventListener(
+
+        "click",
+
+        async function(event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+
+            /*
+                Close menu
+            */
+
+            cardMenu.classList.remove(
+                "open"
+            );
+
+
+            /*
+                Current name
+            */
+
+            const currentName =
+                record.moje ||
+                "";
+
+
+            /*
+                Ask for new village name
+            */
+
+            const newName =
+                prompt(
+                    "Enter the new village name:",
+                    currentName
+                );
+
+
+            /*
+                Cancelled
+            */
+
+            if (
+                newName === null
+            ) {
+
+                return;
+
+            }
+
+
+            const trimmedName =
+                newName.trim();
+
+
+            /*
+                Empty name
+            */
+
+            if (!trimmedName) {
+
+                alert(
+                    "Village name cannot be empty."
+                );
+
+                return;
+
+            }
+
+
+            /*
+                Same name
+            */
+
+            if (
+                trimmedName === currentName
+            ) {
+
+                return;
+
+            }
+
+
+            /*
+                Login check
+            */
+
+            if (
+                !auth.currentUser
+            ) {
+
+                alert(
+                    "Please login before renaming a Talapatrak."
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                /*
+                    Existing document
+                */
+
+                const oldDocumentReference =
+                    db
+                        .collection(
+                            "talapatraks"
+                        )
+                        .doc(
+                            record.id
+                        );
+
+
+                /*
+                    New document ID
+
+                    The document ID is based on
+                    village + year.
+                */
+
+                const newDocumentId =
+                    getTalapatrakDocumentId(
+                        trimmedName,
+                        record.year
+                    );
+
+
+                /*
+                    Prevent accidental overwrite
+                */
+
+                const newDocumentReference =
+                    db
+                        .collection(
+                            "talapatraks"
+                        )
+                        .doc(
+                            newDocumentId
+                        );
+
+
+                const existingNewDocument =
+                    await newDocumentReference.get();
+
+
+                if (
+                    existingNewDocument.exists
+                ) {
+
+                    alert(
+                        `A Talapatrak for "${trimmedName}" (${record.year}) already exists.`
+                    );
+
+                    return;
+
+                }
+
+
+                /*
+                    Create renamed record
+                */
+
+                const renamedData = {
+
+                    ...record,
+
+                    id:
+                        undefined,
+
+                    moje:
+                        trimmedName,
+
+                    updatedAt:
+                        firebase.firestore.FieldValue
+                            .serverTimestamp()
+
+                };
+
+
+                /*
+                    Remove local ID because
+                    Firebase data should not contain
+                    the old document ID.
+                */
+
+                delete renamedData.id;
+
+
+                /*
+                    Save new document
+                */
+
+                await newDocumentReference.set(
+                    renamedData,
+                    {
+                        merge: true
+                    }
+                );
+
+
+                /*
+                    Delete old document
+                */
+
+                await oldDocumentReference.delete();
+
+
+                /*
+                    Update local current record
+                    if this is the currently opened
+                    Talapatrak.
+                */
+
+                if (
+                    currentTalapatrakDocumentId ===
+                    record.id
+                ) {
+
+                    currentTalapatrakDocumentId =
+                        newDocumentId;
+
+
+                    currentTalapatrakRecord = {
+
+                        id:
+                            newDocumentId,
+
+                        ...renamedData
+
+                    };
+
+                }
+
+
+                /*
+                    Update card immediately
+                */
+
+                const title =
+                    card.querySelector(
+                        ".talapatrakVillageTitle h3"
+                    );
+
+
+                if (title) {
+
+                    title.textContent =
+                        trimmedName;
+
+                }
+
+
+                /*
+                    Update card dataset
+                */
+
+                card.dataset.id =
+                    newDocumentId;
+
+
+                /*
+                    Update local record
+                */
+
+                record.id =
+                    newDocumentId;
+
+                record.moje =
+                    trimmedName;
+
+
+                alert(
+                    `Talapatrak renamed to "${trimmedName}".`
+                );
+
+
+                console.log(
+                    "Talapatrak renamed:",
+                    newDocumentId
+                );
+
+
+            }
+
+            catch(error) {
+
+                console.error(
+                    "Error renaming Talapatrak:",
+                    error
+                );
+
+
+                alert(
+                    "Talapatrak could not be renamed: " +
+                    error.message
+                );
+
+            }
+
+        }
+
+    );
+
+}
+
+
+/* ============================================================
+   COPY
+   ------------------------------------------------------------
+   Copies the Talapatrak data to clipboard.
+============================================================ */
+
+if (copyButton) {
+
+    copyButton.addEventListener(
+
+        "click",
+
+        async function(event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+
+            cardMenu.classList.remove(
+                "open"
+            );
+
+
+            try {
+
+                /*
+                    Create a clean copy of the
+                    useful Talapatrak data.
+                */
+
+                const copyData = {
+
+                    moje:
+                        record.moje || "",
+
+                    taluka:
+                        record.taluka || "",
+
+                    jillo:
+                        record.jillo || "",
+
+                    year:
+                        record.year || "",
+
+                    rows:
+                        Array.isArray(record.rows)
+                            ? record.rows
+                            : []
+
+                };
+
+
+                const text =
+                    JSON.stringify(
+                        copyData,
+                        null,
+                        2
+                    );
+
+
+                /*
+                    Modern clipboard
+                */
+
+                await navigator.clipboard.writeText(
+                    text
+                );
+
+
+                alert(
+                    "Talapatrak data copied."
+                );
+
+
+                console.log(
+                    "Talapatrak copied:",
+                    record.id
+                );
+
+            }
+
+            catch(error) {
+
+                console.error(
+                    "Could not copy Talapatrak:",
+                    error
+                );
+
+
+                alert(
+                    "Talapatrak could not be copied."
+                );
+
+            }
+
+        }
+
+    );
+
+}
+
+
+/* ============================================================
+   DUPLICATE
+============================================================ */
+
+if (duplicateButton) {
+
+    duplicateButton.addEventListener(
+
+        "click",
+
+        async function(event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+
+            cardMenu.classList.remove(
+                "open"
+            );
+
+
+            if (
+                !auth.currentUser
+            ) {
+
+                alert(
+                    "Please login before duplicating a Talapatrak."
+                );
+
+                return;
+
+            }
+
+
+            /*
+                Ask for duplicate name
+            */
+
+            const originalName =
+                record.moje ||
+                "Talapatrak";
+
+
+            const suggestedName =
+                `${originalName} (Copy)`;
+
+
+            const duplicateName =
+                prompt(
+                    "Name for the duplicated Talapatrak:",
+                    suggestedName
+                );
+
+
+            /*
+                Cancelled
+            */
+
+            if (
+                duplicateName === null
+            ) {
+
+                return;
+
+            }
+
+
+            const trimmedName =
+                duplicateName.trim();
+
+
+            if (!trimmedName) {
+
+                alert(
+                    "Village name cannot be empty."
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                /*
+                    Create new document ID
+                */
+
+                const duplicateDocumentId =
+                    getTalapatrakDocumentId(
+                        trimmedName,
+                        record.year
+                    );
+
+
+                const duplicateReference =
+                    db
+                        .collection(
+                            "talapatraks"
+                        )
+                        .doc(
+                            duplicateDocumentId
+                        );
+
+
+                /*
+                    Check if it already exists
+                */
+
+                const existingDuplicate =
+                    await duplicateReference.get();
+
+
+                if (
+                    existingDuplicate.exists
+                ) {
+
+                    alert(
+                        `A Talapatrak for "${trimmedName}" (${record.year}) already exists.`
+                    );
+
+                    return;
+
+                }
+
+
+                /*
+                    IMPORTANT:
+                    Create a completely independent
+                    rows array.
+
+                    Changes to the duplicate will
+                    NOT affect the original.
+                */
+
+                const duplicatedRows =
+                    Array.isArray(record.rows)
+                        ? JSON.parse(
+                            JSON.stringify(
+                                record.rows
+                            )
+                        )
+                        : [];
+
+
+                const duplicatedData = {
+
+                    type:
+                        "talapatrak",
+
+                    moje:
+                        trimmedName,
+
+                    taluka:
+                        record.taluka || "",
+
+                    jillo:
+                        record.jillo || "",
+
+                    year:
+                        record.year,
+
+                    rows:
+                        duplicatedRows,
+
+                    rowCount:
+                        duplicatedRows.length,
+
+                    userId:
+                        auth.currentUser.uid,
+
+                    userEmail:
+                        auth.currentUser.email,
+
+                    updatedAt:
+                        firebase.firestore.FieldValue
+                            .serverTimestamp()
+
+                };
+
+
+                /*
+                    Save duplicate
+                */
+
+                await duplicateReference.set(
+                    duplicatedData
+                );
+
+
+                /*
+                    Update management count
+                */
+
+                await loadTalapatrakCount();
+
+
+                alert(
+                    `Talapatrak duplicated as "${trimmedName}".`
+                );
+
+
+                console.log(
+                    "Talapatrak duplicated:",
+                    duplicateDocumentId
+                );
+
+
+            }
+
+            catch(error) {
+
+                console.error(
+                    "Error duplicating Talapatrak:",
+                    error
+                );
+
+
+                alert(
+                    "Talapatrak could not be duplicated: " +
+                    error.message
+                );
+
+            }
+
+        }
+
+    );
+
+}
 
 /* ============================================================
         OPEN / CLOSE THREE-DOT MENU
@@ -1429,34 +2767,13 @@ if (
 
 }
 
-if(downloadButton){
-
-    downloadButton.addEventListener(
-
-        "click",
-
-        async function(event){
-
-            event.preventDefault();
-
-            event.stopPropagation();
 
 
-            cardMenu.classList.remove(
-                "open"
-            );
-
-
-            await downloadTalapatrakPDF(
-                record
-            );
-
-
-        }
-
+      console.log(
+        "CARD CREATION COMPLETE:",
+        record.id
     );
-
-}
+  
     return card;
 
 }
@@ -1524,7 +2841,15 @@ async function deleteTalapatrakRecord(record) {
             );
 
 
-        renderTalapatrakManagement();
+        console.log(
+              "BEFORE RENDER MANAGEMENT CALL"
+          );
+          
+          renderTalapatrakManagement();
+          
+          console.log(
+              "AFTER RENDER MANAGEMENT CALL"
+          );
 
           await loadTalapatrakCount();
 
@@ -1652,7 +2977,15 @@ function escapeTalapatrakHTML(
         INITIAL RENDER
 ============================================================ */
 
+console.log(
+    "BEFORE RENDER MANAGEMENT CALL"
+);
+
 renderTalapatrakManagement();
+
+console.log(
+    "AFTER RENDER MANAGEMENT CALL"
+);
 
 
 
@@ -1715,42 +3048,128 @@ function getPreviousTalapatrakYear(year) {
 
 }
 
+
 /* ============================================================
         CREATE NEW YEAR TALAPATRAK DUPLICATES
 ============================================================ */
 
 async function createNextYearTalapatrakCopies() {
 
+    console.log(
+        "YEAR COPY → FUNCTION START"
+    );
+
+
     try {
 
-        if (!auth.currentUser) {
+        /* ========================================================
+           CHECK LOGIN
+        ======================================================== */
+
+        if (
+            !auth ||
+            !auth.currentUser
+        ) {
+
+            console.warn(
+                "YEAR COPY → NO USER LOGGED IN"
+            );
 
             return;
 
         }
 
 
+        /* ========================================================
+           PREVENT DUPLICATE SIMULTANEOUS RUNS
+        ======================================================== */
+
+        if (
+            window.talapatrakYearCopyInProgress
+        ) {
+
+            console.log(
+                "YEAR COPY → ALREADY RUNNING, SKIPPING"
+            );
+
+            return;
+
+        }
+
+
+        window.talapatrakYearCopyInProgress =
+            true;
+
+
+        /* ========================================================
+           GET YEARS
+        ======================================================== */
+
         const currentYear =
             getCurrentTalapatrakYear();
-
-
+        
+        
+        /*
+        ============================================================
+            INITIAL SYSTEM YEAR PROTECTION
+        
+            GamSetu is being introduced in 2026.
+        
+            During 2026, users are entering existing
+            Talapatrak records manually.
+        
+            Therefore the automatic annual-copy system
+            must NOT create 2026-2027 records.
+        
+            Automatic yearly copying begins from
+            August 1, 2027.
+        ============================================================
+        */
+        
+        const currentStartYear =
+            Number(
+                String(currentYear)
+                    .split("-")[0]
+            );
+        
+        
+        if (
+            currentStartYear < 2027
+        ) {
+        
+            console.log(
+                "YEAR COPY → AUTOMATIC COPYING DISABLED FOR INITIAL 2026 SYSTEM YEAR:",
+                currentYear
+            );
+        
+            return;
+        
+        }
+        
+        
         const previousYear =
             getPreviousTalapatrakYear(
                 currentYear
             );
-
-
+        
+        
         console.log(
-            "Checking Talapatrak yearly copies:",
+            "YEAR COPY → CHECKING:",
             previousYear,
             "→",
             currentYear
         );
 
 
+        /* ========================================================
+           LOAD PREVIOUS YEAR RECORDS
+        ======================================================== */
+
         const previousSnapshot =
             await db
-                .collection("talapatraks")
+                .collection(
+                    "talapatraks"
+                )
                 .where(
                     "userId",
                     "==",
@@ -1764,19 +3183,66 @@ async function createNextYearTalapatrakCopies() {
                 .get();
 
 
+        console.log(
+            "YEAR COPY → PREVIOUS RECORD COUNT:",
+            previousSnapshot.size
+        );
 
-        for (
-            const doc of previousSnapshot.docs
+
+        /* ========================================================
+           NOTHING TO COPY
+        ======================================================== */
+
+        if (
+            previousSnapshot.empty
         ) {
 
+            console.log(
+                "YEAR COPY → NOTHING TO COPY"
+            );
+
+            return;
+
+        }
+
+
+        /* ========================================================
+           PROCESS PREVIOUS YEAR RECORDS
+        ======================================================== */
+
+        for (
+            const oldDoc of previousSnapshot.docs
+        ) {
 
             const oldData =
-                doc.data();
+                oldDoc.data();
 
 
             const villageName =
                 oldData.moje;
 
+
+            /* ====================================================
+               VALIDATE VILLAGE
+            ==================================================== */
+
+            if (
+                !villageName
+            ) {
+
+                console.warn(
+                    "YEAR COPY → SKIPPING RECORD WITHOUT VILLAGE:",
+                    oldDoc.id
+                );
+
+                continue;
+
+            }
+
+
+            /* ====================================================
+               CREATE NEW DOCUMENT ID
+            ==================================================== */
 
             const newDocumentId =
                 getTalapatrakDocumentId(
@@ -1787,78 +3253,108 @@ async function createNextYearTalapatrakCopies() {
 
             const newDocumentRef =
                 db
-                .collection("talapatraks")
-                .doc(
-                    newDocumentId
-                );
+                    .collection(
+                        "talapatraks"
+                    )
+                    .doc(
+                        newDocumentId
+                    );
 
 
-            const existing =
+            console.log(
+                "YEAR COPY → CHECKING:",
+                newDocumentId
+            );
+
+
+            /* ====================================================
+               CHECK WHETHER CURRENT YEAR ALREADY EXISTS
+            ==================================================== */
+
+            const existingSnapshot =
                 await newDocumentRef.get();
 
 
-
-            // Already created
             if (
-                existing.exists
+                existingSnapshot.exists
             ) {
+
+                console.log(
+                    "YEAR COPY → ALREADY EXISTS:",
+                    newDocumentId
+                );
 
                 continue;
 
             }
 
 
+            /* ====================================================
+               COPY ROWS
+               
+               NEW YEAR RULE:
+               
+               C ← Q
+               K ← R
+            ==================================================== */
+
+            const oldRows =
+                Array.isArray(
+                    oldData.rows
+                )
+                    ? oldData.rows
+                    : [];
+
 
             const newRows =
-                (oldData.rows || [])
-                .map(function(row) {
+                oldRows.map(
+                    function(row) {
+
+                        return {
+
+                            ...row,
+
+                            C:
+                                row.Q || "",
+
+                            K:
+                                row.R || ""
+
+                        };
+
+                    }
+                );
 
 
-                    return {
-
-                        ...row,
-
-
-                        // NEW YEAR TRANSFER RULE
-
-                        C:
-                            row.Q || "",
-
-
-                        K:
-                            row.R || ""
-
-                    };
-
-
-                });
-
-
+            /* ====================================================
+               CREATE NEW RECORD DATA
+            ==================================================== */
 
             const newData = {
 
                 ...oldData,
 
-
                 year:
                     currentYear,
-
 
                 rows:
                     newRows,
 
-
                 rowCount:
                     newRows.length,
 
-
                 updatedAt:
-                    firebase.firestore.FieldValue
-                    .serverTimestamp()
+                    firebase
+                        .firestore
+                        .FieldValue
+                        .serverTimestamp()
 
             };
 
 
+            /* ====================================================
+               SAVE NEW RECORD
+            ==================================================== */
 
             await newDocumentRef.set(
                 newData
@@ -1866,26 +3362,45 @@ async function createNextYearTalapatrakCopies() {
 
 
             console.log(
-                "Created new Talapatrak:",
+                "YEAR COPY → CREATED:",
                 newDocumentId
             );
-
 
         }
 
 
+        console.log(
+            "YEAR COPY → COMPLETE"
+        );
+
     }
+
 
     catch(error) {
 
         console.error(
-            "Error creating yearly Talapatrak copies:",
+            "YEAR COPY → ERROR:",
             error
         );
 
     }
 
+
+    finally {
+
+        window.talapatrakYearCopyInProgress =
+            false;
+
+
+        console.log(
+            "YEAR COPY → LOCK RELEASED"
+        );
+
+    }
+
 }
+
+
 
 
 /* ============================================================
@@ -1916,12 +3431,6 @@ const addTalapatrakRowButton =
 const saveTalapatrakButton =
     document.getElementById(
         "saveTalapatrakButton"
-    );
-
-
-const printTalapatrakButton =
-    document.getElementById(
-        "printTalapatrakButton"
     );
 
 
@@ -1983,6 +3492,28 @@ function hideAllTalapatrakViews() {
 
 function startNewTalapatrak() {
 
+    const currentYear =
+        getCurrentTalapatrakYear();
+
+
+    const shouldCreate =
+        confirm(
+            `Create new Talapatrak for ${currentYear}?`
+        );
+
+
+    if (!shouldCreate) {
+
+        console.log(
+            "NEW TALAPATRAK CANCELLED BY USER:",
+            currentYear
+        );
+
+        return;
+
+    }
+
+
     currentTalapatrakRecord =
         null;
 
@@ -1990,24 +3521,67 @@ function startNewTalapatrak() {
         null;
 
 
+    /*
+    ============================================================
+        RESET PAGINATION MEMORY FOR NEW TALAPATRAK
+    ============================================================
+    */
+
+    window.talapatrakAllRows =
+        null;
+
+    console.log(
+        "======================================"
+    );
+    
+    console.log(
+        "TALAPATRAK MEMORY DEBUG"
+    );
+    
+    console.log(
+        "talapatrakAllRows:",
+        window.talapatrakAllRows
+    );
+    
+    console.log(
+        "talapatrakAllRows.length:",
+        Array.isArray(window.talapatrakAllRows)
+            ? window.talapatrakAllRows.length
+            : "NOT ARRAY"
+    );
+    
+    console.log(
+        "======================================"
+    );
+    window.talapatrakCurrentPage =
+        1;
+
+    window.talapatrakTotalPages =
+        1;
+
+
     const editorVillageName =
-      document.getElementById(
-          "talapatrakEditorVillageName"
-      );
-  
-      if (editorVillageName) {
-      
-          editorVillageName.textContent =
-              "New Talapatrak";
-      
-      }
-  
+        document.getElementById(
+            "talapatrakEditorVillageName"
+        );
+
+
+    if (editorVillageName) {
+
+        editorVillageName.textContent =
+            "New Talapatrak";
+
+    }
+
+
     openTalapatrakEditor();
+
 
     const mojeInput =
         document.getElementById(
             "talapatrakMoje"
         );
+
 
     if (mojeInput) {
 
@@ -2016,10 +3590,12 @@ function startNewTalapatrak() {
 
     }
 
+
     const talukaInput =
         document.getElementById(
             "talapatrakTaluka"
         );
+
 
     if (talukaInput) {
 
@@ -2028,10 +3604,12 @@ function startNewTalapatrak() {
 
     }
 
+
     const jilloInput =
         document.getElementById(
             "talapatrakJillo"
         );
+
 
     if (jilloInput) {
 
@@ -2040,13 +3618,42 @@ function startNewTalapatrak() {
 
     }
 
-    updateTalapatrakYearDisplay();
 
-    clearTalapatrakRows();
+    /*
+    ============================================================
+        YEAR
+    ============================================================
+    */
 
-    addInitialTalapatrakRow();
+    populateTalapatrakYearOptions();
 
-}
+
+      const yearSelect =
+          document.getElementById(
+              "talapatrakYear"
+          );
+      
+      
+      if (yearSelect) {
+      
+          yearSelect.value =
+              currentYear;
+      
+      }
+
+  
+      
+      
+      updateTalapatrakYearDisplay(
+          currentYear
+      );
+      
+      
+          clearTalapatrakRows();
+      
+          addInitialTalapatrakRow();
+      
+   }
 
 
 /* ============================================================
@@ -2057,19 +3664,187 @@ function updateTalapatrakYearDisplay(
     year = getCurrentTalapatrakYear()
 ) {
 
-    const yearElements =
-        document.querySelectorAll(
-            "#talapatrakYear, #talapatrakEditorYear"
+    const yearSelect =
+        document.getElementById(
+            "talapatrakYear"
         );
 
-    yearElements.forEach(function(element) {
+    const editorYear =
+        document.getElementById(
+            "talapatrakEditorYear"
+        );
 
-        element.textContent =
-            year;
 
-    });
+    /* ========================================================
+       YEAR DROPDOWN
+    ======================================================== */
+
+    if (yearSelect) {
+
+        /*
+         * Make sure the saved year actually exists
+         * inside the dropdown.
+         */
+
+        const optionExists =
+            Array.from(
+                yearSelect.options
+            ).some(function(option) {
+
+                return option.value === String(year);
+
+            });
+
+
+        /*
+         * If the year is missing, add it.
+         */
+
+        if (!optionExists) {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                String(year);
+
+            option.textContent =
+                String(year);
+
+            yearSelect.appendChild(
+                option
+            );
+
+        }
+
+
+        /*
+         * Now select the saved year.
+         */
+
+        yearSelect.value =
+            String(year);
+
+    }
+
+
+    /* ========================================================
+       EDITOR TITLE YEAR
+    ======================================================== */
+
+    if (editorYear) {
+
+        editorYear.textContent =
+            String(year);
+
+    }
 
 }
+
+
+function populateTalapatrakYearOptions() {
+
+    const yearSelect =
+        document.getElementById(
+            "talapatrakYear"
+        );
+
+
+    if (!yearSelect) {
+
+        console.warn(
+            "populateTalapatrakYearOptions(): year select not found."
+        );
+
+        return;
+
+    }
+
+
+    /*
+    ========================================================
+        CLEAR EXISTING OPTIONS
+    ========================================================
+    */
+
+    yearSelect.innerHTML = "";
+
+
+    /*
+    ========================================================
+        CURRENT FINANCIAL YEAR
+    ========================================================
+    */
+
+    const currentFinancialYear =
+        getCurrentTalapatrakYear();
+
+
+    const currentStartYear =
+        Number(
+            currentFinancialYear.split("-")[0]
+        );
+
+
+    /*
+    ========================================================
+        CREATE YEAR OPTIONS
+
+        Example:
+
+        2026-2027
+        2025-2026
+        2024-2025
+        ...
+    ========================================================
+    */
+
+    const numberOfYears =
+        20;
+
+
+    for (
+        let i = 0;
+        i < numberOfYears;
+        i++
+    ) {
+
+        const startYear =
+            currentStartYear - i;
+
+
+        const endYear =
+            startYear + 1;
+
+
+        const financialYear =
+            `${startYear}-${endYear}`;
+
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+
+        option.value =
+            financialYear;
+
+
+        option.textContent =
+            financialYear;
+
+
+        yearSelect.appendChild(
+            option
+        );
+
+    }
+
+}
+
 
 
 /* ============================================================
@@ -2199,11 +3974,29 @@ function clearTalapatrakRows() {
 
     if (!talapatrakBody) return;
 
-    talapatrakBody.innerHTML =
-        "";
+
+    /* ============================================================
+       DO NOT CLEAR TABLE DURING KHATA IMPORT
+    ============================================================ */
+
+    if (window.khataImportInProgress) {
+
+        console.log(
+            "Talapatrak rows clear skipped — Khata import is in progress."
+        );
+
+        return;
+
+    }
+
+
+    /* ============================================================
+       NORMAL CLEAR
+    ============================================================ */
+
+    talapatrakBody.innerHTML = "";
 
 }
-
 
 function formatTalapatrakInputDate(date) {
 
@@ -2263,15 +4056,38 @@ function setupIndianDatePicker() {
 }
 
 
+
+
 /* ============================================================
-        CREATE ROW
+   CREATE TALAPATRAK ROW
 ============================================================ */
 
+
 function createTalapatrakRow(
-    rowData = {}
+    rowData = {},
+    options = {}
 ) {
 
-    if (!talapatrakBody) {
+    /* ============================================================
+       OPTIONS
+       ------------------------------------------------------------
+       appendToBody:
+       true  → normal editor row
+       false → detached row for print/export
+    ============================================================ */
+
+    const appendToBody =
+        options.appendToBody !== false;
+
+
+    /* ============================================================
+       TALAPATRAK BODY CHECK
+    ============================================================ */
+
+    if (
+        appendToBody &&
+        !talapatrakBody
+    ) {
 
         console.error(
             "Talapatrak body not found."
@@ -2282,6 +4098,10 @@ function createTalapatrakRow(
     }
 
 
+    /* ============================================================
+       CREATE ROW
+    ============================================================ */
+
     const row =
         document.createElement(
             "tr"
@@ -2291,50 +4111,48 @@ function createTalapatrakRow(
         "talapatrakRow";
 
 
-    /* --------------------------------------------------------
+    /* ============================================================
        ROW NUMBER
-
-       Used only when the row is created manually.
-
-       Imported Khata data can provide its own
-       Khata number through rowData.A.
-    -------------------------------------------------------- */
+    ============================================================ */
 
     const rowNumber =
-        talapatrakBody
-            .querySelectorAll(
-                ".talapatrakRow"
-            )
-            .length + 1;
+        rowData._displayRowNumber ||
+        (
+            talapatrakBody
+                ? talapatrakBody.children.length + 1
+                : 1
+        );
 
 
-    /* --------------------------------------------------------
-       KHATA NUMBER
+    /* ============================================================
+       COLUMN A — KHATA NUMBER
+    ============================================================ */
 
-       IMPORTED:
-           rowData.A → use imported Khata number
-
-       MANUAL:
-           no rowData.A → use sequential row number
-    -------------------------------------------------------- */
-
-    const khataNumber =
+    const hasSavedKhata =
         rowData.A !== undefined &&
         rowData.A !== null &&
-        String(rowData.A).trim() !== ""
+        String(rowData.A).trim() !== "";
+    
+    const khataNumber =
+        hasSavedKhata
             ? String(rowData.A).trim()
             : String(rowNumber);
+    
+    console.log(
+        "CREATE ROW:",
+        {
+            displayRow: rowNumber,
+            savedA: rowData.A,
+            savedB: rowData.B,
+            hasSavedKhata: hasSavedKhata,
+            finalA: khataNumber
+        }
+    );
 
 
-    /* --------------------------------------------------------
-       HOLDER NAME
-
-       IMPORTED:
-           rowData.B → use imported name
-
-       MANUAL:
-           no rowData.B → blank
-    -------------------------------------------------------- */
+    /* ============================================================
+       COLUMN B — HOLDER NAME
+    ============================================================ */
 
     const holderName =
         rowData.B !== undefined &&
@@ -2342,7 +4160,132 @@ function createTalapatrakRow(
             ? String(rowData.B).trim()
             : "";
 
+
+    /* ============================================================
+       SAFE VALUES
+    ============================================================ */
+
+    const valueC =
+        rowData.C !== undefined &&
+        rowData.C !== null
+            ? String(rowData.C)
+            : "";
+
+    const valueD =
+        rowData.D !== undefined &&
+        rowData.D !== null
+            ? String(rowData.D)
+            : "";
+
+    const valueE =
+        rowData.E !== undefined &&
+        rowData.E !== null
+            ? String(rowData.E)
+            : "";
+
+    const valueF =
+        rowData.F !== undefined &&
+        rowData.F !== null
+            ? String(rowData.F)
+            : "";
+
+    const valueG =
+        rowData.G !== undefined &&
+        rowData.G !== null
+            ? String(rowData.G)
+            : "";
+
+    const valueH =
+        rowData.H !== undefined &&
+        rowData.H !== null
+            ? String(rowData.H)
+            : "";
+
+    const valueI =
+        rowData.I !== undefined &&
+        rowData.I !== null
+            ? String(rowData.I)
+            : "";
+
+    const valueJ =
+        rowData.J !== undefined &&
+        rowData.J !== null
+            ? String(rowData.J)
+            : "";
+
+    const valueK =
+        rowData.K !== undefined &&
+        rowData.K !== null
+            ? String(rowData.K)
+            : "";
+
+    const valueL =
+        rowData.L !== undefined &&
+        rowData.L !== null
+            ? String(rowData.L)
+            : "";
+
+    const valueM =
+        formatTalapatrakInputDate(
+            rowData.M
+        );
+
+    const valueN =
+        rowData.N !== undefined &&
+        rowData.N !== null
+            ? String(rowData.N)
+            : "";
+
+    const valueO =
+        rowData.O !== undefined &&
+        rowData.O !== null
+            ? String(rowData.O)
+            : "";
+
+    const valueP =
+        rowData.P !== undefined &&
+        rowData.P !== null
+            ? String(rowData.P)
+            : "";
+
+    const valueQ =
+        rowData.Q !== undefined &&
+        rowData.Q !== null
+            ? String(rowData.Q)
+            : "";
+
+    const valueR =
+        rowData.R !== undefined &&
+        rowData.R !== null
+            ? String(rowData.R)
+            : "";
+
+    const valueS =
+        rowData.S !== undefined &&
+        rowData.S !== null
+            ? String(rowData.S)
+            : "";
+
+    const valueT =
+        rowData.T !== undefined &&
+        rowData.T !== null
+            ? String(rowData.T)
+            : "";
+
+    const valueU =
+        rowData.U !== undefined &&
+        rowData.U !== null
+            ? String(rowData.U)
+            : "";
+
+
+    /* ============================================================
+       CREATE COMPLETE TALAPATRAK ROW
+    ============================================================ */
+
     row.innerHTML = `
+
+        <!-- A — KHATA NUMBER -->
 
         <td>
             <input
@@ -2352,6 +4295,9 @@ function createTalapatrakRow(
                 readonly>
         </td>
 
+
+        <!-- B — HOLDER NAME -->
+
         <td>
             <input
                 type="text"
@@ -2359,214 +4305,437 @@ function createTalapatrakRow(
                 value="${escapeTalapatrakHTML(holderName)}">
         </td>
 
+
+        <!-- C -->
+
         <td>
             <input
                 type="number"
                 class="columnC"
-                value="${rowData.C || ""}">
+                value="${escapeTalapatrakHTML(valueC)}">
         </td>
+
+
+        <!-- D -->
 
         <td>
             <input
                 type="number"
                 class="columnD"
-                value="${rowData.D || ""}">
+                value="${escapeTalapatrakHTML(valueD)}">
         </td>
+
+
+        <!-- E -->
 
         <td>
             <input
                 type="number"
                 class="columnE"
-                value="${rowData.E || ""}">
+                value="${escapeTalapatrakHTML(valueE)}">
         </td>
+
+
+        <!-- F -->
 
         <td>
             <input
                 type="number"
                 class="columnF"
-                value="${rowData.F || ""}">
+                value="${escapeTalapatrakHTML(valueF)}">
         </td>
+
+
+        <!-- G -->
 
         <td>
             <input
                 type="number"
                 class="columnG"
-                value="${rowData.G || ""}">
+                value="${escapeTalapatrakHTML(valueG)}">
         </td>
+
+
+        <!-- H -->
 
         <td>
             <input
                 type="number"
                 class="columnH"
-                value="${rowData.H || ""}"
+                value="${escapeTalapatrakHTML(valueH)}"
                 readonly>
         </td>
+
+
+        <!-- I -->
 
         <td>
             <input
                 type="number"
                 class="columnI"
-                value="${rowData.I || ""}"
+                value="${escapeTalapatrakHTML(valueI)}"
                 readonly>
         </td>
+
+
+        <!-- J -->
 
         <td>
             <input
                 type="number"
                 class="columnJ"
-                value="${rowData.J || ""}"
+                value="${escapeTalapatrakHTML(valueJ)}"
                 readonly>
         </td>
+
+
+        <!-- K -->
 
         <td>
             <input
                 type="number"
                 class="columnK"
-                value="${rowData.K || ""}">
+                value="${escapeTalapatrakHTML(valueK)}">
         </td>
+
+
+        <!-- L -->
 
         <td>
             <input
                 type="number"
                 class="columnL"
-                value="${rowData.L || ""}">
+                value="${escapeTalapatrakHTML(valueL)}">
         </td>
+
+
+        <!-- M — DATE -->
 
         <td>
             <input
                 type="text"
                 class="columnM indianDatePicker"
                 placeholder="DD/MM/YYYY"
-                value="${formatTalapatrakInputDate(rowData.M)}">
+                value="${escapeTalapatrakHTML(valueM)}">
         </td>
+
+
+        <!-- N -->
 
         <td>
             <input
                 type="number"
                 class="columnN"
-                value="${rowData.N || ""}">
+                value="${escapeTalapatrakHTML(valueN)}">
         </td>
+
+
+        <!-- O -->
 
         <td>
             <input
                 type="number"
                 class="columnO"
-                value="${rowData.O || ""}"
+                value="${escapeTalapatrakHTML(valueO)}"
                 readonly>
         </td>
+
+
+        <!-- P -->
 
         <td>
             <input
                 type="number"
                 class="columnP"
-                value="${rowData.P || ""}"
+                value="${escapeTalapatrakHTML(valueP)}"
                 readonly>
         </td>
+
+
+        <!-- Q -->
 
         <td>
             <input
                 type="number"
                 class="columnQ"
-                value="${rowData.Q || ""}"
+                value="${escapeTalapatrakHTML(valueQ)}"
                 readonly>
         </td>
+
+
+        <!-- R -->
 
         <td>
             <input
                 type="number"
                 class="columnR"
-                value="${rowData.R || ""}"
+                value="${escapeTalapatrakHTML(valueR)}"
                 readonly>
         </td>
+
+
+        <!-- S -->
 
         <td>
             <input
                 type="number"
                 class="columnS"
-                value="${rowData.S || ""}">
+                value="${escapeTalapatrakHTML(valueS)}">
         </td>
 
+
+        <!-- T — PRINT HIDDEN -->
+
         <td class="printHide">
+
             <input
                 type="number"
                 class="columnT"
-                value="${rowData.T || ""}"
+                value="${escapeTalapatrakHTML(valueT)}"
                 readonly>
+
         </td>
 
+
+        <!-- U — PRINT HIDDEN -->
+
         <td class="printHide">
+
             <input
                 type="number"
                 class="columnU"
-                value="${rowData.U || ""}"
+                value="${escapeTalapatrakHTML(valueU)}"
                 readonly>
+
         </td>
 
+
+        <!-- ADD / DELETE -->
+
         <td class="talapatrakDeleteCell printHide">
-        
+
             <button
                 type="button"
                 class="addTalapatrakRowButton"
                 title="Add Row"
                 onclick="addTalapatrakRowAfter(this)">
-        
+
                 <i class="fa-solid fa-plus"></i>
-        
+
             </button>
-        
+
+
             <button
                 type="button"
                 class="deleteTalapatrakRowButton"
                 onclick="deleteTalapatrakRow(this)"
                 title="Delete Row">
-        
+
                 <i class="fa-solid fa-trash"></i>
-        
+
             </button>
-        
+
         </td>
 
     `;
 
-    talapatrakBody.appendChild(
-        row
-    );
 
-    setupIndianDatePicker();
-  
+    /* ============================================================
+       APPEND ONLY FOR NORMAL EDITOR ROWS
+    ============================================================ */
+
+    if (
+        appendToBody &&
+        talapatrakBody
+    ) {
+
+        talapatrakBody.appendChild(
+            row
+        );
+
+    }
+
+
+    /* ============================================================
+       DATE PICKER
+       ------------------------------------------------------------
+       Never initialize it for detached print rows.
+    ============================================================ */
+
+    if (
+        appendToBody &&
+        !window.khataImportInProgress
+    ) {
+
+        setupIndianDatePicker();
+
+    }
+
+
+    /* ============================================================
+       RETURN ROW
+    ============================================================ */
+
     return row;
 
 }
 
-function addTalapatrakRowAfter(button){
+
+function addTalapatrakRowAfter(button) {
 
     const currentRow =
-        button.closest(".talapatrakRow");
+        button.closest(
+            ".talapatrakRow"
+        );
 
-    if(!currentRow){
+
+    if (!currentRow) {
 
         return;
 
     }
+
+
+    if (
+        !Array.isArray(
+            window.talapatrakAllRows
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    const currentPage =
+        Number(
+            window.talapatrakCurrentPage
+        ) || 1;
+
+
+    const rowsPerPage =
+        Number(
+            window.talapatrakRowsPerPage
+        ) || 20;
+
+
+    const visibleRows =
+        Array.from(
+            talapatrakBody.querySelectorAll(
+                ".talapatrakRow"
+            )
+        );
+
+
+    const visibleIndex =
+        visibleRows.indexOf(
+            currentRow
+        );
+
+
+    if (
+        visibleIndex === -1
+    ) {
+
+        return;
+
+    }
+
+
+    const memoryIndex =
+        (
+            currentPage - 1
+        ) *
+        rowsPerPage +
+        visibleIndex;
+
+
+    /* --------------------------------------------------------
+       SAVE CURRENT PAGE FIRST
+    -------------------------------------------------------- */
+
+    syncCurrentTalapatrakPageToMemory();
+
+
+    /* --------------------------------------------------------
+       INSERT NEW MEMORY ROW AFTER CURRENT ROW
+    -------------------------------------------------------- */
+
+    window.talapatrakAllRows.splice(
+
+        memoryIndex + 1,
+
+        0,
+
+        {}
+
+    );
+
+
+    /* --------------------------------------------------------
+       UPDATE TOTAL PAGES
+    -------------------------------------------------------- */
+
+    window.talapatrakTotalPages =
+        Math.max(
+            1,
+            Math.ceil(
+                window.talapatrakAllRows.length /
+                rowsPerPage
+            )
+        );
+
+
+    /* --------------------------------------------------------
+       RENDER CURRENT PAGE AGAIN
+    -------------------------------------------------------- */
+
+    renderTalapatrakPage(
+        currentPage
+    );
+
+
+    /* --------------------------------------------------------
+       FOCUS NEW ROW
+    -------------------------------------------------------- */
+
+    const newVisibleIndex =
+        visibleIndex + 1;
+
+
+    const rowsAfterRender =
+        talapatrakBody.querySelectorAll(
+            ".talapatrakRow"
+        );
 
 
     const newRow =
-        createTalapatrakRow({});
+        rowsAfterRender[
+            newVisibleIndex
+        ];
 
 
-    if(!newRow){
+    if (newRow) {
 
-        return;
+        const firstInput =
+            newRow.querySelector(
+                "input:not([readonly])"
+            );
+
+
+        if (firstInput) {
+
+            firstInput.focus();
+
+            firstInput.select();
+
+        }
 
     }
 
-
-    currentRow.after(newRow);
-
-
-    renumberTalapatrakRows();
-
 }
+
+
 /* ============================================================
         INITIAL ROW
 ============================================================ */
@@ -2607,8 +4776,108 @@ function addTalapatrakRow() {
 
     }
 
+
+    /* --------------------------------------------------------
+       PAGINATED MODE
+    -------------------------------------------------------- */
+
+    if (
+        Array.isArray(
+            window.talapatrakAllRows
+        )
+    ) {
+
+        /* Save currently visible page */
+
+        syncCurrentTalapatrakPageToMemory();
+
+
+        /* Add new row to master memory */
+
+        window.talapatrakAllRows.push(
+            {}
+        );
+
+
+        /* Update pages */
+
+        const rowsPerPage =
+            Number(
+                window.talapatrakRowsPerPage
+            ) || 20;
+
+      window.talapatrakTotalPages =
+          Math.max(
+              1,
+              Math.ceil(
+                  window.talapatrakAllRows.length /
+                  rowsPerPage
+              )
+          );
+
+
+        /* Go to last page */
+
+        const lastPage =
+            window.talapatrakTotalPages;
+
+
+        renderTalapatrakPage(
+            lastPage
+        );
+
+
+        /* Focus new row */
+
+        const lastRow =
+            talapatrakBody.querySelector(
+                ".talapatrakRow:last-child"
+            );
+
+
+        if (lastRow) {
+
+            const firstInput =
+                lastRow.querySelector(
+                    "input:not([readonly])"
+                );
+
+
+            if (firstInput) {
+
+                firstInput.focus();
+
+                firstInput.select();
+
+            }
+
+        }
+
+
+        return lastRow || null;
+
+    }
+
+
+    /* --------------------------------------------------------
+       OLD NON-PAGINATED MODE
+    -------------------------------------------------------- */
+
     const newRow =
         createTalapatrakRow();
+
+
+    if (!newRow) {
+
+        return null;
+
+    }
+
+
+    talapatrakBody.appendChild(
+        newRow
+    );
+
 
     renumberTalapatrakRows();
 
@@ -2618,16 +4887,19 @@ function addTalapatrakRow() {
 
     setupTalapatrakExcelNavigation();
 
+
     const firstInput =
         newRow.querySelector(
             "input:not([readonly])"
         );
+
 
     if (firstInput) {
 
         firstInput.focus();
 
     }
+
 
     return newRow;
 
@@ -2870,10 +5142,14 @@ function calculateTalapatrakRow(input) {
 /* ============================================================
         CALCULATE ALL ROWS
 ============================================================ */
+/* ============================================================
+        CALCULATE ALL VISIBLE TALAPATRAK ROWS
+============================================================ */
 
 function calculateAllTalapatrakRows() {
 
     if (!talapatrakBody) return;
+
 
     talapatrakBody
         .querySelectorAll(
@@ -2900,6 +5176,971 @@ function calculateAllTalapatrakRows() {
 
 
 /* ============================================================
+        CALCULATE TALAPATRAK GRAND TOTALS
+        ------------------------------------------------------------
+        Calculates totals from ALL rows stored in
+        window.talapatrakAllRows.
+
+        This is independent of the currently visible page.
+============================================================ */
+
+function calculateTalapatrakGrandTotals() {
+
+    if (
+        !Array.isArray(
+            window.talapatrakAllRows
+        )
+    ) {
+
+        return {};
+
+    }
+
+
+    const totals = {
+
+        C: 0,
+        D: 0,
+        E: 0,
+        F: 0,
+        G: 0,
+        H: 0,
+        I: 0,
+        J: 0,
+        K: 0,
+        N: 0,
+        O: 0,
+        P: 0,
+        Q: 0,
+        R: 0,
+        S: 0,
+        T: 0,
+        U: 0
+
+    };
+
+
+    window.talapatrakAllRows.forEach(
+        function(rowData) {
+
+            if (!rowData) return;
+
+
+            const C =
+                Number(rowData.C) || 0;
+
+            const D =
+                Number(rowData.D) || 0;
+
+            const E =
+                Number(rowData.E) || 0;
+
+            const G =
+                Number(rowData.G) || 0;
+
+            const K =
+                Number(rowData.K) || 0;
+
+            const N =
+                Number(rowData.N) || 0;
+
+            const S =
+                Number(rowData.S) || 0;
+
+
+            /* ------------------------------------------------
+               RECREATE ROW CALCULATIONS
+            ------------------------------------------------ */
+
+            const F =
+                (D + E) * 3;
+
+
+            const H =
+                C + D + E + F + G;
+
+
+            const I =
+                D;
+
+
+            const J =
+                H - I;
+
+
+            const O =
+                K + N;
+
+
+            const T =
+                H - I - O;
+
+
+            const U =
+                T < O
+                    ? T
+                    : O;
+
+
+            const R =
+                -U;
+
+
+            const P =
+                O - R;
+
+
+            const Q =
+                T > O
+                    ? T
+                    : O;
+
+
+            /* ------------------------------------------------
+               ADD TO GRAND TOTALS
+            ------------------------------------------------ */
+
+            totals.C += C;
+            totals.D += D;
+            totals.E += E;
+            totals.F += F;
+            totals.G += G;
+            totals.H += H;
+            totals.I += I;
+            totals.J += J;
+            totals.K += K;
+            totals.N += N;
+            totals.O += O;
+            totals.P += P;
+            totals.Q += Q;
+            totals.R += R;
+            totals.S += S;
+            totals.T += T;
+            totals.U += U;
+
+        }
+    );
+
+
+    /* --------------------------------------------------------
+       ROUND TOTALS TO TWO DECIMAL PLACES
+    -------------------------------------------------------- */
+
+    Object.keys(totals).forEach(
+        function(column) {
+
+            totals[column] =
+                Number(
+                    totals[column].toFixed(2)
+                );
+
+        }
+    );
+
+
+    return totals;
+
+}
+
+
+/* ============================================================
+        CALCULATE TALAPATRAK MEMORY TOTALS
+        ------------------------------------------------------------
+        Calculates totals from ALL rows in master memory.
+
+        No summary page is involved.
+============================================================ */
+
+function calculateTalapatrakMemoryTotals() {
+
+    const totals = {
+
+        C: 0,
+        D: 0,
+        E: 0,
+        F: 0,
+        G: 0,
+        H: 0,
+        I: 0,
+        J: 0,
+        K: 0,
+        N: 0,
+        O: 0,
+        P: 0,
+        Q: 0,
+        R: 0,
+        S: 0,
+        T: 0,
+        U: 0
+
+    };
+
+
+    if (
+        !Array.isArray(
+            window.talapatrakAllRows
+        )
+    ) {
+
+        return totals;
+
+    }
+
+
+    window.talapatrakAllRows.forEach(
+        function(row) {
+
+            if (!row) return;
+
+
+            /* ------------------------------------------------
+               SOURCE VALUES
+            ------------------------------------------------ */
+
+            const C =
+                Number(row.C) || 0;
+
+            const D =
+                Number(row.D) || 0;
+
+            const E =
+                Number(row.E) || 0;
+
+            const G =
+                Number(row.G) || 0;
+
+            const K =
+                Number(row.K) || 0;
+
+            const N =
+                Number(row.N) || 0;
+
+            const S =
+                Number(row.S) || 0;
+
+
+            /* ------------------------------------------------
+               RECREATE ROW CALCULATIONS
+            ------------------------------------------------ */
+
+            const F =
+                (D + E) * 3;
+
+
+            const H =
+                C + D + E + F + G;
+
+
+            const I =
+                D;
+
+
+            const J =
+                H - I;
+
+
+            const O =
+                K + N;
+
+
+            const T =
+                H - I - O;
+
+
+            const U =
+                T < O
+                    ? T
+                    : O;
+
+
+            const R =
+                -U;
+
+
+            const P =
+                O - R;
+
+
+            const Q =
+                T > O
+                    ? T
+                    : O;
+
+
+            /* ------------------------------------------------
+               ADD TO TOTALS
+            ------------------------------------------------ */
+
+            totals.C += C;
+            totals.D += D;
+            totals.E += E;
+            totals.F += F;
+            totals.G += G;
+            totals.H += H;
+            totals.I += I;
+            totals.J += J;
+            totals.K += K;
+            totals.N += N;
+            totals.O += O;
+            totals.P += P;
+            totals.Q += Q;
+            totals.R += R;
+            totals.S += S;
+            totals.T += T;
+            totals.U += U;
+
+        }
+    );
+
+
+    /* --------------------------------------------------------
+       ROUND TOTALS TO TWO DECIMAL PLACES
+    -------------------------------------------------------- */
+
+    Object.keys(totals).forEach(
+        function(column) {
+
+            totals[column] =
+                Number(
+                    totals[column].toFixed(2)
+                );
+
+        }
+    );
+
+
+    return totals;
+
+}
+
+
+/* ============================================================
+   TALAPATRAK CALCULATION SUMMARY STATE
+   ============================================================ */
+
+window.talapatrakCalculationSummary =
+    window.talapatrakCalculationSummary || null;
+
+
+/* ============================================================
+   FORMAT SUMMARY NUMBER
+   ============================================================ */
+
+function formatTalapatrakSummaryNumber(value) {
+
+    return Number(value || 0).toFixed(2);
+
+}
+
+
+/* ============================================================
+   UPDATE CALCULATION PAGE
+============================================================ */
+
+function updateTalapatrakCalculationPage(page) {
+
+    if (!page) {
+
+        console.warn(
+            "updateTalapatrakCalculationPage(): page not found."
+        );
+
+        return;
+
+    }
+
+
+    /* ========================================================
+       HELPERS
+    ======================================================== */
+
+    function getValue(field) {
+
+        const input =
+            page.querySelector(
+                `[data-summary-field="${field}"]`
+            );
+
+
+        if (!input) {
+
+            return 0;
+
+        }
+
+
+        const value =
+            Number(
+                input.value
+            );
+
+
+        return Number.isFinite(value)
+            ? value
+            : 0;
+
+    }
+
+
+    function setValue(
+        field,
+        value
+    ) {
+
+        const input =
+            page.querySelector(
+                `[data-summary-field="${field}"]`
+            );
+
+
+        if (!input) {
+
+            return;
+
+        }
+
+
+        input.value =
+            formatTalapatrakSummaryNumber(
+                value
+            );
+
+    }
+
+
+    /* ========================================================
+       READ DEMAND VALUES
+    ======================================================== */
+
+    const government =
+        getValue(
+            "government"
+        );
+
+
+    const agriculture =
+        getValue(
+            "agriculture"
+        );
+
+
+    const localFund =
+        getValue(
+            "localFund"
+        );
+
+
+    /* ========================================================
+       CALCULATE DEMAND TOTAL
+    ======================================================== */
+
+    const demandTotal =
+        government +
+        agriculture +
+        localFund;
+
+
+    setValue(
+        "demandTotal",
+        demandTotal
+    );
+
+
+    /* ========================================================
+       READ COLLECTION VALUES
+    ======================================================== */
+
+    const previousCollection =
+        getValue(
+            "previousCollection"
+        );
+
+
+    const currentCollection =
+        getValue(
+            "currentCollection"
+        );
+
+
+    const rotatingCollection =
+        getValue(
+            "rotatingCollection"
+        );
+
+
+    /* ========================================================
+       CALCULATE COLLECTION TOTAL
+    ======================================================== */
+
+    const collectionTotal =
+        previousCollection +
+        currentCollection +
+        rotatingCollection;
+
+
+    setValue(
+        "collectionTotal",
+        collectionTotal
+    );
+
+
+    /* ========================================================
+       FINAL CALCULATIONS
+    ======================================================== */
+
+    const rawOutstanding =
+        demandTotal -
+        collectionTotal;
+
+
+    const outstanding =
+        Math.max(
+            0,
+            rawOutstanding
+        );
+
+
+    const surplus =
+        Math.max(
+            0,
+            collectionTotal -
+            demandTotal
+        );
+
+
+    setValue(
+        "outstanding",
+        outstanding
+    );
+
+
+    setValue(
+        "surplus",
+        surplus
+    );
+
+
+    /* ========================================================
+       UPDATE GLOBAL CALCULATION MEMORY
+    ======================================================== */
+
+    window.talapatrakCalculationSummary = {
+
+        ...(window.talapatrakCalculationSummary || {}),
+
+        government:
+            government,
+
+        agriculture:
+            agriculture,
+
+        localFund:
+            localFund,
+
+        demandTotal:
+            demandTotal,
+
+        previousCollection:
+            previousCollection,
+
+        currentCollection:
+            currentCollection,
+
+        rotatingCollection:
+            rotatingCollection,
+
+        collectionTotal:
+            collectionTotal,
+
+        outstanding:
+            outstanding,
+
+        surplus:
+            surplus
+
+    };
+
+
+    console.log(
+        "TALAPATRAK CALCULATION UPDATED:",
+        window.talapatrakCalculationSummary
+    );
+
+}
+
+
+function updateTalapatrakPaginationUI() {
+
+    const totalRows =
+        Array.isArray(window.talapatrakAllRows)
+            ? window.talapatrakAllRows.length
+            : 0;
+
+
+    const rowsPerPage =
+        Number(
+            window.talapatrakRowsPerPage
+        ) || 20;
+
+
+    const dataPages =
+        Math.max(
+            1,
+            Math.ceil(
+                totalRows /
+                rowsPerPage
+            )
+        );
+
+
+    const summaryPages =
+        document.querySelectorAll(
+            ".talapatrakSummaryPage"
+        ).length;
+
+
+    const totalPages =
+        dataPages +
+        summaryPages;
+
+
+    const currentPage =
+        Math.max(
+            1,
+            Math.min(
+                Number(
+                    window.talapatrakCurrentPage
+                ) || 1,
+                totalPages
+            )
+        );
+
+
+    window.talapatrakCurrentPage =
+        currentPage;
+
+    window.talapatrakTotalPages =
+        totalPages;
+
+
+    /* ========================================================
+       PAGE INPUT
+    ======================================================== */
+
+    const pageInput =
+        document.getElementById(
+            "talapatrakPageInput"
+        );
+
+
+    if (pageInput) {
+
+        pageInput.value =
+            currentPage;
+
+        pageInput.max =
+            totalPages;
+
+    }
+
+
+    /* ========================================================
+       TOTAL PAGE COUNT
+    ======================================================== */
+
+    const totalPagesElement =
+        document.getElementById(
+            "talapatrakTotalPages"
+        );
+
+
+    if (totalPagesElement) {
+
+        totalPagesElement.textContent =
+            totalPages;
+
+    }
+
+
+    /* ========================================================
+       ROW INFORMATION
+    ======================================================== */
+
+    const pageInfo =
+        document.getElementById(
+            "talapatrakPageInfo"
+        );
+
+
+    if (pageInfo) {
+
+        if (currentPage <= dataPages) {
+
+            const startRow =
+                totalRows === 0
+                    ? 0
+                    : (
+                        (currentPage - 1) *
+                        rowsPerPage
+                    ) + 1;
+
+
+            const endRow =
+                Math.min(
+                    currentPage *
+                    rowsPerPage,
+                    totalRows
+                );
+
+
+            pageInfo.textContent =
+                `Rows ${startRow}–${endRow} of ${totalRows}`;
+
+        }
+        else {
+
+            const summaryNumber =
+                currentPage -
+                dataPages;
+
+
+            pageInfo.textContent =
+                `Summary Page ${summaryNumber}`;
+
+        }
+
+    }
+
+
+    /* ========================================================
+       NAVIGATION BUTTONS
+    ======================================================== */
+
+    const firstButton =
+        document.getElementById(
+            "talapatrakFirstPage"
+        );
+
+    const previousButton =
+        document.getElementById(
+            "talapatrakPreviousPage"
+        );
+
+    const nextButton =
+        document.getElementById(
+            "talapatrakNextPage"
+        );
+
+    const lastButton =
+        document.getElementById(
+            "talapatrakLastPage"
+        );
+
+
+    if (firstButton) {
+
+        firstButton.disabled =
+            currentPage <= 1;
+
+    }
+
+
+    if (previousButton) {
+
+        previousButton.disabled =
+            currentPage <= 1;
+
+    }
+
+
+    if (nextButton) {
+
+        nextButton.disabled =
+            currentPage >= totalPages;
+
+    }
+
+
+    if (lastButton) {
+
+        lastButton.disabled =
+            currentPage >= totalPages;
+
+    }
+
+
+    console.log(
+        "PAGINATION UI UPDATED:",
+        {
+            totalRows,
+            rowsPerPage,
+            dataPages,
+            summaryPages,
+            totalPages,
+            currentPage
+        }
+    );
+}
+
+/* ============================================================
+   GENERATE TALAPATRAK TOTALS AND CALCULATION
+   ------------------------------------------------------------
+   IMPORTANT:
+
+   There is NO summary page here.
+
+   The actual Talapatrak pages remain:
+
+       Page 1
+       Page 2
+       Page 3
+       ...
+       Last data page
+
+   The grand total is rendered separately.
+
+   The calculation summary is separate calculation data,
+   NOT an additional pagination page.
+============================================================ */
+
+function generateTalapatrakTotalsAndSummary() {
+
+    console.log("### NEW GENERATE TOTAL FUNCTION IS RUNNING ###");
+
+    console.log("======================================");
+    console.log("TALAPATRAK GENERATE TOTAL BUTTON CLICKED");
+
+
+    /* ========================================================
+       1. SAVE CURRENT PAGE INTO MEMORY
+    ======================================================== */
+
+    syncCurrentTalapatrakPageToMemory();
+
+
+    /* ========================================================
+       2. CALCULATE ALL ROW TOTALS
+    ======================================================== */
+
+    window.talapatrakTotals =
+        calculateTalapatrakMemoryTotals();
+
+
+    console.log(
+        "TALAPATRAK TOTALS GENERATED:",
+        window.talapatrakTotals
+    );
+
+
+    /* ========================================================
+       3. RENDER GRAND TOTAL ROW
+    ======================================================== */
+
+    renderTalapatrakGrandTotalRow();
+
+
+    /* ========================================================
+       4. CREATE SUMMARY PAGE
+    ======================================================== */
+    
+    const summaryPage =
+        createTalapatrakSummaryPage(1);
+    
+    
+    if (!summaryPage) {
+    
+        console.error(
+            "❌ Talapatrak Summary Page could not be created."
+        );
+    
+        return;
+    
+    }
+    
+    
+    /* ========================================================
+       5. FORCE SUMMARY PAGE VISIBLE
+    ======================================================== */
+    
+    summaryPage.hidden = false;
+    
+    summaryPage.style.display =
+        "block";
+    
+    summaryPage.style.visibility =
+        "visible";
+    
+    summaryPage.style.opacity =
+        "1";
+    
+    
+    console.log(
+        "SUMMARY PAGE FINAL DISPLAY:",
+        getComputedStyle(summaryPage).display
+    );
+    
+    console.log(
+        "SUMMARY PAGE FINAL HEIGHT:",
+        summaryPage.offsetHeight
+    );
+    
+    
+    /* ========================================================
+       6. REFRESH DOCUMENT PAGINATION
+    ======================================================== */
+    
+    if (
+        typeof updateTalapatrakPaginationUI ===
+        "function"
+    ) {
+    
+        updateTalapatrakPaginationUI();
+    
+    }
+    
+    
+    window.talapatrakTotalPages =
+        (
+            Math.max(
+                1,
+                Math.ceil(
+                    window.talapatrakAllRows.length /
+                    (
+                        Number(
+                            window.talapatrakRowsPerPage
+                        ) || 20
+                    )
+                )
+            )
+        )
+        +
+        document.querySelectorAll(
+            ".talapatrakSummaryPage"
+        ).length;
+    
+    
+    console.log(
+        "UPDATED TOTAL DOCUMENT PAGES:",
+        window.talapatrakTotalPages
+    );
+    
+    
+    console.log(
+        "TALAPATRAK SUMMARY PAGE 1 READY"
+    );
+    
+    console.log(
+        "TALAPATRAK GENERATE TOTAL COMPLETE"
+    );
+    
+    console.log(
+        "======================================"
+    );
+
+}
+
+
+/* ============================================================
         NUMBER FORMAT + LIVE CALCULATION
 ============================================================ */
 
@@ -2907,11 +6148,17 @@ function formatTalapatrakNumberInputs() {
 
     if (!talapatrakBody) return;
 
+
     talapatrakBody
         .querySelectorAll(
             "input[type='number']"
         )
         .forEach(function(input) {
+
+
+            /* ==================================================
+               DECIMAL FORMATTER
+            ================================================== */
 
             if (
                 !input.dataset
@@ -2922,43 +6169,56 @@ function formatTalapatrakNumberInputs() {
                     .decimalFormatterAttached =
                     "true";
 
+
                 input.addEventListener(
-                      "blur",
-                      function() {
-                  
-                          if (
-                              this.value !== ""
-                          ) {
-                  
-                              // પાવતી નંબર (L) should be normal number
-                              if (
-                                  this.classList.contains(
-                                      "columnL"
-                                  )
-                              ) {
-                  
-                                  this.value =
-                                      Number(
-                                          this.value
-                                      ).toString();
-                  
-                              }
-                  
-                              else {
-                  
-                                  this.value =
-                                      Number(
-                                          this.value
-                                      ).toFixed(2);
-                  
-                              }
-                  
-                          }
-                  
-                      }
-                  );
+                    "blur",
+                    function() {
+
+                        if (
+                            this.value === ""
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        /*
+                         * Column L = Receipt Number
+                         * Keep it as a normal integer.
+                         */
+
+                        if (
+                            this.classList.contains(
+                                "columnL"
+                            )
+                        ) {
+
+                            this.value =
+                                Number(
+                                    this.value
+                                ).toString();
+
+                        }
+
+                        else {
+
+                            this.value =
+                                Number(
+                                    this.value
+                                ).toFixed(2);
+
+                        }
+
+                    }
+                );
 
             }
+
+
+            /* ==================================================
+               LIVE ROW CALCULATION
+            ================================================== */
 
             if (
                 !input.dataset
@@ -2969,10 +6229,9 @@ function formatTalapatrakNumberInputs() {
                     .calculationAttached =
                     "true";
 
+
                 input.addEventListener(
-
                     "input",
-
                     function() {
 
                         calculateTalapatrakRow(
@@ -2980,10 +6239,155 @@ function formatTalapatrakNumberInputs() {
                         );
 
                     }
-
                 );
 
             }
+
+        });
+
+}
+
+
+/* ============================================================
+        EXCEL STYLE ENTER NAVIGATION
+============================================================ */
+
+function setupTalapatrakExcelNavigation() {
+
+    if (!talapatrakBody) return;
+
+
+    talapatrakBody
+        .querySelectorAll(
+            "input:not([readonly])"
+        )
+        .forEach(function(input) {
+
+
+            if (
+                input.dataset
+                    .enterNavigationAttached
+            ) {
+
+                return;
+
+            }
+
+
+            input.dataset
+                .enterNavigationAttached =
+                "true";
+
+
+            input.addEventListener(
+                "keydown",
+                function(event) {
+
+
+                    /* ==========================================
+                       ONLY HANDLE ENTER
+                    ========================================== */
+
+                    if (
+                        event.key !==
+                        "Enter"
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    event.preventDefault();
+
+
+                    /* ==========================================
+                       CURRENT ROW
+                    ========================================== */
+
+                    const row =
+                        this.closest(
+                            ".talapatrakRow"
+                        );
+
+
+                    if (!row) {
+
+                        return;
+
+                    }
+
+
+                    /* ==========================================
+                       EDITABLE INPUTS IN CURRENT ROW
+                    ========================================== */
+
+                    const editableInputs =
+                        Array.from(
+                            row.querySelectorAll(
+                                "input:not([readonly])"
+                            )
+                        );
+
+
+                    const currentIndex =
+                        editableInputs.indexOf(
+                            this
+                        );
+
+
+                    /* ==========================================
+                       NEXT INPUT IN SAME ROW
+                    ========================================== */
+
+                    const nextInput =
+                        editableInputs[
+                            currentIndex + 1
+                        ];
+
+
+                    if (nextInput) {
+
+                        nextInput.focus();
+
+                        nextInput.select();
+
+                        return;
+
+                    }
+
+
+                    /* ==========================================
+                       LAST INPUT → ADD NEW ROW
+                    ========================================== */
+
+                    const newRow =
+                        addTalapatrakRow();
+
+
+                    if (!newRow) {
+
+                        return;
+
+                    }
+
+
+                    const firstInput =
+                        newRow.querySelector(
+                            "input:not([readonly])"
+                        );
+
+
+                    if (firstInput) {
+
+                        firstInput.focus();
+
+                        firstInput.select();
+
+                    }
+
+                }
+            );
 
         });
 
@@ -3094,81 +6498,444 @@ function setupTalapatrakExcelNavigation() {
 
 
 /* ============================================================
-        COLLECT ROW DATA
+        COLLECT TALAPATRAK ROWS
+
+        PAGINATION:
+        - DOM = current page only
+        - window.talapatrakAllRows = ALL rows
+
+        Before collecting:
+        - Sync current visible page into memory
+        - Return ALL rows from memory
+
+        NON-PAGINATED:
+        - Fall back to collecting rows directly from DOM
 ============================================================ */
 
 function collectTalapatrakRows() {
 
-    const rows =
-        [];
 
-    if (!talapatrakBody) {
+    /* ========================================================
+       NON-PAGINATED MODE
+    ======================================================== */
+
+    if (
+        !Array.isArray(
+            window.talapatrakAllRows
+        )
+    ) {
+
+        const rows = [];
+
+
+        if (!talapatrakBody) {
+
+            console.warn(
+                "collectTalapatrakRows(): talapatrakBody not found."
+            );
+
+            return rows;
+
+        }
+
+
+        talapatrakBody
+            .querySelectorAll(
+                ".talapatrakRow"
+            )
+            .forEach(function(row) {
+
+                rows.push({
+
+                    A:
+                        row.querySelector(
+                            ".columnA"
+                        )?.value || "",
+
+                    B:
+                        row.querySelector(
+                            ".columnB"
+                        )?.value || "",
+
+                    C:
+                        row.querySelector(
+                            ".columnC"
+                        )?.value || "",
+
+                    D:
+                        row.querySelector(
+                            ".columnD"
+                        )?.value || "",
+
+                    E:
+                        row.querySelector(
+                            ".columnE"
+                        )?.value || "",
+
+                    F:
+                        row.querySelector(
+                            ".columnF"
+                        )?.value || "",
+
+                    G:
+                        row.querySelector(
+                            ".columnG"
+                        )?.value || "",
+
+                    H:
+                        row.querySelector(
+                            ".columnH"
+                        )?.value || "",
+
+                    I:
+                        row.querySelector(
+                            ".columnI"
+                        )?.value || "",
+
+                    J:
+                        row.querySelector(
+                            ".columnJ"
+                        )?.value || "",
+
+                    K:
+                        row.querySelector(
+                            ".columnK"
+                        )?.value || "",
+
+                    L:
+                        row.querySelector(
+                            ".columnL"
+                        )?.value || "",
+
+                    M:
+                        row.querySelector(
+                            ".columnM"
+                        )?.value || "",
+
+                    N:
+                        row.querySelector(
+                            ".columnN"
+                        )?.value || "",
+
+                    O:
+                        row.querySelector(
+                            ".columnO"
+                        )?.value || "",
+
+                    P:
+                        row.querySelector(
+                            ".columnP"
+                        )?.value || "",
+
+                    Q:
+                        row.querySelector(
+                            ".columnQ"
+                        )?.value || "",
+
+                    R:
+                        row.querySelector(
+                            ".columnR"
+                        )?.value || "",
+
+                    S:
+                        row.querySelector(
+                            ".columnS"
+                        )?.value || "",
+
+                    T:
+                        row.querySelector(
+                            ".columnT"
+                        )?.value || "",
+
+                    U:
+                        row.querySelector(
+                            ".columnU"
+                        )?.value || ""
+
+                });
+
+            });
+
+
+        console.log(
+            "collectTalapatrakRows():",
+            rows.length,
+            "DOM rows collected."
+        );
+
 
         return rows;
 
     }
 
-    talapatrakBody
-        .querySelectorAll(
-            ".talapatrakRow"
+
+    /* ========================================================
+       PAGINATED MODE
+
+       Sync ONLY the currently visible page.
+       This updates the corresponding rows inside
+       window.talapatrakAllRows.
+    ======================================================== */
+
+    if (
+        typeof syncCurrentTalapatrakPageToMemory ===
+        "function"
+    ) {
+
+        syncCurrentTalapatrakPageToMemory();
+
+    }
+
+
+    /* ========================================================
+       RETURN ALL ROWS
+
+       Never return only the visible DOM rows.
+    ======================================================== */
+
+    const allRows =
+        window.talapatrakAllRows.map(
+            function(row) {
+
+                return {
+                    ...row
+                };
+
+            }
+        );
+
+
+    console.log(
+        "collectTalapatrakRows():",
+        allRows.length,
+        "TOTAL rows collected from MEMORY."
+    );
+
+
+    return allRows;
+
+}
+
+
+/* ============================================================
+        SYNC CURRENT PAGE → MEMORY
+
+        The DOM contains only 20 rows.
+
+        This function takes those 20 visible rows
+        and writes them back into:
+
+            window.talapatrakAllRows
+
+        It does NOT delete the other rows.
+============================================================ */
+
+function syncCurrentTalapatrakPageToMemory() {
+
+    if (
+        !Array.isArray(
+            window.talapatrakAllRows
         )
-        .forEach(function(row) {
+    ) {
+
+        return;
+
+    }
+
+
+    if (!talapatrakBody) {
+
+        return;
+
+    }
+
+
+    const currentPage =
+        Number(
+            window.talapatrakCurrentPage
+        ) || 1;
+
+
+    const rowsPerPage =
+        Number(
+            window.talapatrakRowsPerPage
+        ) || 20;
+
+
+    const startIndex =
+        (
+            currentPage - 1
+        ) *
+        rowsPerPage;
+
+
+    const visibleRows =
+        talapatrakBody.querySelectorAll(
+            ".talapatrakRow"
+        );
+
+
+    visibleRows.forEach(
+        function(row, visibleIndex) {
+
+            const memoryIndex =
+                startIndex +
+                visibleIndex;
+
+
+            /*
+                Safety check.
+
+                Never write outside the
+                master array.
+            */
+
+            if (
+                memoryIndex < 0 ||
+                memoryIndex >=
+                    window.talapatrakAllRows.length
+            ) {
+
+                return;
+
+            }
+
 
             const rowData = {
 
-                A: row.querySelector(".columnA")?.value || "",
+                A:
+                    row.querySelector(
+                        ".columnA"
+                    )?.value || "",
 
-                B: row.querySelector(".columnB")?.value || "",
+                B:
+                    row.querySelector(
+                        ".columnB"
+                    )?.value || "",
 
-                C: row.querySelector(".columnC")?.value || "",
+                C:
+                    row.querySelector(
+                        ".columnC"
+                    )?.value || "",
 
-                D: row.querySelector(".columnD")?.value || "",
+                D:
+                    row.querySelector(
+                        ".columnD"
+                    )?.value || "",
 
-                E: row.querySelector(".columnE")?.value || "",
+                E:
+                    row.querySelector(
+                        ".columnE"
+                    )?.value || "",
 
-                F: row.querySelector(".columnF")?.value || "",
+                F:
+                    row.querySelector(
+                        ".columnF"
+                    )?.value || "",
 
-                G: row.querySelector(".columnG")?.value || "",
+                G:
+                    row.querySelector(
+                        ".columnG"
+                    )?.value || "",
 
-                H: row.querySelector(".columnH")?.value || "",
+                H:
+                    row.querySelector(
+                        ".columnH"
+                    )?.value || "",
 
-                I: row.querySelector(".columnI")?.value || "",
+                I:
+                    row.querySelector(
+                        ".columnI"
+                    )?.value || "",
 
-                J: row.querySelector(".columnJ")?.value || "",
+                J:
+                    row.querySelector(
+                        ".columnJ"
+                    )?.value || "",
 
-                K: row.querySelector(".columnK")?.value || "",
+                K:
+                    row.querySelector(
+                        ".columnK"
+                    )?.value || "",
 
-                L: row.querySelector(".columnL")?.value || "",
+                L:
+                    row.querySelector(
+                        ".columnL"
+                    )?.value || "",
 
-                M: row.querySelector(".columnM")?.value || "",
+                M:
+                    row.querySelector(
+                        ".columnM"
+                    )?.value || "",
 
-                N: row.querySelector(".columnN")?.value || "",
+                N:
+                    row.querySelector(
+                        ".columnN"
+                    )?.value || "",
 
-                O: row.querySelector(".columnO")?.value || "",
+                O:
+                    row.querySelector(
+                        ".columnO"
+                    )?.value || "",
 
-                P: row.querySelector(".columnP")?.value || "",
+                P:
+                    row.querySelector(
+                        ".columnP"
+                    )?.value || "",
 
-                Q: row.querySelector(".columnQ")?.value || "",
+                Q:
+                    row.querySelector(
+                        ".columnQ"
+                    )?.value || "",
 
-                R: row.querySelector(".columnR")?.value || "",
+                R:
+                    row.querySelector(
+                        ".columnR"
+                    )?.value || "",
 
-                S: row.querySelector(".columnS")?.value || "",
+                S:
+                    row.querySelector(
+                        ".columnS"
+                    )?.value || "",
 
-                T: row.querySelector(".columnT")?.value || "",
+                T:
+                    row.querySelector(
+                        ".columnT"
+                    )?.value || "",
 
-                U: row.querySelector(".columnU")?.value || ""
+                U:
+                    row.querySelector(
+                        ".columnU"
+                    )?.value || ""
 
             };
 
-            rows.push(
-                rowData
-            );
 
-        });
+            /*
+                Replace ONLY this row
+                inside master memory.
+            */
 
-    return rows;
+            window.talapatrakAllRows[
+                memoryIndex
+            ] = rowData;
+
+        }
+    );
+
+
+    console.log(
+        "SYNC PAGE → MEMORY:",
+        "Page:",
+        currentPage,
+        "Visible rows:",
+        visibleRows.length,
+        "Total memory rows:",
+        window.talapatrakAllRows.length
+    );
 
 }
+
 
 
 /* ============================================================
@@ -3179,6 +6946,51 @@ async function saveTalapatrak(
     showSuccessMessage = true
 ) {
 
+
+      if (window.talapatrakPrinting) {
+    
+        console.log(
+            "AUTOSAVE SKIPPED → TALAPATRAK IS PRINTING"
+        );
+    
+        return;
+    
+    }
+
+
+      if (window.talapatrakPrinting) {
+    
+        console.log(
+            "AUTOSAVE SKIPPED → PRINTING"
+        );
+    
+        return true;
+    
+    }
+
+  
+    if (window.khataImportInProgress) {
+
+          console.log(
+              "Talapatrak save skipped — Khata import is currently running."
+          );
+      
+          return;
+      
+      }
+
+    if (
+        window.talapatrakOpeningInProgress
+    ) {
+    
+        console.log(
+            "AUTOSAVE SKIPPED → TALAPATRAK IS STILL OPENING"
+        );
+    
+        return;
+    
+    }
+  
     try {
 
         if (!auth.currentUser) {
@@ -3245,8 +7057,16 @@ async function saveTalapatrak(
         }
 
 
+        const yearSelect =
+            document.getElementById(
+                "talapatrakYear"
+            );
+        
+        
         const currentYear =
-            getCurrentTalapatrakYear();
+            yearSelect
+                ? yearSelect.value
+                : getCurrentTalapatrakYear();
 
 
         updateTalapatrakYearDisplay(
@@ -3473,8 +7293,41 @@ let talapatrakAutoSaveInProgress = false;
 
 function scheduleTalapatrakAutoSave() {
 
+
+      if (window.talapatrakOpeningInProgress === true) {
+    
+        console.log(
+            "Talapatrak autosave scheduling skipped — record is opening."
+        );
+    
+        return;
+    
+    }
     /*
-        Do not start multiple timers.
+    ========================================================
+       PRINTING
+       
+       NEVER schedule autosave while printing.
+    ========================================================
+    */
+
+    if (
+        window.talapatrakPrinting === true
+    ) {
+
+        console.log(
+            "Talapatrak autosave scheduling skipped — printing."
+        );
+
+        return;
+
+    }
+
+
+    /*
+    ========================================================
+       DO NOT START MULTIPLE TIMERS
+    ========================================================
     */
 
     if (talapatrakAutoSaveTimer) {
@@ -3487,16 +7340,79 @@ function scheduleTalapatrakAutoSave() {
 
 
     /*
-        Wait until the user stops typing/editing.
+    ========================================================
+       KHATA IMPORT
+    ========================================================
+    */
+
+    if (
+        window.khataImportInProgress
+    ) {
+
+        console.log(
+            "Talapatrak autosave scheduling skipped — Khata import is in progress."
+        );
+
+        return;
+
+    }
+
+
+    /*
+    ========================================================
+       WAIT UNTIL USER STOPS EDITING
+    ========================================================
     */
 
     talapatrakAutoSaveTimer =
         setTimeout(
-            async function() {
+            async function () {
 
                 /*
-                    Do not autosave while another
-                    autosave is already running.
+                =================================================
+                   PRINTING CHECK AGAIN
+                   
+                   Printing may have started while timer
+                   was waiting.
+                =================================================
+                */
+
+                if (
+                    window.talapatrakPrinting === true
+                ) {
+
+                    console.log(
+                        "Talapatrak autosave cancelled — printing."
+                    );
+
+                    return;
+
+                }
+
+
+                /*
+                =================================================
+                   KHATA IMPORT CHECK
+                =================================================
+                */
+
+                if (
+                    window.khataImportInProgress
+                ) {
+
+                    console.log(
+                        "Talapatrak autosave skipped — Khata import is in progress."
+                    );
+
+                    return;
+
+                }
+
+
+                /*
+                =================================================
+                   DO NOT OVERLAP SAVES
+                =================================================
                 */
 
                 if (
@@ -3509,8 +7425,9 @@ function scheduleTalapatrakAutoSave() {
 
 
                 /*
-                    Only autosave when the
-                    Talapatrak editor is visible.
+                =================================================
+                   EDITOR MUST BE VISIBLE
+                =================================================
                 */
 
                 const editor =
@@ -3530,8 +7447,9 @@ function scheduleTalapatrakAutoSave() {
 
 
                 /*
-                    Do not autosave an empty
-                    village record.
+                =================================================
+                   DO NOT SAVE EMPTY VILLAGE
+                =================================================
                 */
 
                 const mojeInput =
@@ -3555,7 +7473,49 @@ function scheduleTalapatrakAutoSave() {
 
 
                 /*
-                    Prevent overlapping saves.
+                =================================================
+                   FINAL PRINT CHECK
+                   
+                   This is immediately before save.
+                =================================================
+                */
+
+                if (
+                    window.talapatrakPrinting === true
+                ) {
+
+                    console.log(
+                        "Talapatrak autosave cancelled before save — printing."
+                    );
+
+                    return;
+
+                }
+
+
+                /*
+                =================================================
+                   FINAL KHATA CHECK
+                =================================================
+                */
+
+                if (
+                    window.khataImportInProgress
+                ) {
+
+                    console.log(
+                        "Talapatrak autosave cancelled before save — Khata import is in progress."
+                    );
+
+                    return;
+
+                }
+
+
+                /*
+                =================================================
+                   START SAVE
+                =================================================
                 */
 
                 talapatrakAutoSaveInProgress =
@@ -3563,26 +7523,6 @@ function scheduleTalapatrakAutoSave() {
 
 
                 try {
-
-                    /*
-                        IMPORTANT:
-
-                        Use the EXISTING save function.
-
-                        false = no success alert.
-
-                        This means all existing
-                        Talapatrak functionality,
-                        including:
-
-                        Firebase save
-                        Shikshanupakaran sync
-                        activity
-                        count update
-                        current record update
-
-                        continues to work.
-                    */
 
                     await saveTalapatrak(
                         false
@@ -3623,7 +7563,19 @@ function scheduleTalapatrakAutoSave() {
    ATTACH AUTO SAVE LISTENERS
 ============================================================ */
 
+
 function setupTalapatrakAutoSave() {
+
+    if (window.khataImportInProgress) {
+
+        console.log(
+            "Autosave skipped — Khata import is currently running."
+        );
+
+        return;
+
+    }
+
 
     const editor =
         document.getElementById(
@@ -3639,12 +7591,13 @@ function setupTalapatrakAutoSave() {
 
 
     /*
-        Prevent duplicate listeners.
+    ========================================================
+       PREVENT DUPLICATE LISTENERS
+    ========================================================
     */
 
     if (
-        editor.dataset
-            .autosaveAttached === "true"
+        editor.dataset.autosaveAttached === "true"
     ) {
 
         return;
@@ -3652,23 +7605,32 @@ function setupTalapatrakAutoSave() {
     }
 
 
-    editor.dataset
-        .autosaveAttached =
+    editor.dataset.autosaveAttached =
         "true";
 
 
     /*
-        Listen for changes to:
-
-        - Moje
-        - Taluka
-        - Jillo
-        - Table inputs
+    ========================================================
+       INPUT
+    ========================================================
     */
 
     editor.addEventListener(
         "input",
-        function() {
+        function () {
+
+            if (
+                window.talapatrakPrinting === true
+            ) {
+
+                console.log(
+                    "Autosave skipped — printing."
+                );
+
+                return;
+
+            }
+
 
             scheduleTalapatrakAutoSave();
 
@@ -3677,13 +7639,27 @@ function setupTalapatrakAutoSave() {
 
 
     /*
-        Date picker / programmatic changes
-        may trigger change instead of input.
+    ========================================================
+       CHANGE
+    ========================================================
     */
 
     editor.addEventListener(
         "change",
-        function() {
+        function () {
+
+            if (
+                window.talapatrakPrinting === true
+            ) {
+
+                console.log(
+                    "Autosave skipped — printing."
+                );
+
+                return;
+
+            }
+
 
             scheduleTalapatrakAutoSave();
 
@@ -3692,17 +7668,41 @@ function setupTalapatrakAutoSave() {
 
 
     /*
-        Save when an input loses focus.
-        This is useful for date fields and
-        number fields.
+    ========================================================
+       BLUR
+       
+       VERY IMPORTANT:
+       Print button causes the currently focused
+       input to blur.
+       
+       NEVER start autosave during printing.
+    ========================================================
     */
 
-    editor.addEventListener(
+   editor.addEventListener(
         "blur",
-        function() {
-
+        function () {
+    
+            console.log(
+                "TALAPATRAK BLUR"
+            );
+    
+    
+            if (
+                window.talapatrakPrinting === true
+            ) {
+    
+                console.log(
+                    "Autosave skipped — printing."
+                );
+    
+                return;
+    
+            }
+    
+    
             scheduleTalapatrakAutoSave();
-
+    
         },
         true
     );
@@ -3713,6 +7713,9 @@ function setupTalapatrakAutoSave() {
     );
 
 }
+
+
+
 /* ============================================================
         SAVE BUTTON
 ============================================================ */
@@ -3771,6 +7774,791 @@ if (saveTalapatrakButton) {
         };
 
 }
+
+
+
+/* ============================================================
+   GENERATE TALAPATRAK TOTAL BUTTON
+============================================================ */
+
+const generateTalapatrakTotalButton =
+    document.getElementById(
+        "generateTalapatrakTotalButton"
+    );
+
+
+
+function initializeTalapatrakGenerateTotalButton() {
+
+    const button =
+        document.getElementById(
+            "generateTalapatrakTotalButton"
+        );
+
+
+    if (!button) {
+
+        console.warn(
+            "Generate Total button not found."
+        );
+
+        return;
+
+    }
+
+
+    /* ========================================================
+       PREVENT DUPLICATE LISTENERS
+    ======================================================== */
+
+    button.onclick = null;
+
+
+    button.onclick =
+        function () {
+
+            generateTalapatrakTotalsAndSummary();
+
+        };
+
+
+    console.log(
+        "Talapatrak Generate Total button initialized."
+    );
+
+}
+
+
+  /* ============================================================
+   TALAPATRAK PAGINATION UI
+============================================================ */
+
+function createTalapatrakPaginationUI() {
+
+    let pagination =
+        document.getElementById(
+            "talapatrakPagination"
+        );
+
+
+    if (!pagination) {
+
+        pagination =
+            document.createElement(
+                "div"
+            );
+
+
+        pagination.id =
+            "talapatrakPagination";
+
+
+        pagination.className =
+            "talapatrakPagination";
+
+
+        pagination.innerHTML = `
+
+            <button
+                type="button"
+                id="talapatrakFirstPage">
+
+                <i class="fa-solid fa-angles-left"></i>
+
+            </button>
+
+
+            <button
+                type="button"
+                id="talapatrakPreviousPage">
+
+                <i class="fa-solid fa-chevron-left"></i>
+
+            </button>
+
+
+            <div class="talapatrakPageJump">
+
+                <span>Page</span>
+
+                <input
+                    type="number"
+                    id="talapatrakPageInput"
+                    min="1"
+                    value="1">
+
+                <span>of</span>
+
+                <strong id="talapatrakTotalPages">
+                    1
+                </strong>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="talapatrakNextPage">
+
+                <i class="fa-solid fa-chevron-right"></i>
+
+            </button>
+
+
+            <button
+                type="button"
+                id="talapatrakLastPage">
+
+                <i class="fa-solid fa-angles-right"></i>
+
+            </button>
+
+
+            <span
+                id="talapatrakPageInfo"
+                class="talapatrakPageInfo">
+            </span>
+
+        `;
+
+
+        const table =
+            document.getElementById(
+                "talapatrakTable"
+            );
+
+
+        const wrapper =
+            table
+                ? table.closest(
+                    ".talapatrakTableWrapper"
+                )
+                : null;
+
+
+        if (
+            wrapper &&
+            wrapper.parentElement
+        ) {
+
+            wrapper.after(
+                pagination
+            );
+
+        }
+
+    }
+
+
+    const first =
+        document.getElementById(
+            "talapatrakFirstPage"
+        );
+
+
+    const previous =
+        document.getElementById(
+            "talapatrakPreviousPage"
+        );
+
+
+    const next =
+        document.getElementById(
+            "talapatrakNextPage"
+        );
+
+
+    const last =
+        document.getElementById(
+            "talapatrakLastPage"
+        );
+
+
+    const input =
+        document.getElementById(
+            "talapatrakPageInput"
+        );
+
+
+    if (first) {
+
+        first.onclick =
+            function() {
+
+                syncCurrentTalapatrakPageToMemory();
+
+                renderTalapatrakPage(1);
+
+            };
+
+    }
+
+
+    if (previous) {
+
+        previous.onclick =
+            function() {
+
+                const current =
+                    Number(
+                        window.talapatrakCurrentPage
+                    ) || 1;
+
+
+                if (
+                    current <= 1
+                ) {
+
+                    return;
+
+                }
+
+
+                syncCurrentTalapatrakPageToMemory();
+
+                renderTalapatrakPage(
+                    current - 1
+                );
+
+            };
+
+    }
+
+
+    if (next) {
+
+        next.onclick =
+            function() {
+
+                const current =
+                    Number(
+                        window.talapatrakCurrentPage
+                    ) || 1;
+
+
+                const total =
+                    Number(
+                        window.talapatrakTotalPages
+                    ) || 1;
+
+
+                if (
+                    current >= total
+                ) {
+
+                    return;
+
+                }
+
+
+                syncCurrentTalapatrakPageToMemory();
+
+                renderTalapatrakPage(
+                    current + 1
+                );
+
+            };
+
+    }
+
+
+    if (last) {
+
+        last.onclick =
+            function() {
+
+                const total =
+                    Number(
+                        window.talapatrakTotalPages
+                    ) || 1;
+
+
+                syncCurrentTalapatrakPageToMemory();
+
+                renderTalapatrakPage(
+                    total
+                );
+
+            };
+
+    }
+
+
+    if (input) {
+
+        input.onkeydown =
+            function(event) {
+
+                if (
+                    event.key !== "Enter"
+                ) {
+
+                    return;
+
+                }
+
+
+                event.preventDefault();
+
+
+                let page =
+                    Number(
+                        input.value
+                    );
+
+
+                const total =
+                    Number(
+                        window.talapatrakTotalPages
+                    ) || 1;
+
+
+                if (
+                    !Number.isFinite(page)
+                ) {
+
+                    page = 1;
+
+                }
+
+
+                page =
+                    Math.max(
+                        1,
+                        Math.min(
+                            Math.floor(page),
+                            total
+                        )
+                    );
+
+
+                syncCurrentTalapatrakPageToMemory();
+
+
+                renderTalapatrakPage(
+                    page
+                );
+
+
+                input.blur();
+
+            };
+
+    }
+
+
+    return pagination;
+
+}
+
+
+  /* ============================================================
+   RENDER TALAPATRAK DATA PAGE
+============================================================ */
+
+function renderTalapatrakPage(pageNumber) {
+
+    console.log("======================================");
+    console.log("TALAPATRAK PAGE RENDER");
+    console.log("Requested Page:", pageNumber);
+
+
+    /* ========================================================
+       1. VALIDATE MEMORY
+    ======================================================== */
+
+    if (!Array.isArray(window.talapatrakAllRows)) {
+
+        console.warn(
+            "No Talapatrak row memory found."
+        );
+
+        return;
+    }
+
+
+    /* ========================================================
+       2. CALCULATE DATA PAGES
+    ======================================================== */
+
+    const totalRows =
+        window.talapatrakAllRows.length;
+
+    const rowsPerPage =
+        Number(window.talapatrakRowsPerPage) || 20;
+
+    const dataPages =
+        Math.max(
+            1,
+            Math.ceil(totalRows / rowsPerPage)
+        );
+
+
+    /* ========================================================
+       3. FIND SUMMARY PAGES
+       
+       Summary pages are part of DOCUMENT pagination,
+       but NOT part of DATA pagination.
+    ======================================================== */
+
+    const summaryPages =
+        document.querySelectorAll(
+            ".talapatrakSummaryPage"
+        );
+
+    const summaryPageCount =
+        summaryPages.length;
+
+
+    /* ========================================================
+       4. TOTAL DOCUMENT PAGES
+       
+       Example:
+       
+       4 rows
+       → 1 data page
+       → 1 summary page
+       → TOTAL = 2
+    ======================================================== */
+
+    const totalPages =
+        dataPages + summaryPageCount;
+
+
+    console.log(
+        "DATA PAGES:",
+        dataPages
+    );
+
+    console.log(
+        "SUMMARY PAGES:",
+        summaryPageCount
+    );
+
+    console.log(
+        "TOTAL DOCUMENT PAGES:",
+        totalPages
+    );
+
+
+    /* ========================================================
+       5. NORMALIZE PAGE NUMBER
+    ======================================================== */
+
+    pageNumber =
+        Number(pageNumber);
+
+    if (!Number.isFinite(pageNumber)) {
+        pageNumber = 1;
+    }
+
+    pageNumber =
+        Math.max(
+            1,
+            Math.min(
+                pageNumber,
+                totalPages
+            )
+        );
+
+
+    window.talapatrakCurrentPage =
+        pageNumber;
+
+    window.talapatrakTotalPages =
+        totalPages;
+
+
+    /* ========================================================
+       6. FIND MAIN TALAPATRAK PAGE
+    ======================================================== */
+
+    const editorPage =
+        document.querySelector(
+            ".talapatrakPage"
+        );
+
+
+    /* ========================================================
+       7. HIDE ALL SUMMARY PAGES
+    ======================================================== */
+
+    summaryPages.forEach(
+        function(summaryPage) {
+
+            summaryPage.hidden = true;
+
+            summaryPage.style.display =
+                "none";
+
+        }
+    );
+
+
+    /* ========================================================
+       8. HIDE GRAND TOTAL WHEN SWITCHING DATA PAGE
+    ======================================================== */
+
+    if (
+        typeof hideTalapatrakTotalsSection ===
+        "function"
+    ) {
+
+        hideTalapatrakTotalsSection();
+
+    }
+
+
+    /* ========================================================
+       9. CHECK IF THIS IS A SUMMARY PAGE
+    ======================================================== */
+
+    if (pageNumber > dataPages) {
+
+        const summaryIndex =
+            pageNumber - dataPages - 1;
+
+
+        const summaryPage =
+            summaryPages[summaryIndex];
+
+
+        console.log(
+            "OPENING SUMMARY PAGE:",
+            summaryIndex + 1
+        );
+
+
+        if (editorPage) {
+
+            editorPage.style.display =
+                "none";
+
+            editorPage.style.visibility =
+                "hidden";
+
+            editorPage.style.opacity =
+                "0";
+
+        }
+
+
+        if (summaryPage) {
+
+            summaryPage.hidden = false;
+
+            summaryPage.style.display =
+                "block";
+
+            summaryPage.style.visibility =
+                "visible";
+
+            summaryPage.style.opacity =
+                "1";
+
+
+            console.log(
+                "SUMMARY PAGE DISPLAY:",
+                getComputedStyle(
+                    summaryPage
+                ).display
+            );
+
+        }
+
+
+        /* -----------------------------------------------
+           UPDATE PAGINATION
+        ----------------------------------------------- */
+
+        if (
+            typeof updateTalapatrakPaginationUI ===
+            "function"
+        ) {
+
+            updateTalapatrakPaginationUI();
+
+        }
+
+
+        console.log(
+            "TALAPATRAK SUMMARY PAGE SHOWN:",
+            pageNumber
+        );
+
+
+        return;
+    }
+
+
+    /* ========================================================
+       10. THIS IS A DATA PAGE
+    ======================================================== */
+
+    if (editorPage) {
+
+        editorPage.style.display =
+            "block";
+
+        editorPage.style.visibility =
+            "visible";
+
+        editorPage.style.opacity =
+            "1";
+
+    }
+
+
+    /* ========================================================
+       11. CALCULATE MEMORY RANGE
+    ======================================================== */
+
+    const startIndex =
+        (
+            pageNumber - 1
+        ) *
+        rowsPerPage;
+
+
+    const endIndex =
+        Math.min(
+            startIndex + rowsPerPage,
+            totalRows
+        );
+
+
+    console.log(
+        "DATA PAGE:",
+        pageNumber
+    );
+
+    console.log(
+        "Rows:",
+        startIndex,
+        "to",
+        endIndex
+    );
+
+
+    /* ========================================================
+       12. VALIDATE TABLE BODY
+    ======================================================== */
+
+    if (
+        typeof talapatrakBody ===
+        "undefined" ||
+        !talapatrakBody
+    ) {
+
+        console.error(
+            "❌ TALAPATRAK BODY NOT FOUND"
+        );
+
+        return;
+
+    }
+
+
+    /* ========================================================
+       13. CLEAR CURRENT DOM ROWS
+    ======================================================== */
+
+    talapatrakBody.innerHTML =
+        "";
+
+
+    /* ========================================================
+       14. RENDER CURRENT DATA PAGE
+    ======================================================== */
+
+    let renderedCount =
+        0;
+
+
+    for (
+        let memoryIndex = startIndex;
+        memoryIndex < endIndex;
+        memoryIndex++
+    ) {
+
+        const sourceRow =
+            window.talapatrakAllRows[
+                memoryIndex
+            ];
+
+
+        const rowData =
+            sourceRow &&
+            typeof sourceRow === "object"
+                ? {
+                    ...sourceRow
+                }
+                : {};
+
+
+        rowData._displayRowNumber =
+            memoryIndex + 1;
+
+
+        const row =
+            createTalapatrakRow(
+                rowData,
+                {
+                    appendToBody: true
+                }
+            );
+
+
+        if (row) {
+
+            renderedCount++;
+
+        }
+
+    }
+
+
+    /* ========================================================
+       15. VERIFY
+    ======================================================== */
+
+    const domRows =
+        talapatrakBody.querySelectorAll(
+            ".talapatrakRow"
+        );
+
+
+    console.log(
+        "TALAPATRAK DOM ROWS AFTER RENDER:",
+        domRows.length
+    );
+
+
+    /* ========================================================
+       16. UPDATE PAGINATION
+    ======================================================== */
+
+    if (
+        typeof updateTalapatrakPaginationUI ===
+        "function"
+    ) {
+
+        updateTalapatrakPaginationUI();
+
+    }
+
+
+    console.log(
+        "Rendered:",
+        renderedCount,
+        "rows"
+    );
+
+    console.log(
+        "TALAPATRAK DATA PAGE RENDER COMPLETE"
+    );
+}
+
 
 /* ============================================================
         OPEN TALAPATRAK EDITOR VIEW
@@ -3835,113 +8623,589 @@ function openTalapatrakEditor() {
     );
 
 }
+
+
+
 /* ============================================================
-        OPEN EXISTING RECORD
+   OPEN TALAPATRAK RECORD
+   ------------------------------------------------------------
+   MEMORY = ALL ROWS
+   DOM    = ONLY CURRENT PAGE
 ============================================================ */
 
-async function openTalapatrakRecord(documentId) {
+
+async function openTalapatrakRecord(record) {
+
+    /*
+    ============================================================
+    TALAPATRAK RECORD OPEN
+    ============================================================
+
+    ARCHITECTURE
+
+    FIRESTORE
+        ↓
+    record.rows
+        ↓
+    savedRows
+        ↓
+    window.talapatrakAllRows
+        ↓
+    renderTalapatrakPage()
+        ↓
+    DOM = current 20-row page only
+
+    IMPORTANT:
+
+    window.talapatrakAllRows
+        = ALL DATA ROWS
+
+    DOM
+        = CURRENT PAGE ONLY
+    ============================================================
+    */
+
+    window.talapatrakOpeningInProgress = true;
+
+
+    console.log(
+        "======================================"
+    );
+
+    console.log(
+        "TALAPATRAK OPEN START"
+    );
+
+    console.log(
+        "======================================"
+    );
+
 
     try {
 
-        const snapshot =
-            await db
-                .collection("talapatraks")
-                .doc(documentId)
-                .get();
+        /* ========================================================
+           1. VALIDATE RECORD
+        ======================================================== */
 
-        if (!snapshot.exists) {
+        if (
+            !record ||
+            typeof record !== "object"
+        ) {
 
-            alert("Talapatrak record not found.");
+            console.error(
+                "OPEN → INVALID RECORD:",
+                record
+            );
+
+            alert(
+                "Could not open Talapatrak record."
+            );
 
             return;
 
         }
 
-        const data =
-            snapshot.data();
 
-        const editorVillageName =
-                document.getElementById(
-                    "talapatrakEditorVillageName"
-                );
-            
-            if (editorVillageName) {
-            
-                editorVillageName.textContent =
-                    data.moje || "Talapatrak";
-            
-            }
+        if (!record.id) {
+
+            console.error(
+                "OPEN → RECORD ID MISSING:",
+                record
+            );
+
+            alert(
+                "Talapatrak record ID is missing."
+            );
+
+            return;
+
+        }
+
+
+        console.log(
+            "OPEN → DOCUMENT ID:",
+            record.id
+        );
+
+        console.log(
+            "OPEN → VILLAGE:",
+            record.moje || ""
+        );
+
+
+        /* ========================================================
+           2. GET SAVED ROWS
+        ======================================================== */
+
+        const savedRows =
+            Array.isArray(record.rows)
+                ? record.rows
+                : [];
+
+
+        console.log(
+            "OPEN → FIRESTORE ROW COUNT:",
+            savedRows.length
+        );
+
+
+        /* ========================================================
+           3. SET CURRENT RECORD
+        ======================================================== */
 
         currentTalapatrakRecord = {
-
-            id: documentId,
-
-            ...data
-
+            ...record
         };
 
+
         currentTalapatrakDocumentId =
-            documentId;
+            record.id;
+
+
+        /* ========================================================
+           4. OPEN TALAPATRAK EDITOR
+        ======================================================== */
 
         openTalapatrakEditor();
 
-        document.getElementById(
-            "talapatrakMoje"
-        ).value =
-            data.moje || "";
 
-        document.getElementById(
-            "talapatrakTaluka"
-        ).value =
-            data.taluka || "";
+        /* ========================================================
+           5. INITIALIZE PRINT BUTTON
+        ======================================================== */
 
-        document.getElementById(
-            "talapatrakJillo"
-        ).value =
-            data.jillo || "";
+        const printButton =
+            document.getElementById(
+                "talapatrakPrintButton"
+            );
 
-        updateTalapatrakYearDisplay(
-            data.year ||
-            getCurrentTalapatrakYear()
+
+        if (printButton) {
+
+            if (
+                printButton.dataset.talapatrakInitialized !==
+                "true"
+            ) {
+
+                initializeTalapatrakPrintButton();
+
+                printButton.dataset.talapatrakInitialized =
+                    "true";
+
+            }
+
+        }
+        else {
+
+            initializeTalapatrakPrintButton();
+
+        }
+
+
+        /* ========================================================
+           6. INITIALIZE GENERATE TOTAL BUTTON
+        ======================================================== */
+
+        const generateTotalButton =
+            document.getElementById(
+                "generateTalapatrakTotalButton"
+            );
+
+
+        if (generateTotalButton) {
+
+            if (
+                generateTotalButton.dataset.talapatrakInitialized !==
+                "true"
+            ) {
+
+                initializeTalapatrakGenerateTotalButton();
+
+                generateTotalButton.dataset.talapatrakInitialized =
+                    "true";
+
+            }
+
+        }
+        else {
+
+            initializeTalapatrakGenerateTotalButton();
+
+        }
+
+
+        /* ========================================================
+           7. LOAD EDITOR VILLAGE TITLE
+        ======================================================== */
+
+        const editorVillageName =
+            document.getElementById(
+                "talapatrakEditorVillageName"
+            );
+
+
+        if (editorVillageName) {
+
+            editorVillageName.textContent =
+                record.moje ||
+                "Talapatrak";
+
+        }
+
+
+        /* ========================================================
+           8. LOAD HEADER FIELDS
+        ======================================================== */
+
+        const mojeInput =
+            document.getElementById(
+                "talapatrakMoje"
+            );
+
+
+        const talukaInput =
+            document.getElementById(
+                "talapatrakTaluka"
+            );
+
+
+        const jilloInput =
+            document.getElementById(
+                "talapatrakJillo"
+            );
+
+
+        if (mojeInput) {
+
+            mojeInput.value =
+                record.moje || "";
+
+        }
+
+
+        if (talukaInput) {
+
+            talukaInput.value =
+                record.taluka || "";
+
+        }
+
+
+        if (jilloInput) {
+
+            jilloInput.value =
+                record.jillo || "";
+
+        }
+
+
+        /* ========================================================
+           9. LOAD YEAR
+        ======================================================== */
+
+        const recordYear =
+            record.year ||
+            getCurrentTalapatrakYear();
+
+
+        const yearSelect =
+            document.getElementById(
+                "talapatrakYear"
+            );
+
+
+        if (yearSelect) {
+
+            yearSelect.value =
+                recordYear;
+
+        }
+
+
+        /* ========================================================
+           10. UPDATE YEAR DISPLAY
+        ======================================================== */
+
+        if (
+            typeof updateTalapatrakYearDisplay ===
+            "function"
+        ) {
+
+            updateTalapatrakYearDisplay(
+                recordYear
+            );
+
+        }
+        else {
+
+            const editorYear =
+                document.getElementById(
+                    "talapatrakEditorYear"
+                );
+
+
+            if (editorYear) {
+
+                editorYear.textContent =
+                    recordYear;
+
+            }
+
+        }
+
+
+        console.log(
+            "OPEN → YEAR:",
+            recordYear
         );
+
+
+        /* ========================================================
+           11. CLEAR OLD DOM ROWS
+
+           IMPORTANT:
+           This only clears the visible table.
+
+           It does NOT clear memory.
+        ======================================================== */
 
         clearTalapatrakRows();
 
-        const rows =
-            data.rows || [];
 
-        if (rows.length) {
+        /* ========================================================
+           12. CLEAR OLD GENERATED TOTAL STATE
 
-            rows.forEach(function(rowData) {
+           A newly opened record must NOT inherit the previous
+           record's generated totals.
+        ======================================================== */
 
-                createTalapatrakRow(
-                    rowData
-                );
+        window.talapatrakTotals =
+            null;
 
-            });
+
+        /* ========================================================
+           13. SHOW MAIN TALAPATRAK TABLE
+        ======================================================== */
+
+        const talapatrakTable =
+            document.getElementById(
+                "talapatrakTable"
+            );
+
+
+        if (talapatrakTable) {
+
+            talapatrakTable.style.display =
+                "";
 
         }
 
-        else {
 
-            addInitialTalapatrakRow();
+        /* ========================================================
+           14. COPY FIRESTORE ROWS INTO MEMORY
+
+           THIS IS THE SINGLE SOURCE OF TRUTH.
+
+           Never work directly on record.rows.
+        ======================================================== */
+
+        window.talapatrakAllRows =
+            savedRows.map(
+                function(row) {
+
+                    if (
+                        row &&
+                        typeof row === "object"
+                    ) {
+
+                        return {
+                            ...row
+                        };
+
+                    }
+
+                    return {};
+
+                }
+            );
+
+
+        /* ========================================================
+           15. EMPTY RECORD SAFETY
+
+           An empty Talapatrak still needs one editable row.
+        ======================================================== */
+
+        if (
+            window.talapatrakAllRows.length === 0
+        ) {
+
+            window.talapatrakAllRows = [
+                {}
+            ];
 
         }
 
-        formatTalapatrakNumberInputs();
 
-        setupTalapatrakExcelNavigation();
+        /* ========================================================
+           16. VERIFY MEMORY
+        ======================================================== */
 
-        calculateAllTalapatrakRows();
+        console.log(
+            "======================================"
+        );
+
+        console.log(
+            "OPEN → MEMORY LOAD COMPLETE"
+        );
+
+        console.log(
+            "MEMORY ROW COUNT:",
+            window.talapatrakAllRows.length
+        );
+
+
+        if (
+            window.talapatrakAllRows.length > 0
+        ) {
+
+            console.log(
+                "FIRST MEMORY ROW:",
+                window.talapatrakAllRows[0]
+            );
+
+        }
+
+
+        console.log(
+            "======================================"
+        );
+
+
+        /* ========================================================
+           17. PAGINATION CONFIGURATION
+        ======================================================== */
+
+        window.talapatrakRowsPerPage =
+            20;
+
+
+        window.talapatrakCurrentPage =
+            1;
+
+
+        /* ========================================================
+           18. CALCULATE DATA PAGES
+        ======================================================== */
+
+        const dataPages =
+            Math.max(
+                1,
+                Math.ceil(
+                    window.talapatrakAllRows.length /
+                    window.talapatrakRowsPerPage
+                )
+            );
+
+
+        window.talapatrakTotalPages =
+            dataPages;
+
+
+        console.log(
+            "OPEN → DATA PAGES:",
+            dataPages
+        );
+
+
+        /* ========================================================
+           19. CREATE PAGINATION UI
+        ======================================================== */
+
+        createTalapatrakPaginationUI();
+
+
+        /* ========================================================
+           20. RENDER FIRST DATA PAGE
+        ======================================================== */
+
+        console.log(
+            "OPEN → RENDERING PAGE 1"
+        );
+
+
+        renderTalapatrakPage(1);
+
+
+        /* ========================================================
+           21. FINAL DOM CHECK
+        ======================================================== */
+
+        const domRowCount =
+            talapatrakBody
+                ? talapatrakBody.querySelectorAll(
+                    ".talapatrakRow"
+                ).length
+                : 0;
+
+
+        console.log(
+            "======================================"
+        );
+
+        console.log(
+            "OPEN → FINAL CHECK"
+        );
+
+        console.log(
+            "MEMORY ROWS:",
+            Array.isArray(
+                window.talapatrakAllRows
+            )
+                ? window.talapatrakAllRows.length
+                : 0
+        );
+
+        console.log(
+            "DOM ROWS:",
+            domRowCount
+        );
+
+        console.log(
+            "CURRENT PAGE:",
+            window.talapatrakCurrentPage
+        );
+
+        console.log(
+            "TOTAL DATA PAGES:",
+            window.talapatrakTotalPages
+        );
+
+        console.log(
+            "OPEN TALAPATRAK COMPLETE:",
+            record.id
+        );
+
+        console.log(
+            "======================================"
+        );
 
     }
 
-    catch(error) {
+    catch (error) {
 
         console.error(
-            "Error opening Talapatrak:",
+            "======================================"
+        );
+
+        console.error(
+            "ERROR OPENING TALAPATRAK:",
             error
         );
+
+        console.error(
+            "======================================"
+        );
+
 
         alert(
             "Could not open Talapatrak."
@@ -3949,40 +9213,26 @@ async function openTalapatrakRecord(documentId) {
 
     }
 
+    finally {
+
+        /* ========================================================
+           RESUME AUTOSAVE
+
+           This MUST happen even if an error occurs.
+        ======================================================== */
+
+        window.talapatrakOpeningInProgress =
+            false;
+
+
+        console.log(
+            "TALAPATRAK OPENING → AUTOSAVE RESUMED"
+        );
+
+    }
+
 }
 
-
-// /* ============================================================
-//         PRINT TALAPATRAK
-// ============================================================ */
-// if (printTalapatrakButton) {
-
-//     printTalapatrakButton.onclick =
-//     async function() {
-
-
-//         await addTalapatrakActivity(
-//             "talapatrak_printed",
-//             "Talapatrak printed",
-//             `${currentTalapatrakRecord?.moje || "Talapatrak"} printed`,
-//             currentTalapatrakRecord?.moje || ""
-//         );
-
-
-//         document.body.classList.add(
-//             "printingTalapatrak"
-//         );
-
-
-//         setTimeout(function(){
-
-//             window.print();
-
-//         },100);
-
-// };
-
-// }
 
 /* ============================================================
         PRINT CLEANUP
@@ -4023,10 +9273,66 @@ if (
                     .toLowerCase();
 
 
+            console.log(
+                "BEFORE RENDER MANAGEMENT CALL"
+            );
+            
             renderTalapatrakManagement();
+            
+            console.log(
+                "AFTER RENDER MANAGEMENT CALL"
+            );
 
         }
 
+    );
+
+}
+
+/* ============================================================
+   TALAPATRAK — FULL VIEW TOGGLE
+============================================================ */
+
+const talapatrakFullViewButton =
+    document.getElementById(
+        "talapatrakFullViewButton"
+    );
+
+
+if (talapatrakFullViewButton) {
+
+    talapatrakFullViewButton.addEventListener(
+        "click",
+        function () {
+
+            document.body.classList.toggle(
+                "talapatrakFullViewMode"
+            );
+
+        }
+    );
+
+}
+
+
+
+const talapatrakShrinkViewButton =
+    document.getElementById(
+        "talapatrakShrinkViewButton"
+    );
+
+
+if (talapatrakShrinkViewButton) {
+
+    talapatrakShrinkViewButton.addEventListener(
+        "click",
+        function () {
+
+            document.body.classList.remove(
+                "talapatrakFullViewMode"
+            );
+
+        }
     );
 
 }
@@ -4179,202 +9485,6 @@ document
 
     });
 
-/* ============================================================
-        DOWNLOAD TALAPATRAK PDF
-============================================================ */
-
-async function downloadTalapatrakPDF(record){
-
-
-    try{
-
-
-        if(!record){
-
-            alert(
-                "No Talapatrak record available."
-            );
-
-            return;
-
-        }
-
-
-
-        const { jsPDF } =
-            window.jspdf;
-
-
-
-        const pdf =
-            new jsPDF(
-                "landscape",
-                "mm",
-                "a4"
-            );
-
-
-
-        const villageName =
-            record.moje || "Village";
-
-
-        const year =
-            record.year || "";
-
-
-
-        pdf.setFontSize(
-            16
-        );
-
-
-        pdf.text(
-            `Talapatrak - ${villageName}`,
-            15,
-            15
-        );
-
-
-
-        pdf.setFontSize(
-            11
-        );
-
-
-        pdf.text(
-            `Year: ${year}`,
-            15,
-            23
-        );
-
-
-
-        const rows =
-            record.rows || [];
-
-
-
-        const tableRows =
-            rows.map(
-                function(row){
-
-                    return [
-
-                        row.A || "",
-                        row.B || "",
-                        row.C || "",
-                        row.D || "",
-                        row.E || "",
-                        row.F || "",
-                        row.G || "",
-                        row.H || "",
-                        row.I || "",
-                        row.J || "",
-                        row.K || "",
-                        row.L || "",
-                        row.M || "",
-                        row.N || "",
-                        row.O || "",
-                        row.P || "",
-                        row.Q || "",
-                        row.R || "",
-                        row.S || "",
-                        row.T || "",
-                        row.U || ""
-
-                    ];
-
-                }
-            );
-
-
-
-        pdf.autoTable({
-
-            startY: 30,
-
-
-            head: [[
-
-                "No",
-                "Name",
-                "C",
-                "D",
-                "E",
-                "F",
-                "G",
-                "H",
-                "I",
-                "J",
-                "K",
-                "L",
-                "Date",
-                "N",
-                "O",
-                "P",
-                "Q",
-                "R",
-                "S",
-                "T",
-                "U"
-
-            ]],
-
-
-            body:
-                tableRows,
-
-
-            styles: {
-
-                fontSize: 6
-
-            },
-
-
-            theme:
-                "grid"
-
-
-        });
-
-
-
-        pdf.save(
-            `${villageName}_${year}_Talapatrak.pdf`
-        );
-
-
-
-        console.log(
-            "Talapatrak PDF downloaded:",
-            villageName,
-            year
-        );
-
-
-    }
-
-
-    catch(error){
-
-
-        console.error(
-            "Talapatrak PDF error:",
-            error
-        );
-
-
-        alert(
-            "Unable to create Talapatrak PDF."
-        );
-
-
-    }
-
-
-}
 
 
 
@@ -4395,12 +9505,6 @@ console.log(
 );
 
 
-/* ============================================================
-   TALAPATRAK PRINT SYSTEM
-   EXACTLY 20 USER ROWS PER PAGE
-   SAME LOGIC AS SHIKSHANUPAKARAN
-   ============================================================ */
-
 
 
 function prepareTalapatrakPrint(sourceRows) {
@@ -4408,11 +9512,6 @@ function prepareTalapatrakPrint(sourceRows) {
     const table =
         document.getElementById(
             "talapatrakTable"
-        );
-
-    const tbody =
-        document.getElementById(
-            "talapatrakBody"
         );
 
     const container =
@@ -4423,7 +9522,6 @@ function prepareTalapatrakPrint(sourceRows) {
 
     if (
         !table ||
-        !tbody ||
         !container
     ) {
 
@@ -4436,9 +9534,9 @@ function prepareTalapatrakPrint(sourceRows) {
     }
 
 
-    /* --------------------------------------------------------
+    /* ========================================================
        REMOVE OLD PRINT PAGES
-       -------------------------------------------------------- */
+    ======================================================== */
 
     container
         .querySelectorAll(
@@ -4453,45 +9551,287 @@ function prepareTalapatrakPrint(sourceRows) {
         );
 
 
-    /* --------------------------------------------------------
-       GET ONLY REAL USER ROWS
-       -------------------------------------------------------- */
+    /* ========================================================
+       GET ALL ROWS
+    ======================================================== */
 
-    const userRows =
-        Array.from(
-            tbody.querySelectorAll(
-                "tr.talapatrakRow"
-            )
+    let allRows = [];
+
+
+    if (
+        Array.isArray(sourceRows)
+    ) {
+
+        allRows =
+            sourceRows.map(
+                function(row, index) {
+
+                    return {
+
+                        ...row,
+
+                        _displayRowNumber:
+                            index + 1
+
+                    };
+
+                }
+            );
+
+    }
+
+    else if (
+        Array.isArray(
+            window.talapatrakAllRows
+        )
+    ) {
+
+        allRows =
+            window.talapatrakAllRows.map(
+                function(row) {
+
+                    return {
+                        ...row
+                    };
+
+                }
+            );
+
+    }
+
+
+    console.log(
+        "TALAPATRAK PRINT MEMORY ROWS:",
+        allRows.length
+    );
+
+
+    /* ========================================================
+       REMOVE COMPLETELY EMPTY ROWS
+    ======================================================== */
+
+    allRows =
+        allRows.filter(
+            function(row) {
+
+                if (!row) {
+                    return false;
+                }
+
+                return Object.keys(row).some(
+                    function(key) {
+
+                        return (
+                            key !== "_displayRowNumber" &&
+                            String(
+                                row[key] ?? ""
+                            ).trim() !== ""
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+    /* ========================================================
+       GLOBAL ROW NUMBER
+    ======================================================== */
+
+    allRows =
+        allRows.map(
+            function(row, index) {
+
+                return {
+
+                    ...row,
+
+                    A:
+                        index + 1
+
+                };
+
+            }
         );
 
 
     console.log(
-        "TALAPATRAK PRINT ROWS FOUND:",
-        userRows.length
+        "REAL TALAPATRAK PRINT ROWS:",
+        allRows.length
     );
 
 
-    /* --------------------------------------------------------
-       EXACTLY 20 ROWS PER PAGE
-       -------------------------------------------------------- */
+    /* ========================================================
+       ROWS PER PAGE
+    ======================================================== */
 
-    const rowsPerPage =
-        20;
+    const rowsPerPage = 20;
 
 
-    /* --------------------------------------------------------
-       EMPTY TABLE
-       -------------------------------------------------------- */
+    const dataPages =
+        Math.max(
+            1,
+            Math.ceil(
+                allRows.length /
+                rowsPerPage
+            )
+        );
+
+
+    /* ========================================================
+       CREATE DATA PAGES
+    ======================================================== */
 
     if (
-        userRows.length === 0
+        allRows.length === 0
     ) {
 
         createTalapatrakPrintPage(
             [],
             1,
             container,
-            table
+            table,
+            dataPages
+        );
+
+    }
+
+    else {
+
+        for (
+            let pageNumber = 1;
+            pageNumber <= dataPages;
+            pageNumber++
+        ) {
+
+            const startIndex =
+                (
+                    pageNumber - 1
+                ) *
+                rowsPerPage;
+
+
+            const endIndex =
+                Math.min(
+                    startIndex +
+                    rowsPerPage,
+                    allRows.length
+                );
+
+
+            const pageRows =
+                allRows.slice(
+                    startIndex,
+                    endIndex
+                );
+
+
+            console.log(
+                "PRINT PAGE:",
+                pageNumber,
+                "OF:",
+                dataPages,
+                "ROWS:",
+                pageRows.length,
+                "GLOBAL:",
+                startIndex + 1,
+                "→",
+                endIndex
+            );
+
+
+            createTalapatrakPrintPage(
+                pageRows,
+                pageNumber,
+                container,
+                table,
+                dataPages
+            );
+
+        }
+
+    }
+
+
+    /* ========================================================
+       COUNT FINAL PRINT PAGES
+    ======================================================== */
+
+    const totalPrintPages =
+        container.querySelectorAll(
+            ".talapatrakPrintPage"
+        ).length;
+
+
+    console.log(
+        "TALAPATRAK TOTAL PRINT PAGES:",
+        totalPrintPages
+    );
+
+
+    console.log(
+        "TALAPATRAK PRINT PREPARATION COMPLETE"
+    );
+
+}
+
+
+
+
+/* ============================================================
+   CREATE ONE TALAPATRAK PRINT PAGE
+   ------------------------------------------------------------
+   FINAL PRINT VERSION
+
+   IMPORTANT:
+   - Does NOT use createTalapatrakRow()
+   - Does NOT create input elements
+   - Does NOT depend on editor DOM values
+   - Uses window.talapatrakAllRows memory data
+   - Prints A → S as plain text
+   - T and U remain excluded
+   - Exactly 20 rows per page
+============================================================ */
+
+function createTalapatrakPrintPage(
+    pageRows,
+    pageNumber,
+    container,
+    sourceTable,
+    totalPages
+) {
+
+    console.log(
+        "======================================"
+    );
+
+    console.log(
+        "CREATING TALAPATRAK PRINT PAGE:",
+        pageNumber,
+        "/",
+        totalPages
+    );
+
+    console.log(
+        "PAGE ROW COUNT:",
+        Array.isArray(pageRows)
+            ? pageRows.length
+            : "NOT ARRAY"
+    );
+
+
+    /* ========================================================
+       SAFETY
+    ======================================================== */
+
+    if (
+        !Array.isArray(pageRows)
+    ) {
+
+        console.error(
+            "Talapatrak print pageRows is not an array.",
+            pageRows
         );
 
         return;
@@ -4499,91 +9839,9 @@ function prepareTalapatrakPrint(sourceRows) {
     }
 
 
-    /* --------------------------------------------------------
-       TOTAL PAGES
-       -------------------------------------------------------- */
-
-    const totalPages =
-        Math.ceil(
-            userRows.length /
-            rowsPerPage
-        );
-
-
-    console.log(
-        "TALAPATRAK TOTAL PRINT PAGES:",
-        totalPages
-    );
-
-
-    /* --------------------------------------------------------
-       CREATE EACH PRINT PAGE
-       -------------------------------------------------------- */
-
-    for (
-        let pageNumber = 0;
-        pageNumber < totalPages;
-        pageNumber++
-    ) {
-
-        const start =
-            pageNumber *
-            rowsPerPage;
-
-
-        const end =
-            Math.min(
-                start + rowsPerPage,
-                userRows.length
-            );
-
-
-        const pageRows =
-            userRows.slice(
-                start,
-                end
-            );
-
-
-        console.log(
-            "TALAPATRAK PRINT PAGE",
-            pageNumber + 1,
-            "ROWS:",
-            pageRows.length
-        );
-
-
-        createTalapatrakPrintPage(
-            pageRows,
-            pageNumber + 1,
-            container,
-            table
-        );
-
-    }
-
-}
-
-
-/* ============================================================
-   CREATE ONE TALAPATRAK PRINT PAGE
-   ============================================================ */
-
-/* ============================================================
-   CREATE ONE TALAPATRAK PRINT PAGE
-   SAME PAGE NUMBER STRUCTURE AS SHIKSHANUPAKARAN
-   ============================================================ */
-
-function createTalapatrakPrintPage(
-    pageRows,
-    pageNumber,
-    container,
-    sourceTable
-) {
-
-    /* --------------------------------------------------------
-       CREATE PRINT PAGE
-       -------------------------------------------------------- */
+    /* ========================================================
+       CREATE PAGE
+    ======================================================== */
 
     const printPage =
         document.createElement(
@@ -4599,9 +9857,9 @@ function createTalapatrakPrintPage(
         pageNumber;
 
 
-    /* --------------------------------------------------------
-       GET CURRENT TALAPATRAK INFORMATION
-       -------------------------------------------------------- */
+    /* ========================================================
+       GET HEADER INFORMATION
+    ======================================================== */
 
     const mojeElement =
         document.getElementById(
@@ -4644,13 +9902,13 @@ function createTalapatrakPrintPage(
 
     const year =
         yearElement
-            ? yearElement.textContent.trim()
+            ? yearElement.value
             : "";
 
 
-    /* --------------------------------------------------------
-       CREATE PRINT HEADER
-       -------------------------------------------------------- */
+    /* ========================================================
+       HEADER
+    ======================================================== */
 
     const printHeader =
         document.createElement(
@@ -4666,208 +9924,102 @@ function createTalapatrakPrintPage(
 
         <div class="talapatrakPrintHeaderItem">
             <strong>મોજે :</strong>
-            <span>${moje}</span>
+            <span>
+                ${escapeTalapatrakHTML(moje)}
+            </span>
         </div>
 
         <div class="talapatrakPrintHeaderItem">
             <strong>તાલુકા :</strong>
-            <span>${taluka}</span>
+            <span>
+                ${escapeTalapatrakHTML(taluka)}
+            </span>
         </div>
 
         <div class="talapatrakPrintHeaderItem">
             <strong>જિલ્લો :</strong>
-            <span>${jillo}</span>
+            <span>
+                ${escapeTalapatrakHTML(jillo)}
+            </span>
         </div>
 
         <div class="talapatrakPrintHeaderItem">
             <strong>ગામના નમૂના નંબર-૧૧ :</strong>
-            <span>તાળાપત્રક</span>
+            <span>
+                તાળાપત્રક
+            </span>
         </div>
 
         <div class="talapatrakPrintHeaderItem">
             <strong>વર્ષ :</strong>
-            <span>${year}</span>
+            <span>
+                ${escapeTalapatrakHTML(year)}
+            </span>
         </div>
 
     `;
 
-
-    /* --------------------------------------------------------
-       ADD HEADER TO PAGE
-       -------------------------------------------------------- */
 
     printPage.appendChild(
         printHeader
     );
 
 
-    /* --------------------------------------------------------
-       CLONE TABLE STRUCTURE
-       -------------------------------------------------------- */
+    /* ========================================================
+       CREATE TABLE
+    ======================================================== */
 
     const printTable =
-        sourceTable.cloneNode(
-            true
+        document.createElement(
+            "table"
         );
 
 
-      printTable.classList.add(
-          "talapatrakPrintTable"
-      );
-      
-      printTable.removeAttribute(
-          "id"
-      );
-      
-      
-      /* --------------------------------------------------------
-         REMOVE ORIGINAL COLUMN WIDTH DEFINITIONS
-         PRINT TABLE MUST USE NATURAL AUTO WIDTHS
-         -------------------------------------------------------- */
-      
-      const printColgroup =
-          printTable.querySelector(
-              "colgroup"
-          );
-      
-      if (printColgroup) {
-      
-          printColgroup.remove();
-      
-      }
-      
-      
-      /* --------------------------------------------------------
-         FORCE NATURAL TABLE LAYOUT
-         -------------------------------------------------------- */
-      
-      printTable.style.tableLayout =
-          "auto";
-      
-      printTable.style.width =
-          "100%";
-      
-      printTable.style.maxWidth =
-          "100%";
+    printTable.className =
+        "talapatrakPrintTable";
 
 
-    /* --------------------------------------------------------
-       REMOVE ORIGINAL DATA ROWS
-       -------------------------------------------------------- */
-
-    printTable
-        .querySelectorAll(
-            "tbody tr.talapatrakRow"
-        )
-        .forEach(
-            function(row) {
-
-                row.remove();
-
-            }
-        );
+    printTable.style.tableLayout =
+        "auto";
 
 
-    /* --------------------------------------------------------
-       GET PRINT TBODY
-       -------------------------------------------------------- */
+    printTable.style.width =
+        "100%";
 
-    const printTbody =
-        printTable.querySelector(
-            "tbody"
-        );
 
+    printTable.style.maxWidth =
+        "100%";
+
+
+    /* ========================================================
+       COPY THEAD
+    ======================================================== */
 
     if (
-        !printTbody
+        sourceTable
     ) {
 
-        console.error(
-            "Talapatrak print tbody not found."
-        );
-
-        return;
-
-    }
+        const sourceThead =
+            sourceTable.querySelector(
+                "thead"
+            );
 
 
-    /* --------------------------------------------------------
-       ADD ONLY THIS PAGE'S ROWS
-       -------------------------------------------------------- */
+        if (
+            sourceThead
+        ) {
 
-    pageRows.forEach(
-        function(originalRow) {
-
-            const clonedRow =
-                originalRow.cloneNode(
+            const clonedThead =
+                sourceThead.cloneNode(
                     true
                 );
 
 
-            /* --------------------------------------------
-               COPY LIVE INPUT VALUES
-               -------------------------------------------- */
+            /*
+            Remove print-hidden header cells.
+            */
 
-            const originalInputs =
-                originalRow.querySelectorAll(
-                    "input, textarea"
-                );
-
-
-            const clonedInputs =
-                clonedRow.querySelectorAll(
-                    "input, textarea"
-                );
-
-
-            originalInputs.forEach(
-                function(
-                    originalInput,
-                    index
-                ) {
-
-                    const clonedInput =
-                        clonedInputs[index];
-
-
-                    if (
-                        !clonedInput
-                    ) {
-
-                        return;
-
-                    }
-
-
-                    clonedInput.value =
-                        originalInput.value;
-
-
-                    clonedInput.setAttribute(
-                        "value",
-                        originalInput.value
-                    );
-
-
-                    if (
-                        originalInput.tagName ===
-                        "TEXTAREA"
-                    ) {
-
-                        clonedInput.textContent =
-                            originalInput.value;
-
-                    }
-
-                }
-            );
-
-
-            /* --------------------------------------------
-               REMOVE PRINT-HIDDEN ELEMENTS
-               -------------------------------------------- */
-
-            clonedRow
+            clonedThead
                 .querySelectorAll(
                     ".printHide"
                 )
@@ -4880,55 +10032,387 @@ function createTalapatrakPrintPage(
                 );
 
 
+            /*
+            Remove input/button elements from
+            the cloned header if present.
+            */
+
+            clonedThead
+                .querySelectorAll(
+                    "input, button"
+                )
+                .forEach(
+                    function(element) {
+
+                        element.remove();
+
+                    }
+                );
+
+
+            printTable.appendChild(
+                clonedThead
+            );
+
+        }
+
+    }
+
+
+    /* ========================================================
+       TBODY
+    ======================================================== */
+
+    const printTbody =
+        document.createElement(
+            "tbody"
+        );
+
+
+    printTable.appendChild(
+        printTbody
+    );
+
+
+    /* ========================================================
+     GRAND TOTAL — ONLY ON FINAL TALAPATRAK PAGE
+     ======================================================== */
+    
+    const isFinalTalapatrakPage =
+        pageNumber === totalPages;
+    
+    
+    if (
+        isFinalTalapatrakPage
+    ) {
+    
+        const totals =
+            calculateTalapatrakMemoryTotals();
+    
+    
+        console.log(
+            "ADDING GRAND TOTAL TO FINAL PRINT PAGE:",
+            totals
+        );
+    
+    
+        const totalRow =
+            document.createElement("tr");
+    
+    
+        totalRow.className =
+            "talapatrakPrintGrandTotalRow";
+    
+    
+        function formatPrintTotal(value) {
+    
+            return Number(
+                value || 0
+            ).toFixed(2);
+    
+        }
+    
+    
+        totalRow.innerHTML = `
+    
+            <td
+                colspan="2"
+                class="grandTotalLabel">
+    
+                કુલ એકંદર
+    
+            </td>
+    
+            <td>
+                ${formatPrintTotal(totals.C)}
+            </td>
+    
+            <td>
+                ${formatPrintTotal(totals.D)}
+            </td>
+    
+            <td>
+                ${formatPrintTotal(totals.E)}
+            </td>
+    
+            <td>
+                ${formatPrintTotal(totals.F)}
+            </td>
+    
+            <td>
+                ${formatPrintTotal(totals.G)}
+            </td>
+    
+            <td>
+                ${formatPrintTotal(totals.H)}
+            </td>
+    
+            <td>
+                ${formatPrintTotal(totals.I)}
+            </td>
+    
+            <td>
+                ${formatPrintTotal(totals.J)}
+            </td>
+    
+            <td>
+                ${formatPrintTotal(totals.K)}
+            </td>
+    
+            <td></td>
+    
+            <td></td>
+    
+            <td>
+                ${formatPrintTotal(totals.N)}
+            </td>
+    
+            <td>
+                ${formatPrintTotal(totals.O)}
+            </td>
+    
+            <td>
+                ${formatPrintTotal(totals.P)}
+            </td>
+    
+            <td>
+                ${formatPrintTotal(totals.Q)}
+            </td>
+    
+            <td>
+                ${formatPrintTotal(totals.R)}
+            </td>
+    
+            <td>
+                ${formatPrintTotal(totals.S)}
+            </td>
+    
+            <td>
+                ${formatPrintTotal(totals.T)}
+            </td>
+    
+            <td>
+                ${formatPrintTotal(totals.U)}
+            </td>
+    
+            <td class="printHide"></td>
+    
+            <td class="printHide"></td>
+    
+        `;
+    
+    
+        printTbody.appendChild(
+            totalRow
+        );
+    
+    
+        console.log(
+            "GRAND TOTAL ADDED TO PAGE:",
+            pageNumber
+        );
+    
+    }
+
+    /* ========================================================
+       PRINT COLUMNS
+    ======================================================== */
+
+    const columns = [
+
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J",
+        "K",
+        "L",
+        "M",
+        "N",
+        "O",
+        "P",
+        "Q",
+        "R",
+        "S"
+
+    ];
+
+
+    /* ========================================================
+       CREATE ROWS
+    ======================================================== */
+
+    pageRows.forEach(
+        function(rowData, rowIndex) {
+
+            if (
+                !rowData
+            ) {
+
+                return;
+
+            }
+
+
+            console.log(
+                "TALAPATRAK PRINT ROW DATA:",
+                rowData
+            );
+
+
+            const printRow =
+                document.createElement(
+                    "tr"
+                );
+
+
+            printRow.className =
+                "talapatrakRow";
+
+
+            /* ==================================================
+               COLUMNS A → S
+            ================================================== */
+
+            columns.forEach(
+                function(column) {
+
+                    const td =
+                        document.createElement(
+                            "td"
+                        );
+
+
+                    let value = "";
+
+
+                    /* ------------------------------------------
+                       READ MEMORY VALUE
+                    ------------------------------------------ */
+
+                    if (
+                        Object.prototype.hasOwnProperty.call(
+                            rowData,
+                            column
+                        )
+                    ) {
+
+                        value =
+                            rowData[column];
+
+                    }
+
+
+                    /* ------------------------------------------
+                       LOWERCASE FALLBACK
+                    ------------------------------------------ */
+
+                    if (
+                        value === undefined ||
+                        value === null
+                    ) {
+
+                        const lowerColumn =
+                            column.toLowerCase();
+
+
+                        if (
+                            Object.prototype.hasOwnProperty.call(
+                                rowData,
+                                lowerColumn
+                            )
+                        ) {
+
+                            value =
+                                rowData[
+                                    lowerColumn
+                                ];
+
+                        }
+
+                    }
+
+
+                    /* ------------------------------------------
+                       NULL → EMPTY
+                    ------------------------------------------ */
+
+                    if (
+                        value === undefined ||
+                        value === null
+                    ) {
+
+                        value = "";
+
+                    }
+
+
+                    /* ------------------------------------------
+                       DATE FORMAT
+                    ------------------------------------------ */
+
+                    if (
+                        column === "M"
+                    ) {
+
+                        value =
+                            formatTalapatrakInputDate(
+                                value
+                            );
+
+                    }
+
+
+                    /* ------------------------------------------
+                       CONVERT TO STRING
+                    ------------------------------------------ */
+
+                    value =
+                        String(value);
+
+
+                    /* ------------------------------------------
+                       IMPORTANT
+
+                       Use textContent.
+
+                       NOT innerHTML.
+
+                       NOT input.value.
+
+                       This guarantees that the actual
+                       data is present as printable text.
+                    ------------------------------------------ */
+
+                    td.textContent =
+                        value;
+
+
+                    printRow.appendChild(
+                        td
+                    );
+
+                }
+            );
+
+
             printTbody.appendChild(
-                clonedRow
+                printRow
             );
 
         }
     );
 
-
-    /* --------------------------------------------------------
-       REMOVE ALL PRINT-HIDDEN ELEMENTS FROM TABLE
-       -------------------------------------------------------- */
-
-    printTable
-        .querySelectorAll(
-            ".printHide"
-        )
-        .forEach(
-            function(element) {
-
-                element.remove();
-
-            }
-        );
-
-
-    /* --------------------------------------------------------
-       REMOVE PRINT-HIDDEN COLUMNS
-       -------------------------------------------------------- */
-
-    printTable
-        .querySelectorAll(
-            "col.colT, " +
-            "col.colU, " +
-            "col.colV, " +
-            "col.colAction"
-        )
-        .forEach(
-            function(col) {
-
-                col.remove();
-
-            }
-        );
-
-
-    /* --------------------------------------------------------
-       ADD TABLE TO PAGE
-       -------------------------------------------------------- */
-
+    
+    /* ========================================================
+       ADD TABLE
+    ======================================================== */
+    
     printPage.appendChild(
         printTable
     );
@@ -4936,8 +10420,7 @@ function createTalapatrakPrintPage(
 
     /* ========================================================
        PAGE NUMBER
-       SAME SYSTEM AS SHIKSHANUPAKARAN
-       ======================================================== */
+    ======================================================== */
 
     const pageNumberElement =
         document.createElement(
@@ -4953,9 +10436,9 @@ function createTalapatrakPrintPage(
         `Page ${pageNumber}`;
 
 
-    /* --------------------------------------------------------
-       PAGE FOOTER
-       -------------------------------------------------------- */
+    /* ========================================================
+       FOOTER
+    ======================================================== */
 
     const pageFooter =
         document.createElement(
@@ -4972,22 +10455,52 @@ function createTalapatrakPrintPage(
     );
 
 
-    /* --------------------------------------------------------
-       ADD FOOTER TO PAGE
-       -------------------------------------------------------- */
-
     printPage.appendChild(
         pageFooter
     );
 
 
-    /* --------------------------------------------------------
-       DEBUG
-       -------------------------------------------------------- */
+    /* ========================================================
+       DEBUG — VERIFY ACTUAL TEXT
+    ======================================================== */
+
+    const firstRow =
+        printTbody.querySelector(
+            "tr"
+        );
+
+
+    if (
+        firstRow
+    ) {
+
+        console.log(
+            "FIRST PRINT ROW TEXT:",
+            Array.from(
+                firstRow.querySelectorAll(
+                    "td"
+                )
+            ).map(
+                function(td) {
+
+                    return td.textContent;
+
+                }
+            )
+        );
+
+    }
+
+
+    /* ========================================================
+       FINAL ROW COUNT
+    ======================================================== */
 
     console.log(
-        "TALAPATRAK PRINT PAGE",
+        "TALAPATRAK PRINT PAGE:",
         pageNumber,
+        "/",
+        totalPages,
         "ROWS:",
         printTbody.querySelectorAll(
             "tr"
@@ -4995,12 +10508,18 @@ function createTalapatrakPrintPage(
     );
 
 
-    /* --------------------------------------------------------
-       ADD PAGE TO PRINT CONTAINER
-       -------------------------------------------------------- */
+    /* ========================================================
+       ADD PAGE TO CONTAINER
+    ======================================================== */
 
     container.appendChild(
         printPage
+    );
+
+
+    console.log(
+        "PRINT PAGE ADDED TO CONTAINER:",
+        pageNumber
     );
 
 }
@@ -5008,140 +10527,29 @@ function createTalapatrakPrintPage(
 
 
 /* ============================================================
-   TALAPATRAK PRINT
-   ============================================================ */
+   PRINT TALAPATRAK
 
-// function printTalapatrak() {
+   IMPORTANT:
 
-//     console.log(
-//         "TALAPATRAK PRINT STARTED"
-//     );
-
-
-//     /* --------------------------------------------------------
-//        GET TABLE
-//        -------------------------------------------------------- */
-
-//     const table =
-//         document.getElementById(
-//             "talapatrakTable"
-//         );
-
-
-//     if (
-//         !table
-//     ) {
-
-//         console.error(
-//             "Talapatrak table not found."
-//         );
-
-//         alert(
-//             "Talapatrak table not found."
-//         );
-
-//         return;
-
-//     }
-
-
-//     /* --------------------------------------------------------
-//        REMOVE OLD PRINT CONTAINER
-//        -------------------------------------------------------- */
-
-//     const oldContainer =
-//         document.getElementById(
-//             "talapatrakPrintContainer"
-//         );
-
-
-//     if (
-//         oldContainer
-//     ) {
-
-//         oldContainer.remove();
-
-//     }
-
-
-//     /* --------------------------------------------------------
-//        CREATE NEW PRINT CONTAINER
-//        -------------------------------------------------------- */
-
-//     const printContainer =
-//         document.createElement(
-//             "div"
-//         );
-
-
-//     printContainer.id =
-//         "talapatrakPrintContainer";
-
-
-//     /* --------------------------------------------------------
-//        HIDE DURING NORMAL EDITOR VIEW
-//        -------------------------------------------------------- */
-
-//     printContainer.style.display =
-//         "none";
-
-
-//     /* --------------------------------------------------------
-//        ADD CONTAINER TO BODY
-//        -------------------------------------------------------- */
-
-//     document.body.appendChild(
-//         printContainer
-//     );
-
-
-//     /* --------------------------------------------------------
-//        PREPARE 20-ROW PAGES
-//        -------------------------------------------------------- */
-
-//     prepareTalapatrakPrint();
-
-
-//     /* --------------------------------------------------------
-//        ACTIVATE PRINT MODE
-//        -------------------------------------------------------- */
-
-//     document.body.classList.add(
-//         "printingTalapatrak"
-//     );
-
-
-//     printContainer.style.display =
-//         "block";
-
-
-//     /* --------------------------------------------------------
-//        PRINT
-//        -------------------------------------------------------- */
-
-//     setTimeout(
-//         function() {
-
-//             window.print();
-
-//         },
-//         100
-//     );
-
-
-//     console.log(
-//         "TALAPATRAK PRINT READY"
-//     );
-
-// }
-
-
-
+   1. Sync current DOM page → memory
+   2. Collect ALL rows
+   3. Generate print pages from ALL rows
+   4. Print through iframe
+   5. Do NOT modify editor rows
+============================================================ */
 
 function printTalapatrak() {
 
     console.log(
-        "TALAPATRAK PRINT STARTED"
+        "======================================"
+    );
+
+    console.log(
+        "TALAPATRAK PRINT START"
+    );
+
+    console.log(
+        "======================================"
     );
 
 
@@ -5171,6 +10579,42 @@ function printTalapatrak() {
 
 
     /* ========================================================
+       VERY IMPORTANT
+
+       Save current visible page into master memory.
+
+       Without this, the last edited page can print stale data.
+    ======================================================== */
+
+    if (
+        Array.isArray(
+            window.talapatrakAllRows
+        )
+    ) {
+
+        syncCurrentTalapatrakPageToMemory();
+
+    }
+
+
+    /* ========================================================
+       COLLECT ALL ROWS
+
+       This returns ALL rows from memory.
+    ======================================================== */
+
+    const rows =
+        collectTalapatrakRows();
+
+
+    console.log(
+        "PRINT WILL USE:",
+        rows.length,
+        "ROWS"
+    );
+
+
+    /* ========================================================
        REMOVE OLD CONTAINER
     ======================================================== */
 
@@ -5188,22 +10632,17 @@ function printTalapatrak() {
 
 
     /* ========================================================
-       CREATE TEMPORARY PRINT CONTAINER
+       CREATE NEW PRINT CONTAINER
     ======================================================== */
 
     const printContainer =
-        document.createElement(
-            "div"
-        );
-
+        document.createElement("div");
 
     printContainer.id =
         "talapatrakPrintContainer";
 
-
     printContainer.style.display =
         "none";
-
 
     document.body.appendChild(
         printContainer
@@ -5211,14 +10650,19 @@ function printTalapatrak() {
 
 
     /* ========================================================
-       CREATE 20-ROW PRINT PAGES
+       PREPARE PRINT PAGES
+
+       IMPORTANT:
+       Pass rows explicitly.
     ======================================================== */
 
-    prepareTalapatrakPrint();
+    prepareTalapatrakPrint(
+        rows
+    );
 
 
     /* ========================================================
-       GET ONLY TALAPATRAK PRINT CSS
+       COLLECT PRINT CSS
     ======================================================== */
 
     const printStyles =
@@ -5236,7 +10680,7 @@ function printTalapatrak() {
 
 
     /* ========================================================
-       GET GENERATED PRINT PAGES
+       COLLECT GENERATED PAGES
     ======================================================== */
 
     const pages =
@@ -5266,22 +10710,24 @@ function printTalapatrak() {
     }
 
 
-    console.log(
-        "TALAPATRAK PAGES READY:",
+    const pageCount =
         printContainer.querySelectorAll(
             ".talapatrakPrintPage"
-        ).length
+        ).length;
+
+
+    console.log(
+        "TALAPATRAK PRINT PAGES:",
+        pageCount
     );
 
 
     /* ========================================================
-       CREATE ISOLATED IFRAME
+       CREATE PRINT IFRAME
     ======================================================== */
 
     const iframe =
-        document.createElement(
-            "iframe"
-        );
+        document.createElement("iframe");
 
 
     iframe.style.position =
@@ -5308,23 +10754,16 @@ function printTalapatrak() {
     );
 
 
-    /* ========================================================
-       IFRAME DOCUMENT
-    ======================================================== */
-
     const iframeDocument =
         iframe.contentDocument ||
         iframe.contentWindow.document;
 
 
-    /* ========================================================
-       WRITE TALAPATRAK ONLY
-    ======================================================== */
-
     iframeDocument.open();
 
 
     iframeDocument.write(`
+
         <!DOCTYPE html>
 
         <html>
@@ -5338,6 +10777,166 @@ function printTalapatrak() {
             </title>
 
             ${printStyles}
+
+            <style>
+
+                @page {
+
+                    size: A4 landscape;
+
+                    margin: 8mm;
+
+                }
+
+
+                html,
+                body {
+
+                    margin: 0;
+
+                    padding: 0;
+
+                    width: 100%;
+
+                }
+
+
+                body {
+
+                    background: white;
+
+                    color: black;
+
+                }
+
+
+                .talapatrakPrintPage {
+
+                    width: 100%;
+
+                    box-sizing: border-box;
+
+                    page-break-after: always;
+
+                    break-after: page;
+
+                }
+
+
+                .talapatrakPrintPage:last-child {
+
+                    page-break-after: auto;
+
+                    break-after: auto;
+
+                }
+
+
+                .talapatrakPrintTable {
+
+                    width: 100% !important;
+
+                    max-width: 100% !important;
+
+                    table-layout: fixed !important;
+
+                    border-collapse: collapse;
+
+                }
+
+
+                .talapatrakPrintTable th,
+                .talapatrakPrintTable td {
+
+                    border: 1px solid #000;
+
+                    padding: 1px;
+
+                    text-align: center;
+
+                    vertical-align: middle;
+
+                    overflow: hidden;
+
+                }
+
+
+                .talapatrakPrintTable input {
+
+                    width: 100%;
+
+                    box-sizing: border-box;
+
+                    border: 0;
+
+                    outline: 0;
+
+                    background: transparent;
+
+                    color: #000;
+
+                    text-align: center;
+
+                    padding: 0;
+
+                    margin: 0;
+
+                    font-size: 8px;
+
+                }
+
+
+                .talapatrakPrintTable .columnB {
+
+                    text-align: left;
+
+                }
+
+
+                .talapatrakPrintHeader {
+
+                    display: flex;
+
+                    width: 100%;
+
+                    justify-content: space-between;
+
+                    align-items: center;
+
+                    margin-bottom: 4mm;
+
+                    font-size: 10px;
+
+                }
+
+
+                .talapatrakPrintHeaderItem {
+
+                    white-space: nowrap;
+
+                }
+
+
+                .talapatrakPrintFooter {
+
+                    width: 100%;
+
+                    text-align: center;
+
+                    margin-top: 3mm;
+
+                    font-size: 9px;
+
+                }
+
+
+                .talapatrakPrintPageNumber {
+
+                    text-align: center;
+
+                }
+
+            </style>
 
         </head>
 
@@ -5356,6 +10955,7 @@ function printTalapatrak() {
         </body>
 
         </html>
+
     `);
 
 
@@ -5370,26 +10970,41 @@ function printTalapatrak() {
         function() {
 
             console.log(
-                "TALAPATRAK IFRAME READY"
+                "TALAPATRAK PRINT → PRINTING"
             );
 
 
             iframe.contentWindow.focus();
 
-
             iframe.contentWindow.print();
 
 
-            /* =================================================
+            /* --------------------------------------------
                CLEANUP
-            ================================================= */
+
+               Do not depend only on afterprint because
+               the print dialog belongs to the iframe.
+            -------------------------------------------- */
 
             setTimeout(
                 function() {
 
                     iframe.remove();
 
-                    printContainer.remove();
+                    const container =
+                        document.getElementById(
+                            "talapatrakPrintContainer"
+                        );
+
+                    if (container) {
+
+                        container.remove();
+
+                    }
+
+
+                    window.talapatrakPrinting =
+                        false;
 
 
                     console.log(
@@ -5397,289 +11012,16 @@ function printTalapatrak() {
                     );
 
                 },
-                1000
+                2000
             );
 
         },
-        500
+        700
     );
 
 }
 
 
-// function printTalapatrak() {
-
-//     console.log(
-//         "TALAPATRAK PRINT STARTED"
-//     );
-
-
-//     /* ========================================================
-//        GET TABLE
-//     ======================================================== */
-
-//     const table =
-//         document.getElementById(
-//             "talapatrakTable"
-//         );
-
-
-//     if (!table) {
-
-//         console.error(
-//             "Talapatrak table not found."
-//         );
-
-//         alert(
-//             "Talapatrak table not found."
-//         );
-
-//         return;
-
-//     }
-
-
-//     /* ========================================================
-//        REMOVE OLD PRINT CONTAINER
-//     ======================================================== */
-
-//     const oldContainer =
-//         document.getElementById(
-//             "talapatrakPrintContainer"
-//         );
-
-
-//     if (oldContainer) {
-
-//         oldContainer.remove();
-
-//     }
-
-
-//     /* ========================================================
-//        CREATE PRINT CONTAINER
-//     ======================================================== */
-
-//     const printContainer =
-//         document.createElement(
-//             "div"
-//         );
-
-
-//     printContainer.id =
-//         "talapatrakPrintContainer";
-
-
-//     printContainer.style.display =
-//         "none";
-
-
-//     document.body.appendChild(
-//         printContainer
-//     );
-
-
-//     /* ========================================================
-//        PREPARE PRINT PAGES
-//     ======================================================== */
-
-//     prepareTalapatrakPrint();
-
-
-//     /* ========================================================
-//        GET TALAPATRAK PRINT CSS ONLY
-//     ======================================================== */
-
-//     const printStyles =
-//         Array.from(
-//             document.querySelectorAll(
-//                 'style[data-talapatrak-print]'
-//             )
-//         )
-//         .map(function(style) {
-
-//             return style.outerHTML;
-
-//         })
-//         .join("");
-
-
-//     /* ========================================================
-//        GET GENERATED PRINT PAGES
-//     ======================================================== */
-
-//     const pages =
-//         Array.from(
-//             printContainer.querySelectorAll(
-//                 ".talapatrakPrintPage"
-//             )
-//         )
-//         .map(function(page) {
-
-//             return page.outerHTML;
-
-//         })
-//         .join("");
-
-
-//     if (!pages) {
-
-//         console.error(
-//             "No Talapatrak print pages were generated."
-//         );
-
-//         printContainer.remove();
-
-//         return;
-
-//     }
-
-
-//     console.log(
-//         "Talapatrak print pages:",
-//         printContainer.querySelectorAll(
-//             ".talapatrakPrintPage"
-//         ).length
-//     );
-
-
-//     /* ========================================================
-//        CREATE TEMPORARY IFRAME
-//     ======================================================== */
-
-//     const iframe =
-//         document.createElement(
-//             "iframe"
-//         );
-
-
-//     iframe.style.position =
-//         "fixed";
-
-//     iframe.style.right =
-//         "0";
-
-//     iframe.style.bottom =
-//         "0";
-
-//     iframe.style.width =
-//         "0";
-
-//     iframe.style.height =
-//         "0";
-
-//     iframe.style.border =
-//         "0";
-
-
-//     document.body.appendChild(
-//         iframe
-//     );
-
-
-//     /* ========================================================
-//        GET IFRAME DOCUMENT
-//     ======================================================== */
-
-//     const iframeDocument =
-//         iframe.contentDocument ||
-//         iframe.contentWindow.document;
-
-
-//     /* ========================================================
-//        WRITE ISOLATED TALAPATRAK DOCUMENT
-//     ======================================================== */
-
-//     iframeDocument.open();
-
-
-//     iframeDocument.write(`
-//         <!DOCTYPE html>
-
-//         <html>
-
-//         <head>
-
-//             <meta charset="UTF-8">
-
-//             <title>
-//                 Talapatrak Print
-//             </title>
-
-//             ${printStyles}
-
-//         </head>
-
-
-//         <body>
-
-//             ${pages}
-
-//         </body>
-
-//         </html>
-//     `);
-
-
-//     iframeDocument.close();
-
-
-//     /* ========================================================
-//        PRINT AFTER IFRAME HAS RENDERED
-//     ======================================================== */
-
-//     setTimeout(
-//         function() {
-
-//             console.log(
-//                 "TALAPATRAK IFRAME READY"
-//             );
-
-
-//             iframe.contentWindow.focus();
-
-
-//             iframe.contentWindow.print();
-
-
-//             /* =================================================
-//                REMOVE IFRAME
-//             ================================================= */
-
-//             setTimeout(
-//                 function() {
-
-//                     iframe.remove();
-
-
-//                     const currentContainer =
-//                         document.getElementById(
-//                             "talapatrakPrintContainer"
-//                         );
-
-
-//                     if (
-//                         currentContainer
-//                     ) {
-
-//                         currentContainer.remove();
-
-//                     }
-
-
-//                     console.log(
-//                         "TALAPATRAK PRINT CLEANUP COMPLETE"
-//                     );
-
-//                 },
-//                 1000
-//             );
-
-//         },
-//         500
-//     );
-
-// }
 
 
 /* ============================================================
@@ -5763,29 +11105,1152 @@ window.addEventListener(
 
 
 /* ============================================================
-   PRINT BUTTON
-   ============================================================ */
+   TALAPATRAK PRINT BUTTON
+============================================================ */
 
-if (
-    printTalapatrakButton
-) {
+function initializeTalapatrakPrintButton() {
 
-    printTalapatrakButton.onclick =
-        function() {
+    const printButton =
+        document.getElementById(
+            "printTalapatrakButton"
+        );
 
+
+    if (!printButton) {
+
+        console.warn(
+            "Talapatrak Print button not available yet."
+        );
+
+        return;
+
+    }
+
+
+    /* ========================================================
+       PREVENT DUPLICATE INITIALIZATION
+    ======================================================== */
+
+    if (
+        printButton.dataset.printInitialized === "true"
+    ) {
+
+        return;
+
+    }
+
+
+    printButton.dataset.printInitialized =
+        "true";
+
+
+    /* ========================================================
+       MOUSEDOWN
+
+       Happens before the focused input receives blur.
+    ======================================================== */
+
+    printButton.addEventListener(
+        "mousedown",
+        function(event) {
+    
+            event.preventDefault();
+            event.stopPropagation();
+    
+            console.log(
+                "TALAPATRAK PRINT MODE ACTIVATED"
+            );
+    
+            window.talapatrakPrinting = true;
+    
+        }
+    );
+    
+    
+    printButton.addEventListener(
+        "click",
+        function(event) {
+    
+            event.preventDefault();
+            event.stopPropagation();
+    
+            console.log(
+                "TALAPATRAK PRINT BUTTON CLICKED"
+            );
+    
             printTalapatrak();
+    
+        }
+    );
 
-        };
+
+    console.log(
+        "Talapatrak Print button initialized."
+    );
 
 }
 
 
+/* ============================================================
+   KHATA IMPORT ACCESS
+============================================================ */
+
+if (
+    typeof createTalapatrakRow === "function"
+) {
+
+    window.createTalapatrakRow =
+        createTalapatrakRow;
+
+    console.log(
+        "Global createTalapatrakRow registered."
+    );
+
+}
 
 
+/* ======================================================================================================================== */
 
 
+/* ============================================================
+   TALAPATRAK PAGE / SUMMARY CONTROLLER
+   ------------------------------------------------------------
+   DATA:
+       Page 1 ... N
+
+   SUMMARY:
+       Page N+1 → Summary 1
+       Page N+2 → Summary 2
+       Page N+3 → Summary 3
+
+   IMPORTANT:
+       DATA EDITOR PAGES ARE PRESERVED.
+
+       SUMMARY PAGES ARE COMPLETELY REBUILT.
+
+       We DO NOT reuse old summary page DOM.
+============================================================ */
 
 
+/* ============================================================
+   CONSTANTS
+============================================================ */
+
+const TALAPATRAK_ROWS_PER_PAGE = 20;
+const TALAPATRAK_SUMMARY_COUNT = 3;
 
 
+/* ============================================================
+   GET SUMMARY SECTION
+============================================================ */
 
+function getTalapatrakTotalsSection() {
+
+    return document.getElementById(
+        "talapatrakTotalsSection"
+    );
+
+}
+
+
+/* ============================================================
+   COMPLETELY REMOVE OLD SUMMARY PAGES
+   ------------------------------------------------------------
+   IMPORTANT:
+   This removes the actual DOM nodes.
+
+   It does NOT merely hide them.
+============================================================ */
+
+function removeOldTalapatrakSummaryPages() {
+
+    console.log(
+        "======================================"
+    );
+
+    console.log(
+        "REMOVING OLD TALAPATRAK SUMMARY PAGES"
+    );
+
+
+    const section =
+        getTalapatrakTotalsSection();
+
+
+    if (!section) {
+
+        console.warn(
+            "⚠️ talapatrakTotalsSection NOT FOUND"
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Remove every old summary page.
+     *
+     * This catches:
+     *
+     * .talapatrakSummaryPage
+     *
+     * regardless of whether it was
+     * Summary 1, 2, or 3.
+     */
+
+    const oldPages =
+        section.querySelectorAll(
+            ".talapatrakSummaryPage"
+        );
+
+
+    console.log(
+        "OLD SUMMARY PAGES FOUND:",
+        oldPages.length
+    );
+
+
+    oldPages.forEach(
+        function(page) {
+
+            page.remove();
+
+        }
+    );
+
+
+    /*
+     * Also remove any dynamically generated
+     * summary wrappers if we created them
+     * previously.
+     */
+
+    section
+        .querySelectorAll(
+            ".talapatrakSummaryPageContainer"
+        )
+        .forEach(
+            function(element) {
+
+                element.remove();
+
+            }
+        );
+
+
+    console.log(
+        "OLD SUMMARY PAGES COMPLETELY REMOVED"
+    );
+
+}
+
+
+/* ============================================================
+   CREATE FRESH SUMMARY PAGE
+============================================================ */
+
+function createFreshTalapatrakSummaryPage(
+    summaryNumber
+) {
+
+    console.log(
+        "CREATING FRESH SUMMARY PAGE:",
+        summaryNumber
+    );
+
+
+    const section =
+        getTalapatrakTotalsSection();
+
+
+    if (!section) {
+
+        console.error(
+            "❌ talapatrakTotalsSection NOT FOUND"
+        );
+
+        return null;
+
+    }
+
+
+    /*
+     * Create a completely new page.
+     */
+
+    const page =
+        document.createElement("div");
+
+
+    page.className =
+        "talapatrakSummaryPage";
+
+
+    page.id =
+        "talapatrakSummaryPage" +
+        summaryNumber;
+
+
+    page.dataset.summaryNumber =
+        summaryNumber;
+
+
+    /*
+     * Start hidden.
+     *
+     * The controller will show the
+     * requested page afterward.
+     */
+
+    page.hidden = true;
+
+    page.style.display = "none";
+
+    page.style.visibility = "hidden";
+
+    page.style.opacity = "0";
+
+
+    /*
+     * Inner wrapper.
+     */
+
+    const inner =
+        document.createElement("div");
+
+
+    inner.className =
+        "talapatrakSummaryPageInner";
+
+
+    page.appendChild(
+        inner
+    );
+
+
+    /*
+     * IMPORTANT:
+     *
+     * We are intentionally NOT copying
+     * the old summary HTML here.
+     *
+     * The fresh page starts empty.
+     *
+     * The appropriate summary builder
+     * can populate it afterward.
+     */
+
+
+    section.appendChild(
+        page
+    );
+
+
+    console.log(
+        "FRESH SUMMARY PAGE CREATED:",
+        page.id
+    );
+
+
+    return page;
+
+}
+
+
+/* ============================================================
+   CREATE ALL THREE FRESH SUMMARY PAGES
+============================================================ */
+
+function createFreshTalapatrakSummaryPages() {
+
+    console.log(
+        "======================================"
+    );
+
+    console.log(
+        "CREATING THREE FRESH SUMMARY PAGES"
+    );
+
+
+    const section =
+        getTalapatrakTotalsSection();
+
+
+    if (!section) {
+
+        console.error(
+            "❌ talapatrakTotalsSection NOT FOUND"
+        );
+
+        return false;
+
+    }
+
+
+    /*
+     * FIRST:
+     *
+     * Completely destroy the old pages.
+     */
+
+    removeOldTalapatrakSummaryPages();
+
+
+    /*
+     * THEN:
+     *
+     * Create three brand-new pages.
+     */
+
+    for (
+        let i = 1;
+        i <= TALAPATRAK_SUMMARY_COUNT;
+        i++
+    ) {
+
+        createFreshTalapatrakSummaryPage(i);
+
+    }
+
+
+    /*
+     * Verify.
+     */
+
+    const freshPages =
+        section.querySelectorAll(
+            ".talapatrakSummaryPage"
+        );
+
+
+    console.log(
+        "FRESH SUMMARY PAGE COUNT:",
+        freshPages.length
+    );
+
+
+    if (
+        freshPages.length !==
+        TALAPATRAK_SUMMARY_COUNT
+    ) {
+
+        console.error(
+            "❌ FAILED TO CREATE ALL SUMMARY PAGES"
+        );
+
+        return false;
+
+    }
+
+
+    console.log(
+        "THREE FRESH SUMMARY PAGES CREATED SUCCESSFULLY"
+    );
+
+
+    return true;
+
+}
+
+
+/* ============================================================
+   GET SUMMARY PAGE
+============================================================ */
+
+function getTalapatrakSummaryPage(
+    summaryNumber
+) {
+
+    return document.getElementById(
+        "talapatrakSummaryPage" +
+        summaryNumber
+    );
+
+}
+
+
+/* ============================================================
+   FORCE SUMMARY SECTION VISIBLE
+============================================================ */
+
+function showTalapatrakTotalsSection() {
+
+    const section =
+        getTalapatrakTotalsSection();
+
+
+    if (!section) {
+
+        console.error(
+            "❌ talapatrakTotalsSection NOT FOUND"
+        );
+
+        return false;
+
+    }
+
+
+    section.hidden = false;
+
+    section.removeAttribute("hidden");
+
+    section.style.display = "block";
+
+    section.style.visibility = "visible";
+
+    section.style.opacity = "1";
+
+    section.style.height = "auto";
+
+    section.style.minHeight = "0";
+
+    section.style.overflow = "visible";
+
+    section.style.position = "relative";
+
+    section.style.width = "100%";
+
+
+    /*
+     * Make hidden parents visible.
+     */
+
+    let parent =
+        section.parentElement;
+
+
+    while (
+        parent &&
+        parent !== document.body
+    ) {
+
+        const computed =
+            window.getComputedStyle(parent);
+
+
+        if (
+            computed.display === "none"
+        ) {
+
+            parent.style.display =
+                "block";
+
+        }
+
+
+        if (
+            computed.visibility ===
+            "hidden"
+        ) {
+
+            parent.style.visibility =
+                "visible";
+
+        }
+
+
+        parent =
+            parent.parentElement;
+
+    }
+
+
+    return true;
+
+}
+
+
+/* ============================================================
+   HIDE ALL SUMMARY PAGES
+============================================================ */
+
+function hideAllTalapatrakSummaryPages() {
+
+    const section =
+        getTalapatrakTotalsSection();
+
+
+    if (!section) {
+
+        return;
+
+    }
+
+
+    section
+        .querySelectorAll(
+            ".talapatrakSummaryPage"
+        )
+        .forEach(
+            function(page) {
+
+                page.hidden = true;
+
+                page.setAttribute(
+                    "hidden",
+                    ""
+                );
+
+                page.style.display =
+                    "none";
+
+                page.style.visibility =
+                    "hidden";
+
+                page.style.opacity =
+                    "0";
+
+            }
+        );
+
+}
+
+
+/* ============================================================
+   SHOW ONE SUMMARY PAGE
+============================================================ */
+
+function showTalapatrakSummaryPage(
+    summaryNumber
+) {
+
+    console.log(
+        "SHOW SUMMARY PAGE:",
+        summaryNumber
+    );
+
+
+    const section =
+        getTalapatrakTotalsSection();
+
+
+    if (!section) {
+
+        console.error(
+            "❌ SUMMARY SECTION DOES NOT EXIST"
+        );
+
+        return false;
+
+    }
+
+
+    const page =
+        getTalapatrakSummaryPage(
+            summaryNumber
+        );
+
+
+    if (!page) {
+
+        console.error(
+            "❌ SUMMARY PAGE DOES NOT EXIST:",
+            summaryNumber
+        );
+
+        return false;
+
+    }
+
+
+    /*
+     * Parent first.
+     */
+
+    showTalapatrakTotalsSection();
+
+
+    /*
+     * Hide every summary page.
+     */
+
+    hideAllTalapatrakSummaryPages();
+
+
+    /*
+     * Show requested page.
+     */
+
+    page.hidden = false;
+
+    page.removeAttribute("hidden");
+
+    page.style.display =
+        "block";
+
+    page.style.visibility =
+        "visible";
+
+    page.style.opacity =
+        "1";
+
+    page.style.height =
+        "auto";
+
+    page.style.minHeight =
+        "0";
+
+    page.style.width =
+        "100%";
+
+    page.style.position =
+        "relative";
+
+
+    const inner =
+        page.querySelector(
+            ".talapatrakSummaryPageInner"
+        );
+
+
+    if (inner) {
+
+        inner.style.display =
+            "block";
+
+        inner.style.visibility =
+            "visible";
+
+        inner.style.opacity =
+            "1";
+
+        inner.style.height =
+            "auto";
+
+    }
+
+
+    console.log(
+        "SUMMARY PAGE DISPLAYED:",
+        summaryNumber
+    );
+
+
+    return true;
+
+}
+
+
+/* ============================================================
+   HIDE SUMMARY SECTION
+============================================================ */
+
+function hideTalapatrakTotalsSection() {
+
+    const section =
+        getTalapatrakTotalsSection();
+
+
+    if (!section) {
+
+        return;
+
+    }
+
+
+    section.hidden = true;
+
+    section.setAttribute(
+        "hidden",
+        ""
+    );
+
+    section.style.display =
+        "none";
+
+    section.style.visibility =
+        "hidden";
+
+    section.style.opacity =
+        "0";
+
+}
+
+
+/* ============================================================
+   INITIALIZE FRESH SUMMARY SYSTEM
+   ------------------------------------------------------------
+   This is the function that should be called
+   AFTER Generate Total.
+============================================================ */
+
+function initializeTalapatrakSummaryPages() {
+
+    console.log(
+        "======================================"
+    );
+
+    console.log(
+        "INITIALIZING FRESH TALAPATRAK SUMMARY SYSTEM"
+    );
+
+
+    /*
+     * Completely delete the previous
+     * summary DOM.
+     */
+
+    const created =
+        createFreshTalapatrakSummaryPages();
+
+
+    if (!created) {
+
+        console.error(
+            "❌ Could not create fresh summary pages."
+        );
+
+        return false;
+
+    }
+
+
+    /*
+     * Make summary section visible.
+     */
+
+    showTalapatrakTotalsSection();
+
+
+    /*
+     * Get header information.
+     */
+
+    const moje =
+        document.getElementById(
+            "talapatrakMoje"
+        )?.value || "-";
+
+
+    const taluka =
+        document.getElementById(
+            "talapatrakTaluka"
+        )?.value || "-";
+
+
+    const jillo =
+        document.getElementById(
+            "talapatrakJillo"
+        )?.value || "-";
+
+
+    const year =
+        document.getElementById(
+            "talapatrakYear"
+        )?.value || "-";
+
+
+    /*
+     * Store these values globally so
+     * newly-created summary pages can
+     * use them.
+     */
+
+    window.talapatrakSummaryHeader = {
+
+        moje,
+        taluka,
+        jillo,
+        year
+
+    };
+
+
+    console.log(
+        "FRESH SUMMARY HEADER DATA:",
+        window.talapatrakSummaryHeader
+    );
+
+
+    /*
+     * Hide all three.
+     */
+
+    hideAllTalapatrakSummaryPages();
+
+
+    /*
+     * IMPORTANT:
+     *
+     * Page-specific population functions
+     * can now build the fresh pages.
+     */
+
+    if (
+        typeof populateTalapatrakSummaryPage1 ===
+        "function"
+    ) {
+
+        populateTalapatrakSummaryPage1();
+
+    }
+
+
+    if (
+        typeof populateTalapatrakSummaryChallans ===
+        "function"
+    ) {
+
+        populateTalapatrakSummaryChallans();
+
+    }
+
+
+    /*
+     * Finally show Summary 1.
+     */
+
+    showTalapatrakSummaryPage(1);
+
+
+    console.log(
+        "FRESH SUMMARY SYSTEM INITIALIZED"
+    );
+
+
+    return true;
+
+}
+
+
+/* ============================================================
+   COMPATIBILITY
+============================================================ */
+
+function renderTalapatrakEditorCalculationPage() {
+
+    return initializeTalapatrakSummaryPages();
+
+}
+
+  /* ============================================================
+   TALAPATRAK SUMMARY PAGE
+   ------------------------------------------------------------
+   Creates the first blank summary page after
+   Generate Total is completed.
+
+   This page is intentionally independent from
+   the Talapatrak data table.
+============================================================ */
+
+function createTalapatrakSummaryPage(summaryNumber = 1) {
+
+    console.log(
+        "======================================"
+    );
+
+    console.log(
+        "CREATING TALAPATRAK SUMMARY PAGE:",
+        summaryNumber
+    );
+
+
+    /* ========================================================
+       REMOVE OLD SUMMARY PAGE IF IT EXISTS
+    ======================================================== */
+
+    const oldPage =
+        document.getElementById(
+            "talapatrakSummaryPage" + summaryNumber
+        );
+
+    if (oldPage) {
+
+        console.log(
+            "REMOVING OLD SUMMARY PAGE"
+        );
+
+        oldPage.remove();
+
+    }
+
+
+    /* ========================================================
+       FIND THE TALAPATRAK EDITOR
+    ======================================================== */
+
+    const editor =
+        document.querySelector(
+            ".talapatrakPage"
+        );
+
+    if (!editor) {
+
+        console.error(
+            "❌ .talapatrakPage NOT FOUND"
+        );
+
+        return null;
+
+    }
+
+
+    /* ========================================================
+       CREATE SUMMARY PAGE
+    ======================================================== */
+
+    const page =
+        document.createElement("section");
+
+
+    page.id =
+        "talapatrakSummaryPage" +
+        summaryNumber;
+
+
+    page.className =
+        "talapatrakSummaryPage";
+
+
+    page.dataset.summaryNumber =
+        summaryNumber;
+
+
+    /* ========================================================
+       FORCE VISIBLE
+    ======================================================== */
+
+    page.hidden = false;
+
+
+    page.style.display =
+        "block";
+
+
+    page.style.visibility =
+        "visible";
+
+
+    page.style.opacity =
+        "1";
+
+
+    page.style.position =
+        "relative";
+
+
+    page.style.width =
+        "100%";
+
+
+    page.style.minHeight =
+        "1122px";
+
+
+    page.style.height =
+        "1122px";
+
+
+    page.style.marginTop =
+        "30px";
+
+
+    page.style.background =
+        "white";
+
+
+    page.style.boxSizing =
+        "border-box";
+
+
+    page.style.zIndex =
+        "10";
+
+
+    /* ========================================================
+       SUMMARY INNER
+    ======================================================== */
+
+    page.innerHTML = `
+
+        <div class="talapatrakSummaryPageInner">
+
+            <div class="talapatrakSummaryPageHeader">
+
+                <h2>
+                    Talapatrak Summary Page ${summaryNumber}
+                </h2>
+
+            </div>
+
+            <div
+                class="talapatrakSummaryPageContent"
+                contenteditable="true"
+            >
+
+                <p>
+                    Summary page is working.
+                </p>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    /* ========================================================
+       INSERT DIRECTLY AFTER TALAPATRAK EDITOR
+    ======================================================== */
+
+    editor.parentNode.insertBefore(
+        page,
+        editor.nextSibling
+    );
+
+
+    /* ========================================================
+       FINAL DOM CHECK
+    ======================================================== */
+
+    console.log(
+        "SUMMARY PAGE CREATED:",
+        page.id
+    );
+
+
+    console.log(
+        "SUMMARY PAGE PARENT:",
+        page.parentElement
+    );
+
+
+    console.log(
+        "SUMMARY PAGE DISPLAY:",
+        getComputedStyle(page).display
+    );
+
+
+    console.log(
+        "SUMMARY PAGE VISIBILITY:",
+        getComputedStyle(page).visibility
+    );
+
+
+    console.log(
+        "SUMMARY PAGE RECT:",
+        page.getBoundingClientRect()
+    );
+
+
+    console.log(
+        "SUMMARY PAGE OFFSET HEIGHT:",
+        page.offsetHeight
+    );
+
+
+    console.log(
+        "SUMMARY PAGE OFFSET WIDTH:",
+        page.offsetWidth
+    );
+
+
+    console.log(
+        "======================================"
+    );
+
+
+    return page;
+
+}
