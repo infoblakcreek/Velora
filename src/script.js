@@ -43,6 +43,9 @@ const loginMessage =
     document.getElementById("loginMessage");
 
 
+const togglePassword = 
+    document.getElementById("togglePassword");
+
 if (loginButton) {
 
     loginButton.addEventListener(
@@ -143,6 +146,42 @@ if (loginButton) {
         }
 
     );
+
+}
+
+
+if (loginPassword && togglePassword) {
+
+    togglePassword.addEventListener("click", function () {
+
+        const isPassword =
+            loginPassword.type === "password";
+
+        if (isPassword) {
+
+            loginPassword.type = "text";
+
+            togglePassword.textContent = "🙈";
+
+            togglePassword.setAttribute(
+                "aria-label",
+                "Hide password"
+            );
+
+        } else {
+
+            loginPassword.type = "password";
+
+            togglePassword.textContent = "👁️";
+
+            togglePassword.setAttribute(
+                "aria-label",
+                "Show password"
+            );
+
+        }
+
+    });
 
 }
 

@@ -821,113 +821,190 @@ shikshanupakaranSortOptions.forEach(
 
 function sortShikshanupakaranRecords(records){
 
-
-    const sortedRecords =
-        [
-            ...records
-        ];
+    const sortedRecords = [
+        ...records
+    ];
 
 
+    /*
+        ============================================================
+        SAFE TIMESTAMP READER
+
+        Firestore timestamps can be:
+            - Timestamp objects
+            - Date objects
+            - numbers
+            - strings
+            - null / undefined
+        ============================================================
+    */
+
+    function getSafeTimestamp(value){
+
+        if(!value){
+            return 0;
+        }
+
+
+        /*
+            Firestore Timestamp
+        */
+
+        if(
+            typeof value.toMillis ===
+            "function"
+        ){
+
+            return value.toMillis();
+
+        }
+
+
+        /*
+            JavaScript Date
+        */
+
+        if(
+            value instanceof Date
+        ){
+
+            return value.getTime();
+
+        }
+
+
+        /*
+            Numeric timestamp
+        */
+
+        if(
+            typeof value ===
+            "number"
+        ){
+
+            return value;
+
+        }
+
+
+        /*
+            String date
+        */
+
+        const parsed =
+            new Date(
+                value
+            ).getTime();
+
+
+        return Number.isNaN(
+            parsed
+        )
+            ? 0
+            : parsed;
+
+    }
+
+
+    /*
+        ============================================================
+        SORT
+        ============================================================
+    */
 
     switch(
         shikshanupakaranSortMode
     ){
 
-
         case "recent":
 
-
             sortedRecords.sort(
+                function(a, b){
 
-                function(a,b){
-
-                    return getTimestamp(b.updatedAt)
-                    -
-                    getTimestamp(a.updatedAt);
+                    return (
+                        getSafeTimestamp(
+                            b.updatedAt
+                        )
+                        -
+                        getSafeTimestamp(
+                            a.updatedAt
+                        )
+                    );
 
                 }
-
             );
 
-
         break;
-
-
 
 
         case "oldest":
 
-
             sortedRecords.sort(
+                function(a, b){
 
-                function(a,b){
-
-                    return getTimestamp(a.updatedAt)
-                    -
-                    getTimestamp(b.updatedAt);
+                    return (
+                        getSafeTimestamp(
+                            a.updatedAt
+                        )
+                        -
+                        getSafeTimestamp(
+                            b.updatedAt
+                        )
+                    );
 
                 }
-
             );
 
-
         break;
-
-
 
 
         case "az":
 
-
             sortedRecords.sort(
+                function(a, b){
 
-                function(a,b){
-
-                    return String(a.moje || "")
-                    .localeCompare(
-                        String(b.moje || ""),
+                    return String(
+                        a.moje || ""
+                    ).localeCompare(
+                        String(
+                            b.moje || ""
+                        ),
                         "gu"
                     );
 
                 }
-
             );
 
-
         break;
-
-
 
 
         case "za":
 
-
             sortedRecords.sort(
+                function(a, b){
 
-                function(a,b){
-
-                    return String(b.moje || "")
-                    .localeCompare(
-                        String(a.moje || ""),
+                    return String(
+                        b.moje || ""
+                    ).localeCompare(
+                        String(
+                            a.moje || ""
+                        ),
                         "gu"
                     );
 
                 }
-
             );
 
-
         break;
-
 
     }
 
 
-
     return sortedRecords;
 
-
 }
+
+
 
 /* ============================================================
         SHIKSHANUPAKARAN RENDER MANAGEMENT
@@ -1819,9 +1896,10 @@ async function renameShikshanupakaranRecord(record) {
 
         if(existing.exists) {
 
-            alert(
-                `${moje} already has a Shikshanupakaran for ${year}.`
-            );
+             await showShikshanupakaranAlreadyExistsModal(
+                    moje,
+                    year
+                );
 
             return;
 
@@ -2064,9 +2142,6 @@ async function copyShikshanupakaranRecord(record) {
         );
 
 
-        alert(
-            `Copied: ${text}`
-        );
 
     }
     catch(error) {
@@ -2108,9 +2183,6 @@ async function copyShikshanupakaranRecord(record) {
         textarea.remove();
 
 
-        alert(
-            `Copied: ${text}`
-        );
 
     }
 
@@ -2205,9 +2277,10 @@ async function duplicateShikshanupakaranRecord(record) {
 
         if(existing.exists) {
 
-            alert(
-                `${moje} already has a Shikshanupakaran for ${year}.`
-            );
+            await showShikshanupakaranAlreadyExistsModal(
+                  moje,
+                  year
+              );
 
             return;
 
@@ -2543,6 +2616,12 @@ document.addEventListener(
 
 function startNewShikshanupakaran(){
 
+    /*
+        ============================================================
+        RESET CURRENT RECORD
+        ============================================================
+    */
+
     currentShikshanupakaranRecord = null;
 
     currentShikshanupakaranDocumentId = null;
@@ -2551,12 +2630,6 @@ function startNewShikshanupakaran(){
     /*
         ============================================================
         YEAR SELECTION
-
-        NEW SHIKSHANUPAKARAN YEAR IS MANUAL.
-
-        The user chooses the year from the dropdown.
-
-        We do NOT automatically save the current year.
         ============================================================
     */
 
@@ -2573,8 +2646,7 @@ function startNewShikshanupakaran(){
     if(yearSelect){
 
         /*
-            Keep the existing year options if they
-            have already been populated.
+            Populate year options only once.
         */
 
         if(
@@ -2584,21 +2656,10 @@ function startNewShikshanupakaran(){
             const today =
                 new Date();
 
+
             const currentCalendarYear =
                 today.getFullYear();
 
-
-            /*
-                Create a useful range of financial years.
-                
-
-                Example:
-                2024-2025
-                2025-2026
-                2026-2027
-                2027-2028
-                2028-2029
-            */
 
             const startYear =
                 currentCalendarYear - 2;
@@ -2638,10 +2699,7 @@ function startNewShikshanupakaran(){
 
 
         /*
-            Default selection for a NEW record.
-
-            This only selects the year in the UI.
-            It does NOT save anything.
+            Default year for new record.
         */
 
         yearSelect.value =
@@ -2650,16 +2708,16 @@ function startNewShikshanupakaran(){
     }
 
 
+    const selectedYear =
+        yearSelect?.value ||
+        currentYear;
+
+
     /*
         ============================================================
         UPDATE YEAR DISPLAY
         ============================================================
     */
-
-    const selectedYear =
-        yearSelect?.value ||
-        currentYear;
-
 
     const editorYear =
         document.getElementById(
@@ -2691,7 +2749,7 @@ function startNewShikshanupakaran(){
 
     /*
         ============================================================
-        TITLE
+        UPDATE TITLE
         ============================================================
     */
 
@@ -2711,55 +2769,102 @@ function startNewShikshanupakaran(){
 
     /*
         ============================================================
-        CLEAR HEADER FIELDS
+        CLEAR HEADER VALUES
+       
+        The user will enter these directly
+        inside the editor.
         ============================================================
     */
 
-    /*
-        IMPORTANT:
-
-        Your HTML uses:
-
-        #printMoje
-        #printTaluka
-        #printJillo
-    */
-
-    const moje =
+    const mojeElement =
         document.getElementById(
             "printMoje"
         );
 
 
-    const taluka =
+    const talukaElement =
         document.getElementById(
             "printTaluka"
         );
 
 
-    const jillo =
+    const jilloElement =
         document.getElementById(
             "printJillo"
         );
 
 
-    if(moje){
+    if(mojeElement){
 
-        moje.textContent = "";
+        /*
+            IMPORTANT:
+            Do NOT use prompt().
+            Do NOT assign `moje`.
+            
+            Leave the field blank so the
+            user can enter the village name.
+        */
+
+        mojeElement.textContent =
+            "";
 
     }
 
 
-    if(taluka){
+    if(talukaElement){
 
-        taluka.textContent = "";
+        talukaElement.textContent =
+            "";
 
     }
 
 
-    if(jillo){
+    if(jilloElement){
 
-        jillo.textContent = "";
+        jilloElement.textContent =
+            "";
+
+    }
+
+
+    /*
+        ============================================================
+        MAKE HEADER FIELDS EDITABLE
+       
+        This allows the user to enter:
+       
+        મોજે
+        તાલુકો
+        જિલ્લો
+        ============================================================
+    */
+
+    if(mojeElement){
+
+        mojeElement.contentEditable =
+            "true";
+
+        mojeElement
+            .setAttribute(
+                "data-placeholder",
+                "Enter village name"
+            );
+
+    }
+
+
+    if(talukaElement){
+
+        talukaElement.contentEditable =
+            "true";
+
+    }
+
+
+    if(jilloElement){
+
+        jilloElement.contentEditable =
+            "true";
 
     }
 
@@ -2793,11 +2898,32 @@ function startNewShikshanupakaran(){
 
     /*
         ============================================================
-        START AUTOSAVE
+        INITIALIZE AUTOSAVE
         ============================================================
     */
 
     initializeShikshanupakaranAutoSave();
+
+
+    /*
+        ============================================================
+        DEBUG
+        ============================================================
+    */
+
+    console.log(
+        "NEW SHIKSHANUPAKARAN EDITOR OPENED:",
+        {
+            year:
+                selectedYear,
+
+            villageName:
+                "",
+
+            status:
+                "WAITING FOR USER TO ENTER VILLAGE NAME"
+        }
+    );
 
 }
 
@@ -4094,7 +4220,6 @@ async function createShikshanupakaranFromTalapatrak(
 
     try{
 
-
         if(!auth.currentUser){
 
             console.warn(
@@ -4104,7 +4229,6 @@ async function createShikshanupakaranFromTalapatrak(
             return;
 
         }
-
 
 
         const moje =
@@ -4124,8 +4248,6 @@ async function createShikshanupakaranFromTalapatrak(
             getCurrentShikshanupakaranYear();
 
 
-
-
         if(!moje){
 
             console.warn(
@@ -4137,248 +4259,289 @@ async function createShikshanupakaranFromTalapatrak(
         }
 
 
-
-
         /* ============================================================
-         DOCUMENT ID / YEAR CHANGE
-         ============================================================ */
-      
-      const documentId =
-          getShikshanupakaranDocumentId(
-              moje,
-              year
-          );
-      
-      
-      /*
-          OLD DOCUMENT ID
-      
-          If the user opened an existing record and changed
-          the year, this is the old document we may need
-          to move/delete after the new record is safely saved.
-      */
-      
-      const oldDocumentId =
-          currentShikshanupakaranDocumentId;
-      
-      
-      /*
-          DID THE YEAR / DOCUMENT ID CHANGE?
-      */
-      
-      const documentIdChanged =
-          !!oldDocumentId &&
-          oldDocumentId !== documentId;
-      
-      
-      console.log(
-          "CURRENT DOCUMENT ID:",
-          oldDocumentId
-      );
-      
-      console.log(
-          "NEW DOCUMENT ID:",
-          documentId
-      );
-      
-      console.log(
-          "DOCUMENT ID CHANGED:",
-          documentIdChanged
-      );
+           DOCUMENT
+        ============================================================ */
 
-
-
+        const documentId =
+            getShikshanupakaranDocumentId(
+                moje,
+                year
+            );
 
 
         const shikshanupakaranRef =
             db
-            .collection(
-                "shikshanupakarans"
-            )
-            .doc(
-                documentId
-            );
-
-
-
+                .collection(
+                    "shikshanupakarans"
+                )
+                .doc(
+                    documentId
+                );
 
 
         const existing =
             await shikshanupakaranRef.get();
 
 
+        /* ============================================================
+           CARD DOES NOT EXIST
+           
+           ASK USER BEFORE CREATING IT.
+        ============================================================ */
+
+        if(!existing.exists){
+
+              const createCard =
+                  await showShikshanupakaranCreateModal(
+                      moje,
+                      year
+                  );
+
+          
+            if(!createCard){
+
+                console.log(
+                    "TALAPATRAK → SHIKSHANUPAKARAN SYNC CANCELLED BY USER:",
+                    documentId
+                );
+
+                return;
+
+            }
 
 
-
-        let rows = [];
-
-
-
-        /*
-            If already exists,
-            keep existing rows
-        */
-
-        if(existing.exists){
-
-
-            rows =
-                existing.data().rows || [];
-
+            console.log(
+                "USER AGREED → CREATING SHIKSHANUPAKARAN:",
+                documentId
+            );
 
         }
 
 
+        /* ============================================================
+           EXISTING SHIKSHANUPAKARAN ROWS
+        ============================================================ */
+
+        const existingRows =
+            existing.exists &&
+            Array.isArray(
+                existing.data().rows
+            )
+                ? existing.data().rows
+                : [];
 
 
-
-
-
-        /*
-            Add Talapatrak rows
-            into Shikshanupakaran
-        */
-
+        /* ============================================================
+           TALAPATRAK ROWS
+           
+           IMPORTANT:
+           EMPTY ROWS ARE ALSO INCLUDED.
+           
+           We NEVER skip a Talapatrak row.
+        ============================================================ */
 
         const talapatrakRows =
-            talapatrakData.rows || [];
+            Array.isArray(
+                talapatrakData.rows
+            )
+                ? talapatrakData.rows
+                : [];
 
 
-
-
-
-        talapatrakRows.forEach(
-            function(tRow){
-
-
-
-                const alreadyExists =
-                    rows.some(
-                        function(sRow){
-
-
-                            return (
-
-                                sRow.B === tRow.B
-
-                            );
-
-
-                        }
+        /* ============================================================
+               BUILD SYNCHRONIZED ROWS
+            
+               IMPORTANT:
+            
+               Talapatrak is the source of truth for:
+            
+               A = row number
+               B = name/value
+            
+               Shikshanupakaran uses the EXACT SAME row position.
+            
+               We do NOT match by B.
+            
+               This means:
+            
+               Talapatrak row 1 → Shikshanupakaran row 1
+               Talapatrak row 2 → Shikshanupakaran row 2
+               Talapatrak row 3 → Shikshanupakaran row 3
+            
+               Even when B is empty.
+            
+               Existing Shikshanupakaran data in the
+               corresponding row is preserved.
+            ============================================================ */
+            
+            const synchronizedRows = [];
+            
+            
+            talapatrakRows.forEach(
+                function(tRow, index){
+            
+                    /*
+                        Existing Shikshanupakaran row
+                        at the EXACT SAME position.
+                    */
+            
+                    const existingRow =
+                        existingRows[index];
+            
+            
+                    let shikshanupakaranRow;
+            
+            
+                    /* ====================================================
+                       EXISTING ROW AT SAME POSITION
+                    ==================================================== */
+            
+                    if(
+                        existingRow &&
+                        typeof existingRow === "object"
+                    ){
+            
+                        /*
+                            Preserve ALL existing
+                            Shikshanupakaran columns.
+            
+                            ONLY synchronize:
+            
+                            A = Talapatrak row number
+                            B = Talapatrak B value
+                        */
+            
+                        shikshanupakaranRow = {
+            
+                            ...existingRow,
+            
+                            A:
+                                index + 1,
+            
+                            B:
+                                tRow?.B || ""
+            
+                        };
+            
+            
+                        console.log(
+                            "SHIKSHANUPAKARAN ROW SYNCED:",
+                            `"${tRow?.B || ""}"`,
+                            "→ ROW:",
+                            index + 1
+                        );
+            
+                    }
+            
+            
+                    /* ====================================================
+                       NO EXISTING ROW AT THIS POSITION
+            
+                       Create a brand-new Shikshanupakaran row.
+                    ==================================================== */
+            
+                    else{
+            
+                        shikshanupakaranRow = {
+            
+                            A:
+                                index + 1,
+            
+                            B:
+                                tRow?.B || "",
+            
+                            C:"",
+                            D:"",
+                            E:"",
+                            F:"",
+                            G:"0.00",
+                            H:"",
+                            I:"",
+                            J:"",
+                            K:"",
+                            L:"",
+                            M:"0.00",
+                            N:"0.00",
+                            O:"0.00",
+                            P:"0.00",
+                            Q:"",
+                            R:"0.00",
+                            S:"0.00",
+                            T:""
+            
+                        };
+            
+            
+                        console.log(
+                            tRow?.B
+                                ? "ADDED TO SHIKSHANUPAKARAN FROM TALAPATRAK:"
+                                : "ADDED EMPTY ROW TO SHIKSHANUPAKARAN:",
+                            `"${tRow?.B || ""}"`,
+                            "→ ROW:",
+                            index + 1
+                        );
+            
+                    }
+            
+            
+                    /*
+                        ALWAYS push exactly one row
+                        for every Talapatrak row.
+                    */
+            
+                    synchronizedRows.push(
+                        shikshanupakaranRow
                     );
-
-
-
-
-
-                if(!alreadyExists){
-
-
-
-                    rows.push({
-
-                        A:
-                        rows.length + 1,
-
-
-                        B:
-                        tRow.B || "",
-
-
-                        C:"",
-                        D:"",
-                        E:"",
-                        F:"",
-                        G:"0.00",
-                        H:"",
-                        I:"",
-                        J:"",
-                        K:"",
-                        L:"",
-                        M:"0.00",
-                        N:"0.00",
-                        O:"0.00",
-                        P:"0.00",
-                        Q:"",
-                        R:"0.00",
-                        S:"0.00",
-                        T:""
-
-                    });
-
-
-
+            
                 }
+            );
 
 
 
-            }
-        );
+        /* ============================================================
+           SAVE
+        ============================================================ */
 
+        const shikshanupakaranData = {
 
+            type:
+                "shikshanupakaran",
 
+            moje:
+                moje,
 
+            taluka:
+                taluka,
 
+            jillo:
+                jillo,
 
+            year:
+                year,
 
+            rows:
+                synchronizedRows,
+
+            rowCount:
+                synchronizedRows.length,
+
+            userId:
+                auth.currentUser.uid,
+
+            userEmail:
+                auth.currentUser.email,
+
+            updatedAt:
+                firebase.firestore.FieldValue
+                    .serverTimestamp()
+
+        };
 
 
         await shikshanupakaranRef.set(
 
-            {
-
-
-                type:
-                "shikshanupakaran",
-
-
-
-                moje:
-                moje,
-
-
-
-                taluka:
-                taluka,
-
-
-
-                jillo:
-                jillo,
-
-
-
-                year:
-                year,
-
-
-
-                rows:
-                rows,
-
-
-
-                rowCount:
-                rows.length,
-
-
-
-                userId:
-                auth.currentUser.uid,
-
-
-
-                userEmail:
-                auth.currentUser.email,
-
-
-
-                updatedAt:
-                firebase.firestore.FieldValue
-                .serverTimestamp()
-
-
-            },
+            shikshanupakaranData,
 
             {
                 merge:true
@@ -4387,34 +4550,47 @@ async function createShikshanupakaranFromTalapatrak(
         );
 
 
-
-
-
+        console.log(
+            "================================================"
+        );
 
         console.log(
-            "Shikshanupakaran auto created:",
+            "TALAPATRAK → SHIKSHANUPAKARAN SYNC COMPLETE"
+        );
+
+        console.log(
+            "Document:",
             documentId
         );
 
+        console.log(
+            "Talapatrak rows:",
+            talapatrakRows.length
+        );
 
+        console.log(
+            "Shikshanupakaran rows:",
+            synchronizedRows.length
+        );
+
+        console.log(
+            "================================================"
+        );
 
     }
-
 
 
     catch(error){
 
-
         console.error(
-            "Auto Shikshanupakaran creation error:",
+            "Auto Shikshanupakaran synchronization error:",
             error
         );
 
-
     }
 
-
 }
+
 
 /* ============================================================
    ADD ROW
@@ -4429,37 +4605,149 @@ if (
         function() {
 
             /*
-                Save current page into memory first.
+                ====================================================
+                SAVE CURRENT PAGE INTO MASTER MEMORY
+                ====================================================
             */
 
             syncCurrentShikshanupakaranPageToMemory();
 
 
             /*
-                Add new row at the END of all data.
+                ====================================================
+                ADD NEW ROW AT THE END
+                ====================================================
+                
+                The new row gets its correct global
+                serial number immediately.
             */
 
-            window.shikshanupakaranAllRows.push(
-                {}
+            const newRowNumber =
+                window.shikshanupakaranAllRows.length + 1;
+
+
+            window.shikshanupakaranAllRows.push({
+
+                A:
+                    newRowNumber,
+
+                B:
+                    "",
+
+                C:
+                    "",
+
+                D:
+                    "",
+
+                E:
+                    "",
+
+                F:
+                    "",
+
+                G:
+                    "0.00",
+
+                H:
+                    "",
+
+                I:
+                    "",
+
+                J:
+                    "",
+
+                K:
+                    "",
+
+                L:
+                    "",
+
+                M:
+                    "0.00",
+
+                N:
+                    "0.00",
+
+                O:
+                    "0.00",
+
+                P:
+                    "0.00",
+
+                Q:
+                    "",
+
+                R:
+                    "0.00",
+
+                S:
+                    "0.00",
+
+                T:
+                    ""
+
+            });
+
+
+            /*
+                ====================================================
+                SAFETY: RE-NUMBER ALL MASTER ROWS
+                ====================================================
+                
+                This guarantees Column A is always:
+                
+                1
+                2
+                3
+                ...
+                n
+            */
+
+            window.shikshanupakaranAllRows.forEach(
+                function(rowData, index) {
+
+                    if(
+                        rowData &&
+                        typeof rowData === "object"
+                    ) {
+
+                        rowData.A =
+                            index + 1;
+
+                    }
+
+                }
             );
 
 
             /*
-                Recalculate total pages.
+                ====================================================
+                RECALCULATE TOTAL PAGES
+                ====================================================
             */
+
+            const rowsPerPage =
+                Number(
+                    window.shikshanupakaranRowsPerPage
+                ) || 20;
+
 
             window.shikshanupakaranTotalPages =
                 Math.max(
                     1,
                     Math.ceil(
                         window.shikshanupakaranAllRows.length /
-                        window.shikshanupakaranRowsPerPage
+                        rowsPerPage
                     )
                 );
 
 
             /*
-                Go to the new row.
+                ====================================================
+                GO TO LAST PAGE
+                ====================================================
             */
 
             renderShikshanupakaranPage(
@@ -4468,7 +4756,9 @@ if (
 
 
             /*
-                Focus first input.
+                ====================================================
+                FOCUS NEW ROW
+                ====================================================
             */
 
             const lastRow =
@@ -4487,11 +4777,15 @@ if (
 
                 firstInput.focus();
 
+                firstInput.select();
+
             }
 
 
             /*
-                Total is now stale.
+                ====================================================
+                TOTAL IS NOW STALE
+                ====================================================
             */
 
             window.shikshanupakaranTotalGenerated =
@@ -4502,12 +4796,20 @@ if (
                 null;
 
 
+            /*
+                ====================================================
+                AUTOSAVE
+                ====================================================
+            */
+
             scheduleShikshanupakaranAutoSave();
 
         }
     );
 
 }
+
+
   
 /* ============================================================
         SHIKSHANUPAKARAN SAVE SYSTEM
@@ -4771,11 +5073,9 @@ async function saveShikshanupakaran(
 
     try{
 
-        /*
-            ----------------------------------------
-            CHECK LOGIN
-            ----------------------------------------
-        */
+        /* ========================================================
+           CHECK LOGIN
+        ======================================================== */
 
         if(
             !auth ||
@@ -4795,97 +5095,86 @@ async function saveShikshanupakaran(
         }
 
 
-        /*
-            ----------------------------------------
-            GET HEADER FIELDS
-            ----------------------------------------
-        */
+        /* ========================================================
+           GET EDITOR INPUTS
+           
+           THESE ARE THE SOURCE OF TRUTH.
+           
+           User enters:
+           
+           #shikshanupakaranMoje
+           #shikshanupakaranTaluka
+           #shikshanupakaranJillo
+        ======================================================== */
 
-        const mojeElement =
+        const mojeInput =
             document.getElementById(
-                "printMoje"
+                "shikshanupakaranMoje"
             );
 
 
-        const talukaElement =
+        const talukaInput =
             document.getElementById(
-                "printTaluka"
+                "shikshanupakaranTaluka"
             );
 
 
-        const jilloElement =
+        const jilloInput =
             document.getElementById(
-                "printJillo"
+                "shikshanupakaranJillo"
             );
 
-
-        /*
-            ----------------------------------------
-            SAFETY CHECK
-            ----------------------------------------
-        */
-
-        if(!mojeElement){
-
-            console.error(
-                "printMoje element not found."
-            );
-
-            return false;
-
-        }
-
-
-        if(!talukaElement){
-
-            console.error(
-                "printTaluka element not found."
-            );
-
-            return false;
-
-        }
-
-
-        if(!jilloElement){
-
-            console.error(
-                "printJillo element not found."
-            );
-
-            return false;
-
-        }
-
-
-        /*
-            ----------------------------------------
-            READ VALUES
-            ----------------------------------------
-        */
 
         const moje =
-            mojeElement.textContent
-                .trim();
+            String(
+                mojeInput?.value ||
+                ""
+            ).trim();
 
 
         const taluka =
-            talukaElement.textContent
-                .trim();
+            String(
+                talukaInput?.value ||
+                ""
+            ).trim();
 
 
         const jillo =
-            jilloElement.textContent
-                .trim();
+            String(
+                jilloInput?.value ||
+                ""
+            ).trim();
 
 
-        /*
-            ----------------------------------------
-            VILLAGE IS REQUIRED
-            ----------------------------------------
-        */
+        console.log(
+            "SHIKSHANUPAKARAN EDITOR HEADER:",
+            {
+                mojeInputExists:
+                    !!mojeInput,
+
+                talukaInputExists:
+                    !!talukaInput,
+
+                jilloInputExists:
+                    !!jilloInput,
+
+                moje,
+                taluka,
+                jillo
+            }
+        );
+
+
+        /* ========================================================
+           VILLAGE NAME SAFETY CHECK
+        ======================================================== */
 
         if(!moje){
+
+            console.warn(
+                "SHIKSHANUPAKARAN SAVE BLOCKED → VILLAGE NAME EMPTY"
+            );
+
 
             if(showMessage){
 
@@ -4893,20 +5182,80 @@ async function saveShikshanupakaran(
                     "Please enter મોજે."
                 );
 
-                mojeElement.focus();
+            }
+
+
+            /*
+                IMPORTANT:
+
+                Do NOT continue.
+                Do NOT create a document with
+                an empty village name.
+            */
+
+            if(mojeInput){
+
+                mojeInput.focus();
 
             }
+
 
             return false;
 
         }
 
 
-        /*
-            ========================================================
-            YEAR
-            ========================================================
-        */
+        /* ========================================================
+           SYNCHRONIZE PRINT HEADER
+           
+           Print elements are DISPLAY ONLY.
+        ======================================================== */
+
+        const printMoje =
+            document.getElementById(
+                "printMoje"
+            );
+
+
+        const printTaluka =
+            document.getElementById(
+                "printTaluka"
+            );
+
+
+        const printJillo =
+            document.getElementById(
+                "printJillo"
+            );
+
+
+        if(printMoje){
+
+            printMoje.textContent =
+                moje;
+
+        }
+
+
+        if(printTaluka){
+
+            printTaluka.textContent =
+                taluka;
+
+        }
+
+
+        if(printJillo){
+
+            printJillo.textContent =
+                jillo;
+
+        }
+
+
+        /* ========================================================
+           YEAR
+        ======================================================== */
 
         const yearSelect =
             document.getElementById(
@@ -4920,29 +5269,17 @@ async function saveShikshanupakaran(
             getCurrentShikshanupakaranYear();
 
 
-        /*
-            ========================================================
-            ORIGINAL DOCUMENT ID
-           
-            This is the document that was opened.
-           
-            IMPORTANT:
-            If the user changes the year,
-            this remains the OLD document ID.
-            ========================================================
-        */
+        /* ========================================================
+           ORIGINAL DOCUMENT ID
+        ======================================================== */
 
         const originalDocumentId =
             currentShikshanupakaranDocumentId;
 
 
-        /*
-            ========================================================
-            NEW DOCUMENT ID
-           
-            This is based on the selected year.
-            ========================================================
-        */
+        /* ========================================================
+           NEW DOCUMENT ID
+        ======================================================== */
 
         const documentId =
             getShikshanupakaranDocumentId(
@@ -4951,11 +5288,9 @@ async function saveShikshanupakaran(
             );
 
 
-        /*
-            ========================================================
-            DETECT YEAR / DOCUMENT CHANGE
-            ========================================================
-        */
+        /* ========================================================
+           DETECT YEAR / DOCUMENT CHANGE
+        ======================================================== */
 
         const documentIdChanged =
             !!originalDocumentId &&
@@ -4980,21 +5315,17 @@ async function saveShikshanupakaran(
         );
 
 
-        /*
-            ========================================================
-            COLLECT TABLE ROWS
-            ========================================================
-        */
+        /* ========================================================
+           COLLECT TABLE ROWS
+        ======================================================== */
 
         const rows =
             collectShikshanupakaranRows();
 
 
-        /*
-            ========================================================
-            SAVE SIGNATURE
-            ========================================================
-        */
+        /* ========================================================
+           SAVE SIGNATURE
+        ======================================================== */
 
         const saveSignature =
             getShikshanupakaranSaveSignature(
@@ -5018,11 +5349,9 @@ async function saveShikshanupakaran(
         );
 
 
-        /*
-            ========================================================
-            SAME DATA ALREADY SAVED
-            ========================================================
-        */
+        /* ========================================================
+           SAME DATA ALREADY SAVED
+        ======================================================== */
 
         if(
             shikshanupakaranLastSavedSignature ===
@@ -5045,23 +5374,9 @@ async function saveShikshanupakaran(
         }
 
 
-        /*
-            ========================================================
-            YEAR CHANGE SAFETY CHECK
-           
-            If the destination year already exists,
-            DO NOT overwrite it.
-           
-            Example:
-           
-            Balisana_2026-2027
-                         ↓
-            change to 2024-2025
-           
-            If Balisana_2024-2025 already exists,
-            stop here.
-            ========================================================
-        */
+        /* ========================================================
+           YEAR CHANGE SAFETY CHECK
+        ======================================================== */
 
         if(
             documentIdChanged
@@ -5104,21 +5419,17 @@ async function saveShikshanupakaran(
         }
 
 
-        /*
-            ========================================================
-            DETERMINE WHETHER THIS IS NEW
-            ========================================================
-        */
+        /* ========================================================
+           DETERMINE WHETHER THIS IS NEW
+        ======================================================== */
 
         const wasExistingRecord =
             !!currentShikshanupakaranRecord;
 
 
-        /*
-            ========================================================
-            DATA
-            ========================================================
-        */
+        /* ========================================================
+           DATA
+        ======================================================== */
 
         const data = {
 
@@ -5150,28 +5461,25 @@ async function saveShikshanupakaran(
                 auth.currentUser.email,
 
             updatedAt:
-                firebase.firestore.FieldValue
-                .serverTimestamp()
+                firebase
+                    .firestore
+                    .FieldValue
+                    .serverTimestamp()
 
         };
 
 
-        /*
-            ========================================================
-            SAVE NEW / UPDATED DOCUMENT
-            ========================================================
-        */
+        /* ========================================================
+           SAVE TO FIRESTORE
+        ======================================================== */
 
         await db
-
             .collection(
                 "shikshanupakarans"
             )
-
             .doc(
                 documentId
             )
-
             .set(
                 data,
                 {
@@ -5180,11 +5488,9 @@ async function saveShikshanupakaran(
             );
 
 
-        /*
-            ========================================================
-            FIRESTORE SAVE SUCCESS
-            ========================================================
-        */
+        /* ========================================================
+           FIRESTORE SAVE SUCCESS
+        ======================================================== */
 
         shikshanupakaranActualFirestoreSaveCount++;
 
@@ -5209,18 +5515,116 @@ async function saveShikshanupakaran(
         );
 
 
-        /*
-            ========================================================
-            DELETE OLD DOCUMENT AFTER SUCCESSFUL NEW SAVE
+        /* ========================================================
+           SHIKSHANUPAKARAN → TALAPATRAK SYNC
            
-            IMPORTANT:
-           
-            Only delete the old document AFTER the new document
-            has been successfully saved.
-           
-            This prevents data loss if the new save fails.
-            ========================================================
-        */
+           MANUAL SAVE ONLY
+        ======================================================== */
+
+        if(showMessage){
+
+            console.log(
+                "================================================"
+            );
+
+            console.log(
+                "STARTING SHIKSHANUPAKARAN → TALAPATRAK SYNC"
+            );
+
+
+            const syncResult =
+                await syncShikshanupakaranToTalapatrak({
+
+                    moje:
+                        data.moje,
+
+                    taluka:
+                        data.taluka,
+
+                    jillo:
+                        data.jillo,
+
+                    year:
+                        data.year,
+
+                    rows:
+                        data.rows
+
+                });
+
+
+            if(syncResult){
+
+                  console.log(
+                      "SHIKSHANUPAKARAN → TALAPATRAK SYNC SUCCESS"
+                  );
+              
+              
+                  /*
+                      ========================================================
+                      IMPORTANT
+              
+                      The new Talapatrak document now exists in Firestore.
+              
+                      Reload Talapatrak management so the new card appears.
+                      ========================================================
+                  */
+              
+                  try{
+              
+                      if(
+                          typeof loadTalapatrakRecords ===
+                          "function"
+                      ){
+              
+                          console.log(
+                              "RELOADING TALAPATRAK MANAGEMENT AFTER SYNC"
+                          );
+              
+              
+                          await loadTalapatrakRecords();
+              
+              
+                          console.log(
+                              "TALAPATRAK MANAGEMENT RELOADED AFTER SYNC"
+                          );
+              
+                      }
+                      else{
+              
+                          console.warn(
+                              "loadTalapatrakRecords() NOT FOUND"
+                          );
+              
+                      }
+              
+                  }
+                  catch(
+                      refreshError
+                  ){
+              
+                      console.error(
+                          "TALAPATRAK REFRESH AFTER SYNC FAILED:",
+                          refreshError
+                      );
+              
+                  }
+              
+              }
+              else{
+              
+                  console.warn(
+                      "SHIKSHANUPAKARAN → TALAPATRAK SYNC NOT COMPLETED"
+                  );
+              
+              }
+
+        }
+
+
+        /* ========================================================
+           DELETE OLD DOCUMENT AFTER SUCCESSFUL NEW SAVE
+        ======================================================== */
 
         if(
             documentIdChanged
@@ -5233,15 +5637,12 @@ async function saveShikshanupakaran(
 
 
             await db
-
                 .collection(
                     "shikshanupakarans"
                 )
-
                 .doc(
                     originalDocumentId
                 )
-
                 .delete();
 
 
@@ -5253,11 +5654,9 @@ async function saveShikshanupakaran(
         }
 
 
-        /*
-            ========================================================
-            UPDATE CURRENT STATE
-            ========================================================
-        */
+        /* ========================================================
+           UPDATE CURRENT STATE
+        ======================================================== */
 
         currentShikshanupakaranDocumentId =
             documentId;
@@ -5273,11 +5672,9 @@ async function saveShikshanupakaran(
         };
 
 
-        /*
-            ========================================================
-            UPDATE EDITOR TITLE
-            ========================================================
-        */
+        /* ========================================================
+           UPDATE EDITOR TITLE
+        ======================================================== */
 
         const title =
             document.getElementById(
@@ -5293,17 +5690,9 @@ async function saveShikshanupakaran(
         }
 
 
-        /*
-            ========================================================
-            UPDATE MANAGEMENT ARRAY
-            ========================================================
-        */
-
-        /*
-            FIRST:
-            Remove the OLD document from the array
-            if the year was changed.
-        */
+        /* ========================================================
+           UPDATE MANAGEMENT ARRAY
+        ======================================================== */
 
         if(
             documentIdChanged
@@ -5327,10 +5716,6 @@ async function saveShikshanupakaran(
 
         }
 
-
-        /*
-            FIND NEW / CURRENT RECORD
-        */
 
         const existingIndex =
             shikshanupakaranRecords.findIndex(
@@ -5372,11 +5757,9 @@ async function saveShikshanupakaran(
         }
 
 
-        /*
-            ========================================================
-            ACTIVITY
-            ========================================================
-        */
+        /* ========================================================
+           ACTIVITY
+        ======================================================== */
 
         if(showMessage){
 
@@ -5399,29 +5782,16 @@ async function saveShikshanupakaran(
         }
 
 
-        /*
-            ========================================================
-            REFRESH MANAGEMENT
-            ========================================================
-        */
+        /* ========================================================
+           REFRESH MANAGEMENT
+        ======================================================== */
 
         renderShikshanupakaranManagement();
 
 
-        /*
-            ========================================================
-            USER MESSAGE
-            ========================================================
-        */
-
-        if(showMessage){
-
-            alert(
-                `${moje} Shikshanupakaran saved successfully.`
-            );
-
-        }
-
+        /* ========================================================
+           SUCCESS
+        ======================================================== */
 
         console.log(
             "Shikshanupakaran saved:",
@@ -5431,8 +5801,8 @@ async function saveShikshanupakaran(
 
         return true;
 
-
     }
+
 
     catch(error){
 
@@ -6586,13 +6956,18 @@ console.log(
         NEW + OPEN EXISTING RECORD
 ============================================================ */
 
-function createShikshanupakaranRow(rowData = {}) {
+function createShikshanupakaranRow(
+    rowData = {},
+    memoryIndex = -1
+) {
+    
+    
+    console.log(
+        "CREATE ROW CALLED:",
+        rowData
+    );
 
-console.log(
-    "CREATE ROW CALLED:",
-    rowData
-);
-  
+
     const row =
         document.createElement("tr");
 
@@ -6601,6 +6976,19 @@ console.log(
         "shikshanupakaranRow";
 
 
+    /* ============================================================
+       STORE GLOBAL MEMORY INDEX
+    ============================================================ */
+
+    row.dataset.memoryIndex =
+        String(memoryIndex);
+
+
+    console.log(
+        "ROW DOM INDEX ASSIGNED:",
+        memoryIndex,
+        row.dataset.memoryIndex
+    );
 
     const columns = [
         "A","B","C","D","E",
@@ -6997,11 +7385,57 @@ function setupShikshanupakaranRowEvents(row){
                       the current global row.
                   */
       
-                  window.shikshanupakaranAllRows.splice(
-                      memoryIndex + 1,
-                      0,
-                      {}
-                  );
+                 window.shikshanupakaranAllRows.splice(
+                    memoryIndex + 1,
+                    0,
+                    {
+                        A: memoryIndex + 2,
+                        B: "",
+                        C: "",
+                        D: "",
+                        E: "",
+                        F: "",
+                        G: "0.00",
+                        H: "",
+                        I: "",
+                        J: "",
+                        K: "",
+                        L: "",
+                        M: "0.00",
+                        N: "0.00",
+                        O: "0.00",
+                        P: "0.00",
+                        Q: "",
+                        R: "0.00",
+                        S: "0.00",
+                        T: ""
+                    }
+                );
+                
+                
+                /*
+                    Re-number ALL Shikshanupakaran rows.
+                
+                    Column A must always represent
+                    the global row number, not the
+                    visible row number on the page.
+                */
+                
+                window.shikshanupakaranAllRows.forEach(
+                    function(rowData, index){
+                
+                        if(
+                            rowData &&
+                            typeof rowData === "object"
+                        ){
+                
+                            rowData.A =
+                                index + 1;
+                
+                        }
+                
+                    }
+                );
       
       
                   /*
@@ -7081,147 +7515,329 @@ function setupShikshanupakaranRowEvents(row){
       }
   
 
-    /* ============================================================
-       DELETE ROW
-    ============================================================ */
-    
-    const deleteButton =
-        row.querySelector(
-            ".deleteShikshanupakaranRow"
-        );
-    
-    
-    if(deleteButton){
-    
-        deleteButton.addEventListener(
-            "click",
-            function(){
-    
-                syncCurrentShikshanupakaranPageToMemory();
-    
-    
-                const visibleRows =
-                    Array.from(
-                        shikshanupakaranBody.querySelectorAll(
+        /* ============================================================
+           DELETE ROW
+        ============================================================ */
+        
+        const deleteButton =
+            row.querySelector(
+                ".deleteShikshanupakaranRow"
+            );
+        
+        
+        if(deleteButton){
+        
+            deleteButton.addEventListener(
+                "click",
+                function(){
+        
+                    /*
+                        ====================================================
+                        GET THE EXACT ROW THAT WAS CLICKED
+                        ====================================================
+                    */
+        
+                    const currentRow =
+                        this.closest(
                             ".shikshanupakaranRow"
-                        )
+                        );
+        
+        
+                    if(!currentRow){
+        
+                        console.warn(
+                            "DELETE ROW → CURRENT ROW NOT FOUND"
+                        );
+        
+                        return;
+        
+                    }
+        
+        
+                    /*
+                        ====================================================
+                        FIND CLICKED ROW POSITION IN CURRENT DOM
+                        ====================================================
+                    */
+        
+                    const visibleRows =
+                        Array.from(
+                            shikshanupakaranBody.querySelectorAll(
+                                ".shikshanupakaranRow"
+                            )
+                        );
+        
+        
+                    const visibleIndex =
+                        visibleRows.indexOf(
+                            currentRow
+                        );
+        
+        
+                    if(
+                        visibleIndex === -1
+                    ){
+        
+                        console.error(
+                            "DELETE ROW → VISIBLE INDEX NOT FOUND"
+                        );
+        
+                        return;
+        
+                    }
+        
+        
+                    /*
+                        ====================================================
+                        CURRENT PAGINATION
+                        ====================================================
+                    */
+        
+                    const currentPage =
+                        Number(
+                            window.shikshanupakaranCurrentPage
+                        ) || 1;
+        
+        
+                    const rowsPerPage =
+                        Number(
+                            window.shikshanupakaranRowsPerPage
+                        ) || 20;
+        
+        
+                    /*
+                        ====================================================
+                        CALCULATE EXACT GLOBAL MEMORY INDEX
+                       
+                        Page 1:
+                            visible row 1  → 0
+                            visible row 17 → 16
+                            visible row 20 → 19
+        
+                        Page 2:
+                            visible row 1  → 20
+                            visible row 2  → 21
+                        ====================================================
+                    */
+        
+                    const memoryIndex =
+                        (
+                            currentPage - 1
+                        ) *
+                        rowsPerPage +
+                        visibleIndex;
+        
+        
+                    console.log(
+                        "================================================"
                     );
-    
-    
-                const visibleIndex =
-                    visibleRows.indexOf(
-                        row
+        
+                    console.log(
+                        "SHIKSHANUPAKARAN DELETE ROW"
                     );
-    
-    
-                if(
-                    visibleIndex === -1
-                ){
-    
-                    return;
-    
+        
+                    console.log(
+                        "Current page:",
+                        currentPage
+                    );
+        
+                    console.log(
+                        "Visible index:",
+                        visibleIndex
+                    );
+        
+                    console.log(
+                        "Global memory index:",
+                        memoryIndex
+                    );
+        
+        
+                    /*
+                        ====================================================
+                        SAFETY CHECK
+                        ====================================================
+                    */
+        
+                    if(
+                        !Number.isInteger(
+                            memoryIndex
+                        ) ||
+                        memoryIndex < 0 ||
+                        memoryIndex >=
+                            window.shikshanupakaranAllRows.length
+                    ){
+        
+                        console.error(
+                            "DELETE ROW → INVALID MEMORY INDEX:",
+                            memoryIndex
+                        );
+        
+                        return;
+        
+                    }
+        
+        
+                    /*
+                        ====================================================
+                        KEEP AT LEAST ONE ROW
+                        ====================================================
+                    */
+        
+                    if(
+                        window.shikshanupakaranAllRows.length <= 1
+                    ){
+        
+                        alert(
+                            "At least one row is required."
+                        );
+        
+                        return;
+        
+                    }
+        
+        
+                    /*
+                        ====================================================
+                        IMPORTANT:
+                        SAVE CURRENT DOM DATA BEFORE DELETE
+                       
+                        We already know which row was clicked.
+                        Syncing first is safe because it only updates
+                        the current page's data.
+                        ====================================================
+                    */
+        
+                    syncCurrentShikshanupakaranPageToMemory();
+        
+        
+                    /*
+                        ====================================================
+                        LOG EXACT ROW
+                        ====================================================
+                    */
+        
+                    console.log(
+                        "Row before delete:",
+                        window.shikshanupakaranAllRows[
+                            memoryIndex
+                        ]
+                    );
+        
+        
+                    /*
+                        ====================================================
+                        DELETE EXACT CLICKED ROW
+                        ====================================================
+                    */
+        
+                    window.shikshanupakaranAllRows.splice(
+                        memoryIndex,
+                        1
+                    );
+        
+        
+                    /*
+                        ====================================================
+                        RE-NUMBER ALL ROWS
+                        ====================================================
+                    */
+        
+                    window.shikshanupakaranAllRows.forEach(
+                        function(rowData, index){
+        
+                            if(
+                                rowData &&
+                                typeof rowData === "object"
+                            ){
+        
+                                rowData.A =
+                                    index + 1;
+        
+                            }
+        
+                        }
+                    );
+        
+        
+                    console.log(
+                        "Row deleted. Remaining rows:",
+                        window.shikshanupakaranAllRows.length
+                    );
+        
+        
+                    /*
+                        ====================================================
+                        RECALCULATE TOTAL PAGES
+                        ====================================================
+                    */
+        
+                    window.shikshanupakaranTotalPages =
+                        Math.max(
+                            1,
+                            Math.ceil(
+                                window.shikshanupakaranAllRows.length /
+                                rowsPerPage
+                            )
+                        );
+        
+        
+                    /*
+                        ====================================================
+                        IF CURRENT PAGE NO LONGER EXISTS,
+                        MOVE TO PREVIOUS LAST PAGE
+                        ====================================================
+                    */
+        
+                    const newPage =
+                        Math.min(
+                            currentPage,
+                            window.shikshanupakaranTotalPages
+                        );
+        
+        
+                    /*
+                        ====================================================
+                        RENDER UPDATED PAGE
+                        ====================================================
+                    */
+        
+                    renderShikshanupakaranPage(
+                        newPage
+                    );
+        
+        
+                    /*
+                        ====================================================
+                        TOTAL IS NOW STALE
+                        ====================================================
+                    */
+        
+                    window.shikshanupakaranTotalGenerated =
+                        false;
+        
+        
+                    window.shikshanupakaranTotals =
+                        null;
+        
+        
+                    /*
+                        ====================================================
+                        AUTOSAVE
+                        ====================================================
+                    */
+        
+                    scheduleShikshanupakaranAutoSave();
+        
                 }
-    
-    
-                /*
-                    Keep at least one row.
-                */
-    
-                if(
-                    window.shikshanupakaranAllRows.length <= 1
-                ){
-    
-                    alert(
-                        "At least one row is required."
-                    );
-    
-                    return;
-    
-                }
-    
-    
-                const currentPage =
-                    Number(
-                        window.shikshanupakaranCurrentPage
-                    ) || 1;
-    
-    
-                const rowsPerPage =
-                    Number(
-                        window.shikshanupakaranRowsPerPage
-                    ) || 20;
-    
-    
-                const memoryIndex =
-                    (
-                        currentPage - 1
-                    ) *
-                    rowsPerPage +
-                    visibleIndex;
-    
-    
-                /*
-                    Delete from memory.
-                */
-    
-                window.shikshanupakaranAllRows.splice(
-                    memoryIndex,
-                    1
-                );
-    
-    
-                /*
-                    Recalculate pages.
-                */
-    
-                window.shikshanupakaranTotalPages =
-                    Math.max(
-                        1,
-                        Math.ceil(
-                            window.shikshanupakaranAllRows.length /
-                            rowsPerPage
-                        )
-                    );
-    
-    
-                /*
-                    If deleting the last row
-                    of the last page, move back.
-                */
-    
-                const newPage =
-                    Math.min(
-                        currentPage,
-                        window.shikshanupakaranTotalPages
-                    );
-    
-    
-                renderShikshanupakaranPage(
-                    newPage
-                );
-    
-    
-                /*
-                    Total is now stale.
-                */
-    
-                window.shikshanupakaranTotalGenerated =
-                    false;
-    
-                window.shikshanupakaranTotals =
-                    null;
-    
-    
-                scheduleShikshanupakaranAutoSave();
-    
-            }
-        );
-    
-    }
+            );
+        
+        }
 
   
 
 }
+
+
 
 function renumberShikshanupakaranRows(){
 
@@ -7247,7 +7863,12 @@ function renumberShikshanupakaranRows(){
 
 }
 
+
 function calculateShikshanupakaranRow(row){
+
+    /* ============================================================
+       GET NUMERIC VALUE
+    ============================================================ */
 
     function get(col){
 
@@ -7256,7 +7877,6 @@ function calculateShikshanupakaranRow(row){
                 `[data-column="${col}"]`
             );
 
-
         return Number(
             el?.value
         ) || 0;
@@ -7264,13 +7884,21 @@ function calculateShikshanupakaranRow(row){
     }
 
 
-    function set(col, value){
+    /* ============================================================
+       SET CALCULATED VALUE
+       ------------------------------------------------------------
+       All calculated numeric values → 0.00
+    ============================================================ */
+
+    function set(
+        col,
+        value
+    ){
 
         const el =
             row.querySelector(
                 `[data-column="${col}"]`
             );
-
 
         if(el){
 
@@ -7284,22 +7912,78 @@ function calculateShikshanupakaranRow(row){
     }
 
 
+    /* ============================================================
+       FORMAT EDITABLE NUMERIC INPUTS
+       ------------------------------------------------------------
+       A = Khata/serial number → untouched
+       B = text → untouched
+       C-F, J-L → 0.00
+    ============================================================ */
+
+    function formatInput(col){
+
+        const el =
+            row.querySelector(
+                `[data-column="${col}"]`
+            );
+
+        if(
+            el &&
+            el.value !== ""
+        ){
+
+            const number =
+                Number(
+                    el.value
+                );
+
+            if(
+                Number.isFinite(
+                    number
+                )
+            ){
+
+                el.value =
+                    number.toFixed(2);
+
+            }
+
+        }
+
+    }
+
+
+    /* ============================================================
+       FORMAT USER-ENTERED NUMBERS
+    ============================================================ */
+
+    formatInput("C");
+    formatInput("D");
+    formatInput("E");
+    formatInput("F");
+
+    formatInput("J");
+    formatInput("K");
+    formatInput("L");
+
+
+    /* ============================================================
+       READ INPUT VALUES
+    ============================================================ */
+
     const C = get("C");
     const D = get("D");
     const E = get("E");
     const F = get("F");
-
 
     const J = get("J");
     const K = get("K");
     const L = get("L");
 
 
-    /*
-        ----------------------------------------
-        G = C + D + E + F
-        ----------------------------------------
-    */
+    /* ============================================================
+       G = C + D + E + F
+    ============================================================ */
 
     const G =
         C +
@@ -7307,24 +7991,20 @@ function calculateShikshanupakaranRow(row){
         E +
         F;
 
-
     set(
         "G",
         G
     );
 
 
-    /*
-        ----------------------------------------
-        M = J + K + L
-        ----------------------------------------
-    */
+    /* ============================================================
+       M = J + K + L
+    ============================================================ */
 
     const M =
         J +
         K +
         L;
-
 
     set(
         "M",
@@ -7332,16 +8012,13 @@ function calculateShikshanupakaranRow(row){
     );
 
 
-    /*
-        ----------------------------------------
-        R = G - M
-        ----------------------------------------
-    */
+    /* ============================================================
+       R = G - M
+    ============================================================ */
 
     const R =
         G -
         M;
-
 
     set(
         "R",
@@ -7349,17 +8026,14 @@ function calculateShikshanupakaranRow(row){
     );
 
 
-    /*
-        ----------------------------------------
-        S = negative balance
-        ----------------------------------------
-    */
+    /* ============================================================
+       S = NEGATIVE BALANCE
+    ============================================================ */
 
     const S =
         R < 0
             ? R
             : 0;
-
 
     set(
         "S",
@@ -7367,15 +8041,12 @@ function calculateShikshanupakaranRow(row){
     );
 
 
-    /*
-        ----------------------------------------
-        P = -S
-        ----------------------------------------
-    */
+    /* ============================================================
+       P = -S
+    ============================================================ */
 
     const P =
         -S;
-
 
     set(
         "P",
@@ -7383,17 +8054,14 @@ function calculateShikshanupakaranRow(row){
     );
 
 
-    /*
-        ----------------------------------------
-        O = positive balance
-        ----------------------------------------
-    */
+    /* ============================================================
+       O = POSITIVE BALANCE
+    ============================================================ */
 
     const O =
         R > 0
             ? R
             : 0;
-
 
     set(
         "O",
@@ -7401,16 +8069,13 @@ function calculateShikshanupakaranRow(row){
     );
 
 
-    /*
-        ----------------------------------------
-        N = M - P
-        ----------------------------------------
-    */
+    /* ============================================================
+       N = M - P
+    ============================================================ */
 
     const N =
         M -
         P;
-
 
     set(
         "N",
@@ -7418,6 +8083,7 @@ function calculateShikshanupakaranRow(row){
     );
 
 }
+
 
 function getNextShikshanupakaranSerial(){
 
@@ -9127,127 +9793,6 @@ function collectSingleShikshanupakaranRow(row) {
 
 }
 
-/* ============================================================
-   RENDER SHIKSHANUPAKARAN PAGE
-============================================================ */
-
-function renderShikshanupakaranPage(pageNumber) {
-
-    const rows =
-        window.shikshanupakaranAllRows || [];
-
-    const rowsPerPage =
-        window.shikshanupakaranRowsPerPage || 20;
-
-
-    /* --------------------------------------------------------
-       SAFETY
-    -------------------------------------------------------- */
-
-    const totalPages =
-        Math.max(
-            1,
-            Math.ceil(
-                rows.length / rowsPerPage
-            )
-        );
-
-
-    pageNumber =
-        Math.max(
-            1,
-            Math.min(
-                pageNumber,
-                totalPages
-            )
-        );
-
-
-    window.shikshanupakaranCurrentPage =
-        pageNumber;
-
-    window.shikshanupakaranTotalPages =
-        totalPages;
-
-
-    /* --------------------------------------------------------
-       CALCULATE ROW RANGE
-    -------------------------------------------------------- */
-
-    const startIndex =
-        (pageNumber - 1) *
-        rowsPerPage;
-
-
-    const endIndex =
-        Math.min(
-            startIndex + rowsPerPage,
-            rows.length
-        );
-
-
-    const pageRows =
-        rows.slice(
-            startIndex,
-            endIndex
-        );
-
-
-    console.log(
-        "SHIKSHANUPAKARAN PAGE RENDERED:",
-        {
-            currentPage: pageNumber,
-            totalPages: totalPages,
-            rowsPerPage: rowsPerPage,
-            totalRows: rows.length,
-            startIndex: startIndex,
-            endIndex: endIndex,
-            visibleRows: pageRows.length
-        }
-    );
-
-
-    /* --------------------------------------------------------
-       CLEAR CURRENT DOM ROWS
-    -------------------------------------------------------- */
-
-    clearShikshanupakaranRows();
-
-
-    /* --------------------------------------------------------
-       RENDER ONLY CURRENT PAGE
-    -------------------------------------------------------- */
-
-    pageRows.forEach(
-        function(rowData, index) {
-
-            const actualRowIndex =
-                startIndex + index;
-
-            createShikshanupakaranRow(
-                rowData,
-                actualRowIndex
-            );
-
-        }
-    );
-
-
-    /* --------------------------------------------------------
-       UPDATE PAGINATION UI ONLY
-    -------------------------------------------------------- */
-
-    if (
-        typeof updateShikshanupakaranPaginationUI ===
-        "function"
-    ) {
-
-        updateShikshanupakaranPaginationUI();
-
-    }
-
-}
-
 
 
 /* ============================================================
@@ -9355,7 +9900,8 @@ function syncCurrentShikshanupakaranPageToMemory(){
 ============================================================ */
 
 function renderShikshanupakaranPage(
-    pageNumber = 1
+    pageNumber = 1,
+    skipSync = false
 ){
 
     /* ============================================================
@@ -9375,10 +9921,18 @@ function renderShikshanupakaranPage(
 
     /* ============================================================
        SAVE CURRENT PAGE BEFORE CHANGING PAGE
-       Only save if there is actually a rendered page.
+       
+       IMPORTANT:
+       DO NOT SYNC WHEN RENDERING AFTER DELETE.
+       
+       Otherwise the old DOM rows are copied back into memory
+       and the deleted row returns.
     ============================================================ */
 
     if(
+        !skipSync &&
+        typeof syncCurrentShikshanupakaranPageToMemory ===
+            "function" &&
         shikshanupakaranBody &&
         shikshanupakaranBody.children.length > 0
     ){
@@ -9392,11 +9946,18 @@ function renderShikshanupakaranPage(
        PAGINATION STATE
     ============================================================ */
 
-    updateShikshanupakaranPaginationState();
+    if(
+        typeof updateShikshanupakaranPaginationState ===
+            "function"
+    ){
+
+        updateShikshanupakaranPaginationState();
+
+    }
 
 
     /* ============================================================
-       NORMALIZE REQUESTED PAGE
+       NORMALIZE PAGE NUMBER
     ============================================================ */
 
     pageNumber =
@@ -9417,11 +9978,15 @@ function renderShikshanupakaranPage(
 
 
     /* ============================================================
-       CALCULATE TOTAL PAGES
+       ROWS
     ============================================================ */
 
+    const rows =
+        window.shikshanupakaranAllRows;
+
+
     const totalRows =
-        window.shikshanupakaranAllRows.length;
+        rows.length;
 
 
     const rowsPerPage =
@@ -9429,6 +9994,10 @@ function renderShikshanupakaranPage(
             window.shikshanupakaranRowsPerPage
         ) || 20;
 
+
+    /* ============================================================
+       CALCULATE TOTAL PAGES
+    ============================================================ */
 
     const totalPages =
         Math.max(
@@ -9463,20 +10032,6 @@ function renderShikshanupakaranPage(
 
 
     /* ============================================================
-       CLEAR ONLY VISIBLE DOM ROWS
-    ============================================================ */
-
-    if(
-        shikshanupakaranBody
-    ){
-
-        shikshanupakaranBody.innerHTML =
-            "";
-
-    }
-
-
-    /* ============================================================
        CALCULATE CURRENT PAGE RANGE
     ============================================================ */
 
@@ -9496,21 +10051,42 @@ function renderShikshanupakaranPage(
 
 
     /* ============================================================
+       CLEAR ONLY DOM
+       
+       NEVER clear shikshanupakaranAllRows.
+    ============================================================ */
+
+    if(
+        shikshanupakaranBody
+    ){
+
+        shikshanupakaranBody.innerHTML =
+            "";
+
+    }
+
+
+    /* ============================================================
        RENDER CURRENT PAGE
+       
+       PASS THE GLOBAL MEMORY INDEX.
     ============================================================ */
 
     for(
-        let index = startIndex;
-        index < endIndex;
-        index++
+        let globalRowIndex = startIndex;
+        globalRowIndex < endIndex;
+        globalRowIndex++
     ){
 
         const rowData =
-            window.shikshanupakaranAllRows[index];
+            rows[
+                globalRowIndex
+            ];
 
 
         createShikshanupakaranRow(
-            rowData || {}
+            rowData || {},
+            globalRowIndex
         );
 
     }
@@ -9520,7 +10096,14 @@ function renderShikshanupakaranPage(
        UPDATE PAGINATION UI
     ============================================================ */
 
-    updateShikshanupakaranPaginationUI();
+    if(
+        typeof updateShikshanupakaranPaginationUI ===
+            "function"
+    ){
+
+        updateShikshanupakaranPaginationUI();
+
+    }
 
 
     /* ============================================================
@@ -9531,13 +10114,13 @@ function renderShikshanupakaranPage(
         "SHIKSHANUPAKARAN PAGE RENDERED:",
         {
             currentPage:
-                window.shikshanupakaranCurrentPage,
+                pageNumber,
 
             totalPages:
-                window.shikshanupakaranTotalPages,
+                totalPages,
 
             rowsPerPage:
-                window.shikshanupakaranRowsPerPage,
+                rowsPerPage,
 
             totalRows:
                 totalRows,
@@ -9549,7 +10132,10 @@ function renderShikshanupakaranPage(
                 endIndex,
 
             visibleRows:
-                endIndex - startIndex
+                endIndex - startIndex,
+
+            skipSync:
+                skipSync
         }
     );
 
@@ -10681,3 +11267,1480 @@ function goToShikshanupakaranPage(page) {
     }
 
 }
+
+
+/* ============================================================
+   TALAPATRAK SYNC CARD
+============================================================ */
+
+function showTalapatrakSyncCard(
+    moje,
+    year
+){
+
+    return new Promise(
+        function(resolve){
+
+            const overlay =
+                document.getElementById(
+                    "talapatrakSyncOverlay"
+                );
+
+
+            const message =
+                document.getElementById(
+                    "talapatrakSyncMessage"
+                );
+
+
+            const confirmButton =
+                document.getElementById(
+                    "talapatrakSyncConfirmButton"
+                );
+
+
+            const cancelButton =
+                document.getElementById(
+                    "talapatrakSyncCancelButton"
+                );
+
+
+            /*
+                SAFETY CHECK
+            */
+
+            if(
+                !overlay ||
+                !message ||
+                !confirmButton ||
+                !cancelButton
+            ){
+
+                console.error(
+                    "TALAPATRAK SYNC CARD ELEMENTS NOT FOUND"
+                );
+
+                resolve(false);
+
+                return;
+
+            }
+
+
+            /*
+                MESSAGE
+            */
+
+            message.innerHTML =
+                `
+                Shikshanupakaran
+                <strong>"${moje}"</strong>
+                (${year})
+                માટે Talapatrak record નથી.
+                <br><br>
+                શું તમે આ Shikshanupakaran ને
+                Talapatrak સાથે sync કરવા માંગો છો?
+                `;
+
+
+            /*
+                SHOW
+            */
+
+            overlay.style.display =
+                "flex";
+
+
+            /*
+                CLEANUP
+            */
+
+            function closeCard(
+                result
+            ){
+
+                overlay.style.display =
+                    "none";
+
+
+                confirmButton.onclick =
+                    null;
+
+                cancelButton.onclick =
+                    null;
+
+
+                overlay.onclick =
+                    null;
+
+
+                document.removeEventListener(
+                    "keydown",
+                    handleKeydown
+                );
+
+
+                resolve(
+                    result
+                );
+
+            }
+
+
+            /*
+                CONFIRM
+            */
+
+            confirmButton.onclick =
+                function(){
+
+                    closeCard(true);
+
+                };
+
+
+            /*
+                CANCEL
+            */
+
+            cancelButton.onclick =
+                function(){
+
+                    closeCard(false);
+
+                };
+
+
+            /*
+                CLICK OUTSIDE
+            */
+
+            overlay.onclick =
+                function(event){
+
+                    if(
+                        event.target ===
+                        overlay
+                    ){
+
+                        closeCard(false);
+
+                    }
+
+                };
+
+
+            /*
+                ESCAPE
+            */
+
+            function handleKeydown(event){
+
+                if(
+                    event.key ===
+                    "Escape"
+                ){
+
+                    closeCard(false);
+
+                }
+
+            }
+
+
+            document.addEventListener(
+                "keydown",
+                handleKeydown
+            );
+
+        }
+    );
+
+}
+
+
+async function syncShikshanupakaranToTalapatrak(
+    shikshanupakaranData
+){
+
+    console.log(
+        "================================================"
+    );
+
+    console.log(
+        "SHIKSHANUPAKARAN → TALAPATRAK SYNC START"
+    );
+
+    console.log(
+        "SYNC DATA:",
+        shikshanupakaranData
+    );
+
+
+    try{
+
+        /*
+            ========================================================
+            CHECK LOGIN
+            ========================================================
+        */
+
+        if(
+            !auth ||
+            !auth.currentUser
+        ){
+
+            console.warn(
+                "SHIKSHANUPAKARAN → TALAPATRAK SYNC → NO USER"
+            );
+
+            return false;
+
+        }
+
+
+        /*
+            ========================================================
+            VALIDATE DATA
+            ========================================================
+        */
+
+        if(
+            !shikshanupakaranData
+        ){
+
+            console.error(
+                "SYNC FAILED → NO SHIKSHANUPAKARAN DATA"
+            );
+
+            return false;
+
+        }
+
+
+        /*
+            ========================================================
+            GET EXACT SHIKSHANUPAKARAN VALUES
+            ========================================================
+        */
+
+        const moje =
+            String(
+                shikshanupakaranData.moje ||
+                ""
+            ).trim();
+
+
+        const taluka =
+            String(
+                shikshanupakaranData.taluka ||
+                ""
+            ).trim();
+
+
+        const jillo =
+            String(
+                shikshanupakaranData.jillo ||
+                ""
+            ).trim();
+
+
+        const year =
+            String(
+                shikshanupakaranData.year ||
+                ""
+            ).trim();
+
+
+        const rows =
+            Array.isArray(
+                shikshanupakaranData.rows
+            )
+                ? shikshanupakaranData.rows
+                : [];
+
+
+        /*
+            ========================================================
+            REQUIRED VALUES
+            ========================================================
+        */
+
+        if(
+            !moje
+        ){
+
+            console.error(
+                "SYNC FAILED → MOJE MISSING"
+            );
+
+            return false;
+
+        }
+
+
+        if(
+            !year
+        ){
+
+            console.error(
+                "SYNC FAILED → YEAR MISSING"
+            );
+
+            return false;
+
+        }
+
+
+        console.log(
+            "SYNC TARGET:",
+            {
+                moje,
+                taluka,
+                jillo,
+                year,
+                rowCount:
+                    rows.length
+            }
+        );
+
+
+        /*
+            ========================================================
+            TALAPATRAK DOCUMENT ID
+           
+            IMPORTANT:
+            USE THE EXACT SHIKSHANUPAKARAN YEAR.
+           
+            DO NOT USE:
+            getCurrentTalapatrakYear()
+           
+            DO NOT USE:
+            currently selected Talapatrak year.
+            ========================================================
+        */
+
+        const talapatrakDocumentId =
+            getTalapatrakDocumentId(
+                moje,
+                year
+            );
+
+
+        console.log(
+            "TALAPATRAK SYNC TARGET DOCUMENT:",
+            talapatrakDocumentId
+        );
+
+
+        /*
+            ========================================================
+            CHECK WHETHER TALAPATRAK ALREADY EXISTS
+            ========================================================
+        */
+
+        const talapatrakRef =
+            db
+                .collection(
+                    "talapatraks"
+                )
+                .doc(
+                    talapatrakDocumentId
+                );
+
+
+        const talapatrakSnapshot =
+            await talapatrakRef.get();
+
+
+        /*
+            ========================================================
+            EXISTING TALAPATRAK
+           
+            If it already exists, sync directly.
+            No "create new Talapatrak" question is necessary.
+            ========================================================
+        */
+
+        if(
+            talapatrakSnapshot.exists
+        ){
+
+            console.log(
+                "TALAPATRAK ALREADY EXISTS:",
+                talapatrakDocumentId
+            );
+
+
+            const existingTalapatrak =
+                talapatrakSnapshot.data() || {};
+
+
+            const existingRows =
+                Array.isArray(
+                    existingTalapatrak.rows
+                )
+                    ? existingTalapatrak.rows
+                    : [];
+
+
+            /*
+                ----------------------------------------------------
+                EXACT ROW POSITION MAPPING
+               
+                Shikshanupakaran row 0
+                    →
+                Talapatrak row 0
+               
+                Shikshanupakaran row 1
+                    →
+                Talapatrak row 1
+               
+                etc.
+               
+                Only copy column B.
+                Preserve all other Talapatrak columns.
+                ----------------------------------------------------
+            */
+
+            const syncedRows =
+                existingRows.map(
+                    function(
+                        talapatrakRow,
+                        index
+                    ){
+
+                        const shikRow =
+                            rows[index];
+
+
+                        if(
+                            !shikRow
+                        ){
+
+                            return talapatrakRow;
+
+                        }
+
+
+                        return {
+
+                            ...talapatrakRow,
+
+                            B:
+                                shikRow.B ??
+                                ""
+
+                        };
+
+                    }
+                );
+
+
+            /*
+                ----------------------------------------------------
+                If Shikshanupakaran has MORE rows than Talapatrak,
+                create the missing Talapatrak rows.
+                ----------------------------------------------------
+            */
+
+            if(
+                rows.length >
+                existingRows.length
+            ){
+
+                for(
+                    let index =
+                        existingRows.length;
+
+                    index <
+                        rows.length;
+
+                    index++
+                ){
+
+                    const shikRow =
+                        rows[index];
+
+
+                    syncedRows.push({
+
+                        B:
+                            shikRow?.B ??
+                            ""
+
+                    });
+
+                }
+
+            }
+
+
+            await talapatrakRef.set({
+
+                moje:
+                    moje,
+
+                taluka:
+                    taluka ||
+                    existingTalapatrak.taluka ||
+                    "",
+
+                jillo:
+                    jillo ||
+                    existingTalapatrak.jillo ||
+                    "",
+
+                year:
+                    year,
+
+                rows:
+                    syncedRows,
+
+                type:
+                    "talapatrak",
+
+                userId:
+                    auth.currentUser.uid,
+
+                updatedAt:
+                    firebase.firestore.FieldValue
+                    .serverTimestamp()
+
+            }, {
+
+                merge:
+                    true
+
+            });
+
+
+            console.log(
+                "SHIKSHANUPAKARAN → TALAPATRAK SYNC SUCCESS:",
+                talapatrakDocumentId
+            );
+
+
+            return true;
+
+        }
+
+
+        /*
+            ========================================================
+            TALAPATRAK DOES NOT EXIST
+           
+            ASK THE USER THE CORRECT QUESTION.
+           
+            THIS IS THE IMPORTANT FIX.
+            ========================================================
+        */
+
+        const shouldCreateTalapatrak =
+              await showTalapatrakSyncCard(
+                  moje,
+                  year
+              );
+
+
+        /*
+            ========================================================
+            USER SAID NO
+            ========================================================
+        */
+
+        if(
+            !shouldCreateTalapatrak
+        ){
+
+            console.log(
+                "SHIKSHANUPAKARAN → TALAPATRAK SYNC CANCELLED BY USER:",
+                talapatrakDocumentId
+            );
+
+
+            return false;
+
+        }
+
+
+        /*
+            ========================================================
+            CREATE TALAPATRAK FROM SHIKSHANUPAKARAN
+           
+            IMPORTANT:
+            Use the SAME selected year.
+            ========================================================
+        */
+
+        const newTalapatrakRows =
+            rows.map(
+                function(
+                    shikRow
+                ){
+
+                    return {
+
+                        B:
+                            shikRow?.B ??
+                            ""
+
+                    };
+
+                }
+            );
+
+
+        const newTalapatrakData = {
+
+            type:
+                "talapatrak",
+
+            moje:
+                moje,
+
+            taluka:
+                taluka,
+
+            jillo:
+                jillo,
+
+            year:
+                year,
+
+            rows:
+                newTalapatrakRows,
+
+            rowCount:
+                newTalapatrakRows.length,
+
+            userId:
+                auth.currentUser.uid,
+
+            userEmail:
+                auth.currentUser.email,
+
+            createdAt:
+                firebase.firestore.FieldValue
+                .serverTimestamp(),
+
+            updatedAt:
+                firebase.firestore.FieldValue
+                .serverTimestamp()
+
+        };
+
+
+        /*
+            ========================================================
+            SAVE NEW TALAPATRAK
+            ========================================================
+        */
+
+        await talapatrakRef.set(
+            newTalapatrakData
+        );
+
+
+        console.log(
+            "================================================"
+        );
+
+        console.log(
+            "NEW TALAPATRAK CREATED FROM SHIKSHANUPAKARAN:"
+        );
+
+        console.log(
+            "Document ID:",
+            talapatrakDocumentId
+        );
+
+        console.log(
+            "Village:",
+            moje
+        );
+
+        console.log(
+            "Year:",
+            year
+        );
+
+        console.log(
+            "Rows:",
+            newTalapatrakRows.length
+        );
+
+        console.log(
+            "================================================"
+        );
+
+
+        /*
+            ========================================================
+            SUCCESS
+            ========================================================
+        */
+
+        return true;
+
+
+    }
+    catch(error){
+
+        console.error(
+            "SHIKSHANUPAKARAN → TALAPATRAK SYNC ERROR:",
+            error
+        );
+
+
+        return false;
+
+    }
+
+}
+
+
+
+/* ============================================================
+   SHIKSHANUPAKARAN CREATE CONFIRMATION MODAL
+============================================================ */
+
+function showShikshanupakaranCreateModal(
+    moje,
+    year
+) {
+
+    return new Promise(function(resolve) {
+
+        const modal =
+            document.getElementById(
+                "shikshanupakaranCreateModal"
+            );
+
+        if (!modal) {
+
+            console.error(
+                "Shikshanupakaran create modal not found."
+            );
+
+            resolve(false);
+
+            return;
+
+        }
+
+
+        const villageText =
+            document.getElementById(
+                "shikshanupakaranCreateVillage"
+            );
+
+        const yearText =
+            document.getElementById(
+                "shikshanupakaranCreateYear"
+            );
+
+
+        if (villageText) {
+
+            villageText.textContent =
+                moje || "Unnamed Village";
+
+        }
+
+
+        if (yearText) {
+
+            yearText.textContent =
+                year || "";
+
+        }
+
+
+        modal.classList.add("open");
+
+        modal.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+
+        const cancelButton =
+            document.getElementById(
+                "shikshanupakaranCreateCancel"
+            );
+
+        const confirmButton =
+            document.getElementById(
+                "shikshanupakaranCreateConfirm"
+            );
+
+
+        function closeModal(
+            result
+        ) {
+
+            modal.classList.remove(
+                "open"
+            );
+
+            modal.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+
+            document.removeEventListener(
+                "keydown",
+                handleEscape
+            );
+
+
+            resolve(result);
+
+        }
+
+
+        function handleEscape(event) {
+
+            if (
+                event.key === "Escape"
+            ) {
+
+                closeModal(false);
+
+            }
+
+        }
+
+
+        if (cancelButton) {
+
+            cancelButton.onclick =
+                function() {
+
+                    closeModal(false);
+
+                };
+
+        }
+
+
+        if (confirmButton) {
+
+            confirmButton.onclick =
+                function() {
+
+                    closeModal(true);
+
+                };
+
+        }
+
+
+        /*
+        ========================================================
+            CLICK OUTSIDE MODAL
+        ========================================================
+        */
+
+        modal.onclick =
+            function(event) {
+
+                if (
+                    event.target.classList.contains(
+                        "shikshanupakaranCreateOverlay"
+                    )
+                ) {
+
+                    closeModal(false);
+
+                }
+
+            };
+
+
+        document.addEventListener(
+            "keydown",
+            handleEscape
+        );
+
+
+        /*
+        ========================================================
+            FOCUS CONFIRM BUTTON
+        ========================================================
+        */
+
+        setTimeout(
+            function() {
+
+                if (confirmButton) {
+
+                    confirmButton.focus();
+
+                }
+
+            },
+            50
+        );
+
+    });
+
+}
+
+
+
+
+
+
+/* ============================================================
+   SHIKSHANUPAKARAN ALREADY EXISTS MODAL
+============================================================ */
+
+function showShikshanupakaranAlreadyExistsModal(
+    moje,
+    year
+) {
+
+    return new Promise(function(resolve) {
+
+        const modal =
+            document.getElementById(
+                "shikshanupakaranAlreadyExistsModal"
+            );
+
+        if (!modal) {
+
+            console.error(
+                "Shikshanupakaran already-exists modal not found."
+            );
+
+            resolve();
+
+            return;
+
+        }
+
+
+        const villageText =
+            document.getElementById(
+                "shikshanupakaranExistingVillage"
+            );
+
+
+        const yearText =
+            document.getElementById(
+                "shikshanupakaranExistingYear"
+            );
+
+
+        if (villageText) {
+
+            villageText.textContent =
+                moje || "Unnamed Village";
+
+        }
+
+
+        if (yearText) {
+
+            yearText.textContent =
+                year || "";
+
+        }
+
+
+        modal.classList.add("open");
+
+        modal.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+
+        const closeButton =
+            document.getElementById(
+                "shikshanupakaranExistingClose"
+            );
+
+
+        function closeModal() {
+
+            modal.classList.remove(
+                "open"
+            );
+
+            modal.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+
+            document.removeEventListener(
+                "keydown",
+                handleEscape
+            );
+
+
+            resolve();
+
+        }
+
+
+        function handleEscape(event) {
+
+            if (
+                event.key === "Escape"
+            ) {
+
+                closeModal();
+
+            }
+
+        }
+
+
+        if (closeButton) {
+
+            closeButton.onclick =
+                function() {
+
+                    closeModal();
+
+                };
+
+        }
+
+
+        modal.onclick =
+            function(event) {
+
+                if (
+                    event.target.classList.contains(
+                        "shikshanupakaranExistingOverlay"
+                    )
+                ) {
+
+                    closeModal();
+
+                }
+
+            };
+
+
+        document.addEventListener(
+            "keydown",
+            handleEscape
+        );
+
+
+        setTimeout(
+            function() {
+
+                if (closeButton) {
+
+                    closeButton.focus();
+
+                }
+
+            },
+            50
+        );
+
+    });
+
+}
+
+
+
+
+/* ============================================================
+   SHIKSHANUPAKARAN → TALAPATRAK SYNC CARD
+============================================================ */
+
+let shikshanupakaranTalapatrakSyncResolver =
+    null;
+
+
+/* ============================================================
+   SHOW SYNC CARD
+============================================================ */
+
+function showShikshanupakaranTalapatrakSyncCard({
+
+    moje,
+    year
+
+}){
+
+    return new Promise(
+        function(resolve){
+
+            const overlay =
+                document.getElementById(
+                    "shikshanupakaranTalapatrakSyncOverlay"
+                );
+
+
+            const message =
+                document.getElementById(
+                    "shikshanupakaranTalapatrakSyncMessage"
+                );
+
+
+            const confirmButton =
+                document.getElementById(
+                    "confirmShikshanupakaranTalapatrakSync"
+                );
+
+
+            const cancelButton =
+                document.getElementById(
+                    "cancelShikshanupakaranTalapatrakSync"
+                );
+
+
+            if(
+                !overlay ||
+                !message ||
+                !confirmButton ||
+                !cancelButton
+            ){
+
+                console.error(
+                    "SHIKSHANUPAKARAN → TALAPATRAK SYNC CARD ELEMENTS NOT FOUND"
+                );
+
+
+                resolve(false);
+
+                return;
+
+            }
+
+
+            /*
+                --------------------------------------------
+                MESSAGE
+                --------------------------------------------
+            */
+
+            message.textContent =
+                `Shikshanupakaran "${moje}" (${year}) માટે Talapatrak record નથી.`;
+
+
+            /*
+                --------------------------------------------
+                SHOW CARD
+                --------------------------------------------
+            */
+
+            overlay.style.display =
+                "flex";
+
+
+            document.body.classList.add(
+                "shikshanupakaranSyncCardOpen"
+            );
+
+
+            /*
+                --------------------------------------------
+                STORE RESOLVER
+                --------------------------------------------
+            */
+
+            shikshanupakaranTalapatrakSyncResolver =
+                resolve;
+
+
+            /*
+                --------------------------------------------
+                RESET BUTTONS
+                --------------------------------------------
+            */
+
+            confirmButton.disabled =
+                false;
+
+            cancelButton.disabled =
+                false;
+
+
+            /*
+                --------------------------------------------
+                FOCUS
+                --------------------------------------------
+            */
+
+            setTimeout(
+                function(){
+
+                    confirmButton.focus();
+
+                },
+                50
+            );
+
+        }
+    );
+
+}
+
+
+
+/* ============================================================
+   SYNC CARD BUTTON HANDLERS
+============================================================ */
+
+function initializeShikshanupakaranTalapatrakSyncCard(){
+
+    const overlay =
+        document.getElementById(
+            "shikshanupakaranTalapatrakSyncOverlay"
+        );
+
+
+    const confirmButton =
+        document.getElementById(
+            "confirmShikshanupakaranTalapatrakSync"
+        );
+
+
+    const cancelButton =
+        document.getElementById(
+            "cancelShikshanupakaranTalapatrakSync"
+        );
+
+
+    if(
+        !overlay ||
+        !confirmButton ||
+        !cancelButton
+    ){
+
+        console.warn(
+            "SHIKSHANUPAKARAN → TALAPATRAK SYNC CARD INITIALIZATION SKIPPED"
+        );
+
+        return;
+
+    }
+
+
+    /*
+        ========================================================
+        CONFIRM
+        ========================================================
+    */
+
+    confirmButton.addEventListener(
+        "click",
+        function(){
+
+            if(
+                !shikshanupakaranTalapatrakSyncResolver
+            ){
+
+                return;
+
+            }
+
+
+            const resolve =
+                shikshanupakaranTalapatrakSyncResolver;
+
+
+            shikshanupakaranTalapatrakSyncResolver =
+                null;
+
+
+            closeShikshanupakaranTalapatrakSyncCard();
+
+
+            resolve(true);
+
+        }
+    );
+
+
+    /*
+        ========================================================
+        CANCEL
+        ========================================================
+    */
+
+    cancelButton.addEventListener(
+        "click",
+        function(){
+
+            if(
+                !shikshanupakaranTalapatrakSyncResolver
+            ){
+
+                closeShikshanupakaranTalapatrakSyncCard();
+
+                return;
+
+            }
+
+
+            const resolve =
+                shikshanupakaranTalapatrakSyncResolver;
+
+
+            shikshanupakaranTalapatrakSyncResolver =
+                null;
+
+
+            closeShikshanupakaranTalapatrakSyncCard();
+
+
+            resolve(false);
+
+        }
+    );
+
+
+    /*
+        ========================================================
+        CLICK OUTSIDE CARD = CANCEL
+        ========================================================
+    */
+
+    overlay.addEventListener(
+        "click",
+        function(event){
+
+            if(
+                event.target !== overlay
+            ){
+
+                return;
+
+            }
+
+
+            if(
+                !shikshanupakaranTalapatrakSyncResolver
+            ){
+
+                closeShikshanupakaranTalapatrakSyncCard();
+
+                return;
+
+            }
+
+
+            const resolve =
+                shikshanupakaranTalapatrakSyncResolver;
+
+
+            shikshanupakaranTalapatrakSyncResolver =
+                null;
+
+
+            closeShikshanupakaranTalapatrakSyncCard();
+
+
+            resolve(false);
+
+        }
+    );
+
+
+    /*
+        ========================================================
+        ESCAPE = CANCEL
+        ========================================================
+    */
+
+    document.addEventListener(
+        "keydown",
+        function(event){
+
+            if(
+                event.key !== "Escape"
+            ){
+
+                return;
+
+            }
+
+
+            if(
+                overlay.style.display ===
+                "none"
+            ){
+
+                return;
+
+            }
+
+
+            if(
+                !shikshanupakaranTalapatrakSyncResolver
+            ){
+
+                closeShikshanupakaranTalapatrakSyncCard();
+
+                return;
+
+            }
+
+
+            const resolve =
+                shikshanupakaranTalapatrakSyncResolver;
+
+
+            shikshanupakaranTalapatrakSyncResolver =
+                null;
+
+
+            closeShikshanupakaranTalapatrakSyncCard();
+
+
+            resolve(false);
+
+        }
+    );
+
+}
+
+
+/* ============================================================
+   CLOSE CARD
+============================================================ */
+
+function closeShikshanupakaranTalapatrakSyncCard(){
+
+    const overlay =
+        document.getElementById(
+            "shikshanupakaranTalapatrakSyncOverlay"
+        );
+
+
+    if(overlay){
+
+        overlay.style.display =
+            "none";
+
+    }
+
+
+    document.body.classList.remove(
+        "shikshanupakaranSyncCardOpen"
+    );
+
+}
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function(){
+
+        initializeShikshanupakaranTalapatrakSyncCard();
+
+    }
+);
